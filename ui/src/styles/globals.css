@@ -1,0 +1,240 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 
+  ───────────────────────────────────
+  Soft‑Health UI Style‑Guide
+  – Clean • Modern • Friendly –
+  Source‑of‑truth for colors, type,
+  spacing, components & patterns.
+  ───────────────────────────────────
+*/
+
+/* CSS Custom Properties (Design Tokens) */
+:root {
+  /* Brand Palette */
+  --c-teal-50: #E0F2F1;
+  --c-teal-100: #B2DFDB;
+  --c-teal-300: #4DB6AC;   /* Primary */
+  --c-teal-400: #26A69A;
+  --c-teal-600: #00897B;
+
+  --c-pink-100: #FCE4EC;
+  --c-pink-300: #F48FB1;
+  --c-pink-400: #EF9A9A;   /* Accent (alert) */
+
+  --c-gray-50: #FAFAFA;   /* Canvas */
+  --c-gray-100: #F5F5F5;  /* Card bg */
+  --c-gray-300: #E0E0E0;  /* Borders */
+  --c-gray-600: #757575;  /* Secondary text */
+  --c-gray-900: #212121;  /* Primary text */
+
+  /* Semantic / Feedback */
+  --c-success: #4CAF50;
+  --c-info: var(--c-teal-400);
+  --c-warning: #FFC107;
+  --c-error: #E53935;
+
+  /* Typography */
+  --font-sans: 'Inter', 'Roboto', 'Segoe UI', sans-serif;
+
+  --fz-h1: 2rem;     /* 32px */
+  --fz-h2: 1.5rem;   /* 24px */
+  --fz-h3: 1.25rem;  /* 20px */
+  --fz-body: 1rem;   /* 16px */
+  --fz-small: .875rem;/* 14px */
+
+  --lh-tight: 1.2;
+  --lh-body: 1.5;
+
+  /* Spacing (scale — 8‑pt) */
+  --sp-0: 0;
+  --sp-1: 0.25rem;  /* 4px  */
+  --sp-2: 0.5rem;   /* 8px  */
+  --sp-3: 0.75rem;  /* 12px */
+  --sp-4: 1rem;     /* 16px */
+  --sp-5: 1.5rem;   /* 24px */
+  --sp-6: 2rem;     /* 32px */
+  --sp-8: 3rem;     /* 48px */
+
+  /* Borders & Radius */
+  --radius-lg: 1rem; /* 16px (soft & friendly) */
+  --radius-md: .5rem;
+  --radius-sm: .25rem;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 4px rgba(0,0,0,.06);
+  --shadow-md: 0 2px 8px rgba(0,0,0,.10);
+  --shadow-lg: 0 4px 16px rgba(0,0,0,.12);
+
+  /* Motion */
+  --easing: cubic-bezier(0.4, 0, 0.2, 1);
+  --timing-fast: .15s;
+  --timing-base: .3s;
+}
+
+/* Global Reset & Base Tags */
+@layer base {
+  html, body {
+    @apply m-0 p-0 font-sans bg-gray-50 text-gray-900;
+    line-height: var(--lh-body);
+  }
+  
+  h1, h2, h3 {
+    @apply m-0 mb-3;
+    line-height: var(--lh-tight);
+  }
+  
+  h1 {
+    font-size: var(--fz-h1);
+  }
+  
+  h2 {
+    font-size: var(--fz-h2);
+  }
+  
+  h3 {
+    font-size: var(--fz-h3);
+  }
+  
+  p {
+    @apply m-0 mb-3;
+  }
+  
+  small {
+    font-size: var(--fz-small);
+  }
+  
+  a {
+    @apply text-teal-400 no-underline;
+  }
+  
+  a:hover {
+    @apply underline;
+  }
+}
+
+/* Component Classes */
+@layer components {
+  /* Button */
+  .btn {
+    @apply inline-flex items-center gap-2 px-4 py-2 rounded-full border-none bg-teal-300 text-white font-medium cursor-pointer;
+    transition: background var(--timing-fast) var(--easing), transform var(--timing-fast) var(--easing);
+  }
+  
+  .btn:hover {
+    @apply bg-teal-400 no-underline;
+  }
+  
+  .btn:active {
+    transform: scale(.97);
+  }
+  
+  .btn-secondary {
+    @apply bg-gray-100 text-teal-600;
+  }
+  
+  .btn-ghost {
+    @apply bg-transparent text-teal-600;
+  }
+  
+  .btn-ghost:hover {
+    @apply bg-teal-50;
+  }
+  
+  /* Card */
+  .card {
+    @apply bg-white rounded-lg shadow-sm p-5 flex flex-col gap-3;
+  }
+  
+  .card-metric {
+    @apply items-start w-full p-4;
+  }
+  
+  .card-metric .metric-value {
+    @apply text-[1.75rem] font-semibold;
+  }
+  
+  .card-metric[data-critical="true"] {
+    @apply bg-pink-100;
+  }
+  
+  /* Input */
+  .input {
+    @apply w-full py-3 px-4 border border-gray-300 rounded-md text-body;
+  }
+  
+  .input:focus {
+    @apply outline-none border-teal-400;
+    box-shadow: 0 0 0 3px rgba(38, 166, 154, 0.3);
+    transition: border-color var(--timing-fast);
+  }
+  
+  /* Navbar */
+  .navbar {
+    @apply sticky top-0 bg-white py-2 px-6 flex gap-3 shadow-sm;
+  }
+  
+  .nav-icon {
+    @apply w-12 h-12 rounded-lg bg-teal-50 text-teal-600 grid place-items-center text-xl cursor-pointer;
+    transition: background var(--timing-fast);
+  }
+  
+  .nav-icon:hover {
+    @apply bg-teal-100;
+  }
+  
+  /* Modal */
+  .modal {
+    @apply fixed inset-0 grid place-items-center bg-black bg-opacity-40 invisible opacity-0;
+    transition: opacity var(--timing-base) var(--easing);
+  }
+  
+  .modal[open] {
+    @apply visible opacity-100;
+  }
+  
+  .modal-box {
+    @apply bg-white rounded-lg p-6 max-w-md w-[90%] shadow-lg relative;
+  }
+  
+  .modal-box h2 {
+    @apply mt-0;
+  }
+  
+  .modal-close {
+    @apply absolute top-2 right-2 bg-transparent border-none text-2xl cursor-pointer text-gray-600;
+  }
+  
+  /* Toast */
+  .toast {
+    @apply fixed bottom-6 right-6 bg-gray-900 text-white py-3 px-5 rounded-md opacity-0 pointer-events-none translate-y-4;
+    transition: opacity var(--timing-base), transform var(--timing-base);
+  }
+  
+  .toast[show] {
+    @apply opacity-100 pointer-events-auto translate-y-0;
+  }
+  
+  /* Tag */
+  .tag {
+    @apply inline-block px-2 rounded-full bg-gray-100 text-small;
+  }
+}
+
+/* Utility Classes */
+@layer utilities {
+  .flex-center {
+    @apply flex justify-center items-center;
+  }
+  
+  .grid-center {
+    @apply grid place-items-center;
+  }
+  
+  /* Remove circular dependency by not using @apply */
+  .text-center {
+    text-align: center;
+  }
+} 
