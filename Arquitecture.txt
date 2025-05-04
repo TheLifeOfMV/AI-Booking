@@ -43,11 +43,22 @@ batches:
       • Expose public read endpoints for specialties and slots.
     instructions: |
       ### Interface steps
-      1. Scaffold Next.js app with /login, /booking, /bookings/:id, and /admin routes.
-      2. Build reusable atoms: Button, Card, Avatar, Badge, CalendarStrip, TimeSlotPicker.
-      3. Compose the *Channel Selection* and *Dashboard* pages per PRD mock ‑‑ wireframes first.
-      4. Add a protected AdminLayout with table views and modal editors.
-      5. Integrate axios‑based API layer with SWR hooks for useSpecialties, useSlots, useBookings.
+      1. *Splash & IntroSlides View (/intro)* – 3‑slide carousel (localStorage “seen” flag) with Skip/Next, brand graphics, and CTA to /channel.
+      2. *Login & Signup View (/login)* – responsive form (email/phone), client‑side validation, POST to /auth/login, then route guard redirect.
+      3. *Channel Selection View (/channel)* – three CTA cards (Phone Call, WhatsApp, In‑App); on click either invoke agent handler or router.push('/booking/specialty').
+      4. *Specialty Selection View (/booking/specialty)* – horizontal card carousel populated via GET /specialties; onSelect writes selectedSpecialty to store.
+      5. *Date Selection View (/booking/date)* – 14‑day calendar strip component; on date pick fetches doctors for specialty/date.
+      6. *Doctor List View (/booking/doctor)* – grid of doctor cards (avatar, rating, experience); selecting one sets selectedDoctor and routes to slots.
+      7. *Time‑Slot Picker View (/booking/slot)* – grid of available times from GET /slots; choosing a slot stores draftBooking.
+      8. *Booking Confirmation View (/booking/confirm)* – summary card (specialty, doctor, date/time) + Confirm button → POST /bookings.
+      9. *Booking Success View (/booking/success)* – thank‑you banner, add‑to‑calendar link, “View My Bookings” button.
+      10. *Upcoming Bookings View (/bookings)* – list future/past bookings with status badges and actions (reschedule/cancel).
+      11. *Booking Detail View (/bookings/:id)* – detailed record, doctor contact link, cancel/reschedule controls.
+      12. *Admin Dashboard View (/admin)* – KPI summary cards (bookings/day, utilisation) and quick links.
+      13. *Admin Users View (/admin/users)* – searchable table of patients; row click opens edit modal.
+      14. *Admin Doctors View (/admin/doctors)* – table with credential status column, approve toggle, edit modal.
+      15. *Admin Bookings View (/admin/bookings)* – global bookings table with filters, bulk cancel/refund, impersonation button.
+      16. *Admin Doctor Edit Modal* – multi‑step form (profile, specialties, availability) with optimistic UI save.
       ### Logic steps
       1. Define SQL tables: users, doctors, specialties, slots, bookings, roles.
       2. Implement BookingService.create():
@@ -117,3 +128,6 @@ implementation_guidance:
     • Use playwright for end‑to‑end test reproduction; record failing flows automatically.
 
 output_format: "YAML"
+
+
+new 
