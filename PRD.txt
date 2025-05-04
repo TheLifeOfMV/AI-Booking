@@ -1,0 +1,146 @@
+1  Purpose & Scope
+Build a multi‑channel booking system that lets patients reserve appointments with licensed doctors through phone call, WhatsApp, or an in‑app flow.
+Key constraints: no payment collection in MVP, Spanish‑only AI assistant, embeddable widget + open API for partner sites, and admin tools for global oversight.
+
+2  Personas & Roles
+Persona / Role	Primary Goals	Key Capabilities
+Patient	• Find the right specialist • Book quickly • Receive reminders	• Multi‑channel booking • View upcoming / past visits • Cancel / reschedule
+Doctor	• Keep calendar full • Manage availability • Review patient list	• Maintain profile & slots • View bookings • Mark consultation as done
+Clinic Assistant	• Manage multiple doctors’ calendars	• Edit slots on doctors’ behalf • Confirm attendance
+Super‑Admin	• Governance, data integrity, analytics	• CRUD any record • Impersonate any user • Access audit logs
+AI WhatsApp/Voice Agent	• Handle natural‑language booking tasks	• Conversational slot search • Create bookings • Send reminders
+
+3  User Journey (Happy Path)
+App Launch & Intro
+
+Splash screen with brand + “Get Started”.
+
+On first run, an interactive intro (3 slides) explains the three booking options.
+
+Channel Selection
+
+Screen presents: “Phone Call” | “WhatsApp” | “In App”.
+
+If Phone Call → user enters number → AI agent calls, gathers intent, books, and sends confirmation via WhatsApp + e‑mail.
+
+If WhatsApp → deep‑link opens chat with pre‑filled “Start” message → AI agent continues flow.
+
+If In App → proceed to step 3.
+
+Dashboard (In‑App Flow)
+
+Specialties carousel (Dentist, Cardiologist, etc.) – horizontally scrollable cards with icons/photos.
+
+User taps a specialty → calendar strip for the next 14 days appears.
+
+After picking a date, a doctor list grid shows profile card + rating + years experience.
+
+Selecting a doctor opens a time‑slot picker (20‑/40‑/60‑min blocks).
+
+“Confirm” → booking stored; success screen shows details + add‑to‑calendar button.
+
+Post‑Booking Lifecycle
+
+Reminders at T‑24 h and T‑1 h (WhatsApp + e‑mail).
+
+After consultation, T + 2 h feedback survey.
+
+Patient can cancel/reschedule inside app up to 24 h ahead without penalty (no payments taken).
+
+4  Functional Requirements
+4.1 Patient Functions
+Account sign‑up / login (optional guest flow).
+
+View onboarding intro; choose booking channel.
+
+Search by specialty → date → doctor → time.
+
+View, cancel, reschedule bookings.
+
+Notification preferences (enable/disable e‑mail or SMS; WhatsApp mandatory).
+
+4.2 Doctor Functions
+Profile management (bio, specialties, credentials).
+
+Calendar management (add/edit/remove slots, bulk import).
+
+View day & week agenda.
+
+Mark visit as completed / no‑show.
+
+4.3 Clinic Assistant Functions
+Switch between managed doctors.
+
+Perform all doctor calendar tasks on their behalf.
+
+4.4 AI Agent Functions
+Natural‑language understanding (Spanish) to:
+
+Detect specialty, preferred date/time, doctor preference.
+
+Offer earliest available slots.
+
+Create, cancel, reschedule bookings.
+
+Persist encrypted conversation transcripts for 5 years.
+
+4.5 Admin Functions
+Global search & edit (users, doctors, bookings).
+
+Approve doctor credentials before first listing.
+
+Role & permission management.
+
+Real‑time analytics dashboard (bookings/day, utilisation, channel split).
+
+System audit log export.
+
+4.6 Open API
+Public endpoints: GET /specialties, GET /slots, POST /bookings, PATCH /bookings/{id}, DELETE /bookings/{id}.
+
+Webhooks: booking.created, booking.updated, booking.cancelled.
+
+Auth: OAuth 2 client‑credentials or API token.
+
+Rate limit baseline 120 req/min.
+
+5  Non‑Functional Requirements
+Category	Target
+Performance	≤ 200 ms median API latency; ≤ 1 s FMP on 3G mobile
+Scalability	5 k MAU, 200 concurrent bookings peak
+Availability	99.9 % monthly uptime
+Security	AES‑256 at rest, TLS 1.3 in transit; 2FA for doctors & admins
+Compliance	Habeas Data (Colombia), GDPR‑aligned; HIPAA‑friendly design
+Accessibility	WCAG 2.1 AA for web & mobile views
+Budget	Cloud spend ≤ USD 1 k/mo for MVP
+
+6  Roadmap & Milestones (value‑ordered)
+Phase	Scope	Target Month
+MVP	Core in‑app booking + WhatsApp/Voice agent + admin dashboard + API	M 3
+Widget GA	2‑line embed code for partner sites + public docs	M 4
+Multi‑clinic mode	Tenancy, assistant role, aggregated analytics	M 5
+Video Consultations	Secure video links & virtual waiting room	M 6
+Multi‑language AI	Add English & Portuguese NLP models	M 7
+
+7  Acceptance Criteria (MVP)
+A first‑time patient can complete an in‑app booking in ≤ 60 s.
+
+AI agent (WhatsApp) books a slot with ≥ 95 % success on first turn.
+
+Doctors can add, edit, and delete slots; changes propagate in < 5 s.
+
+Admin can impersonate any user and edit a booking.
+
+API returns correct slot data and emits webhooks for all create/update/cancel events.
+
+Median end‑to‑end transaction (API) latency ≤ 200 ms under 200 concurrent users.
+
+Pen‑test yields no critical vulnerabilities (OWASP Top‑10).
+
+8  Risks & Mitigations
+Risk	Impact	Mitigation
+AI misunderstanding patient intent	Mis‑bookings, poor UX	Confirmation step + quick edit link; continuous NLP tuning
+Doctor no‑shows (no payment penalty)	Patient churn	Automated reminders to doctors; flag low‑reliability profiles
+Data‑privacy breach	Legal penalties	Encryption, role‑based access, annual audits
+Low adoption by doctors	Empty inventory	Early partnership program with clinics; bulk onboarding tools
+Scalability bottlenecks	Downtime	Horizontal‑scale architecture, load tests before launch

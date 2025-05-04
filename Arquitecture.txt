@@ -1,0 +1,119 @@
+project:
+  name: "ai‑doctor‑booking"
+  description: "Multi‑channel platform for patients to book medical appointments via app, WhatsApp or phone."
+
+principles:
+  pragmatism:
+    summary: >
+      Uses production‑proven, well‑documented tools with huge talent pools—minimising ramp‑up time,
+      enabling rapid iteration, and fitting comfortably in a USD 1 k/mo launch budget.
+  separation_of_concerns:
+    summary: >
+      Responsibilities are split cleanly into UI components vs. client‑side state (front‑end) and
+      transport/API vs. business rules/data (back‑end); each layer exposes an explicit, typed contract.
+
+framework_choices:
+  backend: "FastAPI + SQL ORM + ASGI event loop"
+  frontend: "React (Next.js) + Zustand state store"
+  rationale: |
+    • FastAPI’s async, OpenAPI‑first nature maps to REST + webhooks and keeps latency low.
+    • Python ecosystem excels for NLP—re‑using it for HTTP reduces infra complexity.
+    • Next.js offers SEO for the marketing site plus a hybrid mobile PWA without extra code.
+    • Zustand is a dead‑simple, boilerplate‑free store that avoids Redux overhead.
+
+architecture:
+  backend:
+    layers:
+      logic: "Domain services (BookingService, SlotService, NLPService), SQL tables, cron tasks."
+      interface: "REST+JSON endpoints, OAuth2/JWT auth, webhook emitter."
+  frontend:
+    layers:
+      logic: "Zustand stores, React context guards, SWR data hooks."
+      interface: "Tailwind‑styled components, accessible modal & calendar widgets."
+  communication:
+    pattern: "Pure REST for internal + external callers; outbound webhooks for partners."
+    error_strategy: "Idempotent POSTs, 3‑retry exponential back‑off, circuit‑breaker on third‑party calls."
+
+batches:
+  - name: "core_essential"
+    approx_loc: 900
+    objectives: |
+      • Deliver the end‑to‑end in‑app booking flow.
+      • Provide admin CRUD over users, doctors, bookings.
+      • Expose public read endpoints for specialties and slots.
+    instructions: |
+      ### Interface steps
+      1. Scaffold Next.js app with /login, /booking, /bookings/:id, and /admin routes.
+      2. Build reusable atoms: Button, Card, Avatar, Badge, CalendarStrip, TimeSlotPicker.
+      3. Compose the *Channel Selection* and *Dashboard* pages per PRD mock ‑‑ wireframes first.
+      4. Add a protected AdminLayout with table views and modal editors.
+      5. Integrate axios‑based API layer with SWR hooks for useSpecialties, useSlots, useBookings.
+      ### Logic steps
+      1. Define SQL tables: users, doctors, specialties, slots, bookings, roles.
+      2. Implement BookingService.create():
+         • validate slot still open   • mark slot reserved   • emit booking.created.
+      3. SlotService.list_available(date, specialty) → SQL JOIN + gap‑solver.
+      4. Add /api/v1/* endpoints: GET /specialties, GET /slots, POST /bookings.
+      5. Secure all endpoints with OAuth Password + JWT; issue tokens on /auth/login.
+      6. Seed DB with 3 specialties, 3 doctors, 15 demo slots.
+
+  - name: "core_important"
+    approx_loc: 950
+    objectives: |
+      • Implement WhatsApp + Voice AI agent flow.
+      • Add reminders & notification preferences.
+      • Publish partner‑facing widget & booking webhooks.
+    instructions: |
+      ### Interface steps
+      1. Build two‑line <script> snippet that injects an <iframe> pointing to /embed.
+      2. Create /embed micro‑UI: specialty → date → doctor → time, auto‑posts to parent on success.
+      3. Preference panel /settings/notifications with toggles for email/SMS.
+      ### Logic steps
+      1. Integrate Twilio (WhatsApp + Programmable Voice) via webhooks:
+         • On inbound message/call → NLPService.intent(text) → proceed.
+      2. NLPService (spaCy + rule templates) → returns {specialty,date,time}.
+      3. Agent workflow: suggest earliest 3 slots → on confirmation call BookingService.create().
+      4. Reminder job: cron every minute → send T‑24h & T‑1h WhatsApp templates.
+      5. Implement POST /webhooks/partner with HMAC signature; document in OpenAPI.
+
+  - name: "non_core_important"
+    approx_loc: 750
+    objectives: |
+      • Multi‑clinic tenancy and assistant role.
+      • Real‑time analytics dashboard for admins.
+    instructions: |
+      ### Interface steps
+      1. Extend Admin UI with clinic switcher dropdown (visible to super‑admins).
+      2. Add /analytics page: cards for bookings/day, utilisation%, channel split (chart.js).
+      ### Logic steps
+      1. Add clinics table; doctors reference clinic_id.
+      2. Role middleware: ASSISTANT may access doctors where clinic_id matches.
+      3. Materialised view or SQL CTE for daily aggregates; expose /stats/summary.
+      4. Use Server‑Sent Events to push live updates to /analytics.
+
+  - name: "non_core_optional"
+    approx_loc: 600
+    objectives: |
+      • Video‑visit support with virtual waiting room.
+      • Multi‑language (EN/PT) NLP extension.
+    instructions: |
+      ### Interface steps
+      1. Add “Virtual” toggle on doctor cards; show join‑video button at T‑5 min.
+      2. Waiting‑room page with doctor avatar & status indicator.
+      ### Logic steps
+      1. Integrate WebRTC provider SDK; create one‑time room per booking.
+      2. Extend NLPService with language‑auto‑detect and extra intent patterns.
+      3. Update reminders to include video link when virtual.
+
+implementation_guidance:
+  planning: |
+    • Lock sprint goals to individual batches; never mix interface & logic stories.
+    • Run load‑test after each batch completes before moving on.
+  coding: |
+    • Write granular unit tests first; aim for ≥ 80 % coverage on services.
+    • Enforce typed contracts: pydantic models on the back‑end, TypeScript types on the front‑end.
+  debugging: |
+    • Single “trace‑id” header propagates through UI → API → logs.
+    • Use playwright for end‑to‑end test reproduction; record failing flows automatically.
+
+output_format: "YAML"
