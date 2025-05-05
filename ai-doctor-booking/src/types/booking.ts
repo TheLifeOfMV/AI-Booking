@@ -32,4 +32,12 @@ export interface Booking extends DraftBooking {
   userId: string;
   status: 'confirmed' | 'cancelled' | 'completed' | 'pending';
   createdAt: Date;
+  
+  // Extended properties for UI display
+  doctorName: string;
+  doctorAvatar?: string;
+  specialtyName: string;
+  slotTime: string;
+  location: string;
+  price: number;
 } 
