@@ -4,39 +4,50 @@ import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useBookingStore } from '../../../store/bookingStore';
 import { TimeSlot } from '../../../types/booking';
+import Image from 'next/image';
 
-const SlotPickerView = () => {
+const TimeSlotPickerView = () => {
   const router = useRouter();
   const { 
     selectedSpecialty, 
     selectedDate, 
-    selectedDoctor, 
+    selectedDoctor,
     selectedSlot,
     setSelectedSlot,
     createDraftBooking
   } = useBookingStore();
 
   useEffect(() => {
-    if (!selectedSpecialty || !selectedDate || !selectedDoctor) {
+    // If no doctor is selected, redirect back
+    if (!selectedDoctor || !selectedDate || !selectedSpecialty) {
       router.push('/booking/doctor');
       return;
     }
-  }, [selectedSpecialty, selectedDate, selectedDoctor, router]);
+  }, [selectedDoctor, selectedDate, selectedSpecialty, router]);
 
-  const handleSlotSelect = (slotId: string) => {
-    const slot = selectedDoctor?.availableSlots.find((s: TimeSlot) => s.id === slotId);
-    if (slot) {
-      setSelectedSlot(slot);
+  const handleSlotSelect = (slot: TimeSlot) => {
+    setSelectedSlot(slot);
+  };
+
+  const handleContinue = () => {
+    if (selectedSlot) {
+      createDraftBooking();
+      router.push('/booking/confirm');
     }
   };
 
-  const handleConfirm = () => {
-    createDraftBooking();
-    router.push('/booking/confirm');
+  // Format date to display
+  const formatDate = (date: Date | null) => {
+    if (!date) return '';
+    return date.toLocaleDateString('en-US', { 
+      weekday: 'long', 
+      month: 'long', 
+      day: 'numeric' 
+    });
   };
 
   if (!selectedDoctor) {
-    return <div className="p-6 text-center">Loading...</div>;
+    return null; // This prevents rendering while redirecting
   }
 
   return (
@@ -49,55 +60,64 @@ const SlotPickerView = () => {
           </span>
         )}
       </div>
-      
-      <div className="mb-6">
-        <p className="text-medium-grey text-sm mb-1">Selected Doctor</p>
-        <p className="font-medium">{selectedDoctor.name}</p>
-      </div>
-      
-      <div className="mb-6">
-        <p className="text-medium-grey text-sm mb-1">Selected Date</p>
-        <p className="font-medium">
-          {selectedDate?.toLocaleDateString('en-US', { 
-            weekday: 'long', 
-            month: 'long', 
-            day: 'numeric' 
-          })}
-        </p>
-      </div>
-      
-      <div className="mb-8">
-        <p className="text-medium-grey text-sm mb-4">Available Time Slots</p>
-        <div className="grid grid-cols-3 gap-3">
-          {selectedDoctor.availableSlots.map((slot: TimeSlot) => (
-            <button
-              key={slot.id}
-              className={`py-2 px-3 rounded-lg text-sm font-medium ${
-                selectedSlot?.id === slot.id 
-                  ? 'bg-primary text-white' 
-                  : 'bg-light-grey text-dark-grey'
-              }`}
-              onClick={() => handleSlotSelect(slot.id)}
-            >
-              {slot.time}
-            </button>
-          ))}
+
+      <div className="bg-white rounded-xl shadow-sm p-4 mb-6">
+        <div className="flex items-center gap-4 mb-3">
+          <div className="w-12 h-12 bg-light-grey rounded-full flex-shrink-0 overflow-hidden">
+            {selectedDoctor.avatarUrl && (
+              <Image 
+                src={selectedDoctor.avatarUrl} 
+                alt={selectedDoctor.name}
+                width={48}
+                height={48}
+                className="object-cover w-full h-full"
+              />
+            )}
+          </div>
+          <div>
+            <h3 className="font-semibold text-dark-grey">{selectedDoctor.name}</h3>
+            <div className="flex items-center text-sm text-medium-grey">
+              <span className="text-amber-400 mr-1">★</span>
+              <span>{selectedDoctor.rating}</span>
+            </div>
+          </div>
         </div>
+        
+        <p className="text-sm text-medium-grey mb-2">{selectedDoctor.experience}</p>
+        <p className="text-sm text-medium-grey">{formatDate(selectedDate)}</p>
       </div>
       
-      <button
+      <h2 className="font-semibold mb-4">Available Time Slots</h2>
+      
+      <div className="grid grid-cols-3 gap-3 mb-8">
+        {selectedDoctor.availableSlots.map((slot: TimeSlot) => (
+          <div 
+            key={slot.id}
+            className={`text-center py-2 rounded-lg cursor-pointer transition-colors ${
+              selectedSlot?.id === slot.id 
+                ? 'bg-primary text-white' 
+                : 'bg-light-grey text-dark-grey'
+            }`}
+            onClick={() => handleSlotSelect(slot)}
+          >
+            <span className="font-medium text-sm">{slot.time}</span>
+          </div>
+        ))}
+      </div>
+      
+      <button 
         className={`w-full py-3 px-4 rounded-lg font-medium flex items-center justify-center ${
-          selectedSlot 
+          selectedSlot
             ? 'bg-primary text-white' 
             : 'bg-light-grey text-medium-grey cursor-not-allowed'
         }`}
-        onClick={handleConfirm}
+        onClick={handleContinue}
         disabled={!selectedSlot}
       >
-        Confirm Slot<span className="ml-2">›</span>
+        Continue <span className="ml-2">›</span>
       </button>
     </div>
   );
 };
 
-export default SlotPickerView; 
+export default TimeSlotPickerView; 

@@ -1,93 +1,55 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import DoctorCard from '../../../components/DoctorCard';
 import { useBookingStore } from '../../../store/bookingStore';
+import Image from 'next/image';
 import { Doctor, TimeSlot } from '../../../types/booking';
 
 const DoctorListView = () => {
   const router = useRouter();
   const { 
-    doctors, 
-    selectedSpecialty,
-    selectedDate,
+    selectedSpecialty, 
+    selectedDate, 
     selectedDoctor,
-    selectedSlot,
+    doctors,
+    setSelectedDoctor,
+    fetchDoctorsBySpecialtyAndDate,
     isLoading,
     error,
-    fetchDoctorsBySpecialtyAndDate,
-    setSelectedDoctor,
-    setSelectedSlot,
+    clearError
   } = useBookingStore();
 
   useEffect(() => {
+    // If no specialty or date is selected, redirect back
     if (!selectedSpecialty || !selectedDate) {
-      // If specialty or date is not selected, redirect back to specialty selection
-      router.push('/booking/specialty');
+      router.push('/booking/date');
       return;
     }
 
-    // Fetch doctors based on selected specialty and date
+    // Fetch doctors based on specialty and date
     fetchDoctorsBySpecialtyAndDate(selectedSpecialty.id, selectedDate);
-  }, [selectedSpecialty, selectedDate, fetchDoctorsBySpecialtyAndDate, router]);
+  }, [selectedSpecialty, selectedDate, router, fetchDoctorsBySpecialtyAndDate]);
 
   const handleDoctorSelect = (doctor: Doctor) => {
     setSelectedDoctor(doctor);
-  };
-
-  const handleSlotSelect = (slot: TimeSlot) => {
-    setSelectedSlot(slot);
-    // Navigate to slot selection page
     router.push('/booking/slot');
   };
 
-  const renderContent = () => {
-    if (isLoading) {
-      return (
-        <div className="flex items-center justify-center min-h-[200px]">
-          <div className="animate-pulse text-primary">Loading doctors...</div>
-        </div>
-      );
-    }
-
-    if (error) {
-      return (
-        <div className="flex flex-col items-center justify-center min-h-[200px] text-center">
-          <p className="text-red-500 mb-4">{error}</p>
-          <button 
-            className="bg-primary text-white py-2 px-4 rounded-lg"
-            onClick={() => fetchDoctorsBySpecialtyAndDate(selectedSpecialty!.id, selectedDate!)}
-          >
-            Try Again
-          </button>
-        </div>
-      );
-    }
-
-    if (doctors.length === 0) {
-      return (
-        <div className="text-center py-8">
-          <p className="text-medium-grey">No doctors available for this specialty and date.</p>
-        </div>
-      );
-    }
-
+  // Error handling
+  if (error) {
     return (
-      <div className="grid grid-cols-1 gap-4">
-        {doctors.map((doctor) => (
-          <DoctorCard
-            key={doctor.id}
-            doctor={doctor}
-            isSelected={selectedDoctor?.id === doctor.id}
-            onSelect={handleDoctorSelect}
-            onSlotSelect={handleSlotSelect}
-            selectedSlotId={selectedSlot?.id}
-          />
-        ))}
+      <div className="px-4 py-6 text-center">
+        <p className="text-red-500 mb-4">{error}</p>
+        <button 
+          className="px-4 py-2 bg-primary text-white rounded-lg"
+          onClick={clearError}
+        >
+          Try Again
+        </button>
       </div>
     );
-  };
+  }
 
   return (
     <div className="px-4 py-6">
@@ -99,21 +61,67 @@ const DoctorListView = () => {
           </span>
         )}
       </div>
-      
-      {selectedDate && (
-        <div className="mb-6">
-          <p className="text-medium-grey text-sm mb-1">Selected Date</p>
-          <p className="font-medium">
-            {selectedDate.toLocaleDateString('en-US', { 
-              weekday: 'long', 
-              month: 'long', 
-              day: 'numeric' 
-            })}
-          </p>
+
+      {isLoading ? (
+        <div className="flex justify-center items-center h-40">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-4">
+          {doctors.map((doctor) => (
+            <div 
+              key={doctor.id} 
+              className={`p-4 bg-white rounded-xl shadow-sm transition-transform ${
+                selectedDoctor?.id === doctor.id ? 'ring-2 ring-primary' : ''
+              }`}
+              onClick={() => handleDoctorSelect(doctor)}
+            >
+              <div className="flex items-center gap-4 mb-3">
+                <div className="w-12 h-12 bg-light-grey rounded-full flex-shrink-0 overflow-hidden">
+                  {doctor.avatarUrl && (
+                    <Image 
+                      src={doctor.avatarUrl} 
+                      alt={doctor.name}
+                      width={48}
+                      height={48}
+                      className="object-cover w-full h-full"
+                    />
+                  )}
+                </div>
+                <div>
+                  <h3 className="font-semibold text-dark-grey">{doctor.name}</h3>
+                  <div className="flex items-center text-sm text-medium-grey">
+                    <span className="text-amber-400 mr-1">★</span>
+                    <span>{doctor.rating}</span>
+                  </div>
+                </div>
+              </div>
+              
+              <p className="text-sm text-medium-grey mb-3">{doctor.experience}</p>
+              
+              <div className="flex flex-wrap gap-2">
+                {doctor.availableSlots.map((slot: TimeSlot) => (
+                  <div 
+                    key={slot.id}
+                    className="bg-light-grey text-dark-grey px-3 py-1 rounded-lg text-sm font-medium"
+                  >
+                    {slot.time}
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       )}
       
-      {renderContent()}
+      {selectedDoctor && (
+        <button 
+          className="w-full mt-8 bg-primary text-white py-3 px-4 rounded-lg font-medium flex items-center justify-center"
+          onClick={() => router.push('/booking/slot')}
+        >
+          Continue <span className="ml-2">›</span>
+        </button>
+      )}
     </div>
   );
 };
