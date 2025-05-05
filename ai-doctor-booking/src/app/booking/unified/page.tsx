@@ -34,6 +34,34 @@ const UnifiedBookingView = () => {
   ]);
   
   const [dates, setDates] = useState<Date[]>([]);
+  const [defaultDoctors, setDefaultDoctors] = useState<Doctor[]>([
+    {
+      id: '1',
+      name: 'Dr. Vinny Vang',
+      specialtyId: '1',
+      avatarUrl: '/doctors/doctor1.jpg',
+      rating: 4.8,
+      experience: '10+ years experienced',
+      availableSlots: [
+        { id: '101', time: '8:00', isAvailable: true },
+        { id: '102', time: '9:00', isAvailable: true },
+        { id: '103', time: '10:00', isAvailable: true },
+      ]
+    },
+    {
+      id: '2',
+      name: 'Dr. Eleanor Padilla',
+      specialtyId: '2',
+      avatarUrl: '/doctors/doctor2.jpg',
+      rating: 4.9,
+      experience: '15+ years experienced',
+      availableSlots: [
+        { id: '201', time: '11:00', isAvailable: true },
+        { id: '202', time: '13:00', isAvailable: true },
+        { id: '203', time: '14:00', isAvailable: true },
+      ]
+    }
+  ]);
 
   useEffect(() => {
     // Generate the next 14 days for the date picker
@@ -163,86 +191,84 @@ const UnifiedBookingView = () => {
       </div>
 
       {/* Doctor Selection Card with Time Slots */}
-      {selectedSpecialty && selectedDate && (
-        <div className="mb-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="font-semibold">Doctors</h2>
-            <span className="text-primary text-sm font-medium">See all</span>
-          </div>
+      <div className="mb-6">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="font-semibold">Doctors</h2>
+          <span className="text-primary text-sm font-medium">See all</span>
+        </div>
 
-          {isLoading ? (
-            <div className="flex justify-center items-center h-40">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-            </div>
-          ) : error ? (
-            <div className="p-4 bg-red-50 text-red-500 rounded-lg mb-4">
-              {error}
-              <button 
-                className="ml-2 underline"
-                onClick={clearError}
+        {isLoading ? (
+          <div className="flex justify-center items-center h-40">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+          </div>
+        ) : error ? (
+          <div className="p-4 bg-red-50 text-red-500 rounded-lg mb-4">
+            {error}
+            <button 
+              className="ml-2 underline"
+              onClick={clearError}
+            >
+              Try Again
+            </button>
+          </div>
+        ) : (
+          <div className="flex overflow-x-auto gap-4 pb-4 -mx-4 px-4">
+            {(doctors.length > 0 ? doctors : defaultDoctors).map((doctor) => (
+              <div 
+                key={doctor.id} 
+                className={`flex-shrink-0 w-[300px] p-4 bg-white rounded-xl shadow-sm transition-transform ${
+                  selectedDoctor?.id === doctor.id ? 'border-2 border-primary ring-2 ring-primary/20' : ''
+                }`}
+                onClick={() => handleDoctorSelect(doctor)}
               >
-                Try Again
-              </button>
-            </div>
-          ) : (
-            <div className="flex overflow-x-auto gap-4 pb-4 -mx-4 px-4">
-              {doctors.map((doctor) => (
-                <div 
-                  key={doctor.id} 
-                  className={`flex-shrink-0 w-[300px] p-4 bg-white rounded-xl shadow-sm transition-transform ${
-                    selectedDoctor?.id === doctor.id ? 'border-2 border-primary ring-2 ring-primary/20' : ''
-                  }`}
-                  onClick={() => handleDoctorSelect(doctor)}
-                >
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="w-10 h-10 bg-light-grey rounded-full flex-shrink-0 overflow-hidden">
-                      {doctor.avatarUrl && (
-                        <Image 
-                          src={doctor.avatarUrl} 
-                          alt={doctor.name}
-                          width={40}
-                          height={40}
-                          className="object-cover w-full h-full"
-                        />
-                      )}
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-dark-grey text-base">{doctor.name}</h3>
-                      <div className="flex items-center text-sm text-medium-grey">
-                        <span className="text-amber-400 mr-1">★</span>
-                        <span>{doctor.rating}</span>
-                      </div>
-                    </div>
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 bg-light-grey rounded-full flex-shrink-0 overflow-hidden">
+                    {doctor.avatarUrl && (
+                      <Image 
+                        src={doctor.avatarUrl} 
+                        alt={doctor.name}
+                        width={40}
+                        height={40}
+                        className="object-cover w-full h-full"
+                      />
+                    )}
                   </div>
-                  
-                  <p className="text-sm text-medium-grey mb-2">{doctor.experience}</p>
-                  
-                  {/* Time Slots in the same card */}
-                  <div className="flex flex-wrap gap-2">
-                    {doctor.availableSlots.map((slot: TimeSlot) => (
-                      <button
-                        key={slot.id}
-                        className={`py-2 px-3 rounded-lg text-sm font-medium ${
-                          selectedDoctor?.id === doctor.id && selectedSlot?.id === slot.id 
-                            ? 'bg-primary text-white' 
-                            : 'bg-light-grey text-dark-grey'
-                        }`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDoctorSelect(doctor);
-                          handleSlotSelect(slot);
-                        }}
-                      >
-                        {slot.time}
-                      </button>
-                    ))}
+                  <div>
+                    <h3 className="font-semibold text-dark-grey text-base">{doctor.name}</h3>
+                    <div className="flex items-center text-sm text-medium-grey">
+                      <span className="text-amber-400 mr-1">★</span>
+                      <span>{doctor.rating}</span>
+                    </div>
                   </div>
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
+                
+                <p className="text-sm text-medium-grey mb-2">{doctor.experience}</p>
+                
+                {/* Time Slots in the same card */}
+                <div className="flex flex-wrap gap-2">
+                  {doctor.availableSlots.map((slot: TimeSlot) => (
+                    <button
+                      key={slot.id}
+                      className={`py-2 px-3 rounded-lg text-sm font-medium ${
+                        selectedDoctor?.id === doctor.id && selectedSlot?.id === slot.id 
+                          ? 'bg-primary text-white' 
+                          : 'bg-light-grey text-dark-grey'
+                      }`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDoctorSelect(doctor);
+                        handleSlotSelect(slot);
+                      }}
+                    >
+                      {slot.time}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* Booking Confirmation Button */}
       <button 
