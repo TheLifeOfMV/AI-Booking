@@ -28,9 +28,9 @@ export default function BookingPage() {
                   strokeLinecap="round" 
                   strokeLinejoin="round"
                 >
-                  <path d="M12 2a10 10 0 1 0 10 10H12V2z" />
-                  <path d="M20.96 11.22a9 9 0 1 0-9.18 9.18" />
-                  <path d="M12 12v.01" />
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                  <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                  <polyline points="21 15 16 10 5 21"></polyline>
                 </svg>
                 <span>Doctor Image</span>
               </div>

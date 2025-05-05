@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useCallback, useEffect } from 'react';
+import Image from 'next/image';
 import SlideIndicators from './SlideIndicators';
 import Button from './Button';
 import { useRouter } from 'next/navigation';
@@ -24,6 +25,7 @@ const slides = [
 const IntroCarousel: React.FC = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlay, setIsAutoPlay] = useState(true);
+  const [imageLoaded, setImageLoaded] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -53,29 +55,42 @@ const IntroCarousel: React.FC = () => {
     <div className="h-screen flex flex-col bg-white">
       {/* Main Content Area - Split into Two Sections */}
       <div className="flex-1 flex flex-col">
-        {/* Doctor Image Placeholder Section */}
+        {/* Doctor Image Section */}
         <div className="flex-1 relative bg-white rounded-b-[2rem] overflow-hidden">
-          {/* Doctor Image Placeholder */}
+          {/* Doctor Image */}
           <div className="w-full h-full flex items-center justify-center">
-            <div className="relative w-[85%] h-[90%] rounded-3xl overflow-hidden bg-light-grey/50 flex items-center justify-center shadow-card">
-              <div className="text-medium-grey flex flex-col items-center gap-3">
-                <svg 
-                  xmlns="http://www.w3.org/2000/svg" 
-                  width="48" 
-                  height="48" 
-                  viewBox="0 0 24 24" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  strokeWidth="1.5" 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round"
-                >
-                  <path d="M12 2a10 10 0 1 0 10 10H12V2z" />
-                  <path d="M20.96 11.22a9 9 0 1 0-9.18 9.18" />
-                  <path d="M12 12v.01" />
-                </svg>
-                <span>Doctor Image</span>
-              </div>
+            <div className="relative w-[85%] h-[90%] rounded-3xl overflow-hidden shadow-card">
+              <Image
+                src="/images/Doctor.intro.png"
+                alt="Professional doctor"
+                fill
+                priority
+                style={{ objectFit: 'cover' }}
+                className={`rounded-3xl transition-opacity duration-500 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                onLoad={() => setImageLoaded(true)}
+              />
+              {!imageLoaded && (
+                <div className="absolute inset-0 flex items-center justify-center bg-light-grey/50">
+                  <div className="animate-pulse flex flex-col items-center gap-3 text-medium-grey">
+                    <svg 
+                      xmlns="http://www.w3.org/2000/svg" 
+                      width="48" 
+                      height="48" 
+                      viewBox="0 0 24 24" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      strokeWidth="1.5" 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round"
+                    >
+                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                      <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                      <polyline points="21 15 16 10 5 21"></polyline>
+                    </svg>
+                    <span>Loading image...</span>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
