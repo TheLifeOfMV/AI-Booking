@@ -27,6 +27,8 @@ export default function BookingLayout({
     } else if (pathname === '/booking/success') {
       // Allow manual navigation from success screen
       router.push('/bookings');
+    } else if (pathname === '/booking/unified') {
+      router.push('/channel');
     } else {
       router.back();
     }
