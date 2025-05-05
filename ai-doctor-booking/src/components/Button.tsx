@@ -4,6 +4,7 @@ interface ButtonProps {
   children: React.ReactNode;
   onClick?: () => void;
   type?: 'primary' | 'secondary' | 'text';
+  htmlType?: 'button' | 'submit' | 'reset';
   fullWidth?: boolean;
   disabled?: boolean;
   className?: string;
@@ -13,11 +14,12 @@ const Button: React.FC<ButtonProps> = ({
   children,
   onClick,
   type = 'primary',
+  htmlType = 'button',
   fullWidth = false,
   disabled = false,
   className = '',
 }) => {
-  const baseClasses = 'py-3 px-6 rounded-full font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2';
+  const baseClasses = 'py-3 px-6 rounded-lg font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2';
   
   const typeClasses = {
     primary: 'bg-primary text-white hover:bg-primary/90 focus:ring-primary/50',
@@ -30,6 +32,7 @@ const Button: React.FC<ButtonProps> = ({
   
   return (
     <button
+      type={htmlType}
       onClick={onClick}
       disabled={disabled}
       className={`${baseClasses} ${typeClasses[type]} ${widthClass} ${disabledClass} ${className}`}

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import RouteGuardProvider from "@/components/RouteGuardProvider";
 
 export const metadata: Metadata = {
   title: "AI Doctor Booking",
@@ -14,7 +15,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased">
-        {children}
+        <RouteGuardProvider>
+          {children}
+        </RouteGuardProvider>
       </body>
     </html>
   );
