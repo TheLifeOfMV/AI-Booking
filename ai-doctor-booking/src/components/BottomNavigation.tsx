@@ -7,6 +7,21 @@ import { usePathname } from 'next/navigation';
 export default function BottomNavigation() {
   const pathname = usePathname();
   
+  // Check if the current path is one of the pre-app pages where navigation should be hidden
+  const shouldHideNavigation = 
+    !pathname || // Handle initial loading state
+    pathname === '/' || // Hide on root path (initial landing)
+    pathname.startsWith('/intro') || 
+    pathname.startsWith('/channel') || 
+    pathname.startsWith('/login') ||
+    pathname.startsWith('/splash') ||
+    pathname.startsWith('/auth');
+  
+  // If we're on a pre-app page, don't render the navigation bar
+  if (shouldHideNavigation) {
+    return null;
+  }
+  
   const isActive = (path: string) => {
     return pathname === path || pathname?.startsWith(`${path}/`);
   };
