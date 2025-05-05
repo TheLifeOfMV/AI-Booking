@@ -10,6 +10,7 @@ import { validateEmail, validatePhone, validateRequired, validatePassword } from
 
 type AuthMode = 'login' | 'signup';
 type IdentifierType = 'email' | 'phone';
+type UserRole = 'client' | 'doctor';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -17,6 +18,7 @@ export default function LoginPage() {
   
   const [mode, setMode] = useState<AuthMode>('login');
   const [identifierType, setIdentifierType] = useState<IdentifierType>('email');
+  const [userRole, setUserRole] = useState<UserRole>('client');
   
   // Form fields
   const [identifier, setIdentifier] = useState('');
@@ -103,6 +105,10 @@ export default function LoginPage() {
     setIdentifierError('');
   };
   
+  const toggleRole = () => {
+    setUserRole(userRole === 'client' ? 'doctor' : 'client');
+  };
+  
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-white p-4">
       <div className="w-full max-w-md">
@@ -119,45 +125,82 @@ export default function LoginPage() {
         </div>
         
         <div className="bg-white rounded-xl shadow-lg p-6 md:p-8">
-          {/* Toggle between email and phone */}
+          {/* Role selection toggle */}
           <div className="flex justify-center mb-6">
             <div className="inline-flex border border-light-grey rounded-full overflow-hidden">
               <button
                 type="button"
-                onClick={() => setIdentifierType('email')}
+                onClick={() => setUserRole('client')}
                 className={`px-4 py-2 text-sm font-medium ${
-                  identifierType === 'email'
+                  userRole === 'client'
                     ? 'bg-light-grey text-dark-grey'
                     : 'bg-transparent text-dark-grey'
                 }`}
               >
-                Email
+                Client
               </button>
               <button
                 type="button"
-                onClick={() => setIdentifierType('phone')}
+                onClick={() => setUserRole('doctor')}
                 className={`px-4 py-2 text-sm font-medium ${
-                  identifierType === 'phone'
+                  userRole === 'doctor'
                     ? 'bg-light-grey text-dark-grey'
                     : 'bg-transparent text-dark-grey'
                 }`}
               >
-                Phone
+                Doctor
               </button>
             </div>
           </div>
           
           <form onSubmit={handleSubmit}>
-            <Input
-              id="identifier"
-              type={identifierType === 'email' ? 'email' : 'tel'}
-              label={identifierType === 'email' ? 'Email' : 'Phone Number'}
-              placeholder={identifierType === 'email' ? 'your@email.com' : '+1 (123) 456-7890'}
-              value={identifier}
-              onChange={(e) => setIdentifier(e.target.value)}
-              error={identifierError}
-              required
-            />
+            {/* First input group with inline toggle */}
+            <div className="mb-4">
+              <div className="flex justify-between items-center mb-2">
+                <label htmlFor="identifier" className="block text-sm font-medium text-dark-grey">
+                  {identifierType === 'email' ? 'Email' : 'Phone Number'}
+                </label>
+                
+                {/* Email/Phone toggle */}
+                <div className="inline-flex border border-light-grey rounded-full overflow-hidden">
+                  <button
+                    type="button"
+                    onClick={() => setIdentifierType('email')}
+                    className={`px-3 py-1 text-xs font-medium ${
+                      identifierType === 'email'
+                        ? 'bg-light-grey text-dark-grey'
+                        : 'bg-transparent text-dark-grey'
+                    }`}
+                  >
+                    Email
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIdentifierType('phone')}
+                    className={`px-3 py-1 text-xs font-medium ${
+                      identifierType === 'phone'
+                        ? 'bg-light-grey text-dark-grey'
+                        : 'bg-transparent text-dark-grey'
+                    }`}
+                  >
+                    Phone
+                  </button>
+                </div>
+              </div>
+              
+              <input
+                id="identifier"
+                type={identifierType === 'email' ? 'email' : 'tel'}
+                placeholder={identifierType === 'email' ? 'your@email.com' : '+1 (123) 456-7890'}
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
+                className={`w-full px-4 py-2 border ${identifierError ? 'border-red-500' : 'border-light-grey'} rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent`}
+                required
+              />
+              {identifierError && (
+                <p className="mt-1 text-xs text-red-500">{identifierError}</p>
+              )}
+            </div>
             
             <Input
               id="password"
