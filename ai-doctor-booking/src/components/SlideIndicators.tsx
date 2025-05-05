@@ -12,13 +12,15 @@ const SlideIndicators: React.FC<SlideIndicatorsProps> = ({
   onSelect
 }) => {
   return (
-    <div className="flex justify-center gap-2 my-6">
+    <div className="flex items-center gap-2">
       {Array.from({ length: total }).map((_, index) => (
         <button
           key={index}
           onClick={() => onSelect(index)}
-          className={`h-2 rounded-full transition-all duration-300 ${
-            current === index ? 'w-6 bg-primary' : 'w-2 bg-light-grey'
+          className={`transition-all duration-300 rounded-full ${
+            current === index 
+              ? 'w-8 h-1 bg-white' 
+              : 'w-1 h-1 bg-white/60 hover:bg-white/80'
           }`}
           aria-label={`Go to slide ${index + 1}`}
         />

@@ -29,6 +29,18 @@ module.exports = {
           'sans-serif'
         ],
       },
+      borderRadius: {
+        '2xl': '1rem',
+        '3xl': '1.5rem',
+        '4xl': '2rem',
+      },
+      boxShadow: {
+        'card': '0 4px 12px rgba(0, 0, 0, 0.08)',
+        'lg': '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
+      },
+      height: {
+        'screen-safe': 'calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom))',
+      },
     },
   },
   plugins: [],
