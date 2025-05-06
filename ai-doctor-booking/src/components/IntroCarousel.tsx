@@ -107,13 +107,13 @@ const IntroCarousel: React.FC = () => {
               >
                 <h2 className="text-3xl font-bold mb-2">
                   {index === 0 && (
-                    <>Book your<br />Doctor any<br />Time, <span className="text-primary">anywhere</span>.</>
+                    <>Regístrate en<br />nuestra<br />app <span className="text-primary">MedAI</span>.</>
                   )}
                   {index === 1 && (
-                    <>Schedule <span className="text-primary">easily</span><br />with just a<br />few taps.</>
+                    <>Selecciona el <span className="text-primary">modo</span><br />con el que quieres<br />agendar tu cita.</>
                   )}
                   {index === 2 && (
-                    <>Virtual <span className="text-primary">consultations</span><br />from the<br />comfort of home.</>
+                    <>Encuentra los<br />mejores <span className="text-primary">especialistas</span><br />de tu ciudad.</>
                   )}
                 </h2>
               </div>
