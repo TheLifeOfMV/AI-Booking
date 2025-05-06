@@ -26,11 +26,15 @@ export default function BottomNavigation() {
     return pathname === path || pathname?.startsWith(`${path}/`);
   };
   
+  // Determine if we're in the booking section to decide where Home button should lead
+  const isInBookingSection = pathname?.startsWith('/booking');
+  const homeHref = isInBookingSection ? '/booking/unified' : '/';
+  
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-light-grey py-2 px-4 flex justify-around z-20">
       <Link 
-        href="/" 
-        className={`flex flex-col items-center ${isActive('/') ? 'text-primary' : 'text-medium-grey'}`}
+        href={homeHref}
+        className={`flex flex-col items-center ${isActive('/') || (isInBookingSection && pathname === '/booking/unified') ? 'text-primary' : 'text-medium-grey'}`}
       >
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z" 
@@ -43,7 +47,7 @@ export default function BottomNavigation() {
       
       <Link 
         href="/booking/specialty" 
-        className={`flex flex-col items-center ${isActive('/booking') ? 'text-primary' : 'text-medium-grey'}`}
+        className={`flex flex-col items-center ${isActive('/booking') && pathname !== '/booking/unified' ? 'text-primary' : 'text-medium-grey'}`}
       >
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <rect x="3" y="3" width="7" height="7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
