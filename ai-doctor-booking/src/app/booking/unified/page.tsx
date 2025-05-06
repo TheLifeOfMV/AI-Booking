@@ -28,9 +28,17 @@ const UnifiedBookingView = () => {
   // User profile data
   const [user, setUser] = useState({
     name: 'Arepa Deal',
-    avatarUrl: '/profile/avatar.jpg',
+    avatarUrl: '/doctors/doctor1.jpg',
     notificationCount: 3
   });
+  
+  // Paso 1 y 8: Actualizar el estado para manejar la ubicación y búsqueda
+  const [location, setLocation] = useState('New York');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showLocationDropdown, setShowLocationDropdown] = useState(false);
+  const [availableLocations, setAvailableLocations] = useState([
+    'New York', 'Los Angeles', 'Chicago', 'Miami', 'San Francisco'
+  ]);
   
   const [specialties, setSpecialties] = useState<Specialty[]>([
     { id: '1', name: 'Oculist', imageUrl: '/specialties/oculist.jpg' },
@@ -127,6 +135,26 @@ const UnifiedBookingView = () => {
     }
   };
 
+  // Paso 3: Implementar la lógica para el selector de ubicación
+  const handleLocationSelect = (loc: string) => {
+    setLocation(loc);
+    setShowLocationDropdown(false);
+  };
+
+  // Paso 5: Implementar la lógica de búsqueda
+  const handleSearch = () => {
+    // Aquí iría la lógica para filtrar médicos y especialidades según searchQuery
+    console.log(`Buscando: ${searchQuery} en ${location}`);
+    // Implementación futura: Filtrar médicos basados en la búsqueda y ubicación
+  };
+
+  // Paso 7: Agregar funcionalidad para búsqueda con Enter
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
+
   const formatDay = (date: Date) => {
     return date.toLocaleDateString('en-US', { weekday: 'short' }).charAt(0);
   };
@@ -160,9 +188,14 @@ const UnifiedBookingView = () => {
                 height={40}
                 className="object-cover w-full h-full"
                 onError={(e) => {
-                  // Fallback to placeholder on error
+                  // Aseguramos que no se cree un loop de errores usando una imagen que existe
                   const target = e.target as HTMLImageElement;
-                  target.src = '/profile/placeholder.jpg';
+                  // Solo cambiamos la imagen una vez para evitar bucles
+                  if (!target.src.includes('/doctors/doctor2.jpg')) {
+                    target.src = '/doctors/doctor2.jpg';
+                  }
+                  // Si también hay error con la imagen de respaldo, evitamos más intentos
+                  target.onerror = null;
                 }}
               />
             </div>
@@ -197,6 +230,95 @@ const UnifiedBookingView = () => {
 
       {/* Main Content */}
       <div className="px-4 py-6 pb-20">
+        {/* Paso 2 y 6: Crear el componente de barra de búsqueda y ajustar el estilo del contenedor */}
+        <div className="search-bar-container mb-6 mt-2">
+          <div className="flex items-center bg-light-grey rounded-full p-1 shadow-sm">
+            <div className="location-selector flex items-center pl-3 pr-2 relative">
+              <svg 
+                width="20" 
+                height="20" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path 
+                  d="M12 12.75C13.6569 12.75 15 11.4069 15 9.75C15 8.09315 13.6569 6.75 12 6.75C10.3431 6.75 9 8.09315 9 9.75C9 11.4069 10.3431 12.75 12 12.75Z" 
+                  stroke="#4B5563" 
+                  strokeWidth="1.5" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round"
+                />
+                <path 
+                  d="M19.5 9.75C19.5 16.5 12 21.75 12 21.75C12 21.75 4.5 16.5 4.5 9.75C4.5 7.76088 5.29018 5.85322 6.6967 4.4467C8.10322 3.04018 10.0109 2.25 12 2.25C13.9891 2.25 15.8968 3.04018 17.3033 4.4467C18.7098 5.85322 19.5 7.76088 19.5 9.75Z" 
+                  stroke="#4B5563" 
+                  strokeWidth="1.5" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round"
+                />
+              </svg>
+              <button 
+                className="text-dark-grey text-sm font-medium ml-2 flex items-center"
+                onClick={() => setShowLocationDropdown(!showLocationDropdown)}
+              >
+                {location} <span className="ml-1">▼</span>
+              </button>
+              
+              {/* Paso 4: Agregar el dropdown de ubicaciones */}
+              {showLocationDropdown && (
+                <div className="location-dropdown absolute top-full left-0 mt-2 bg-white rounded-lg shadow-md z-10 w-48">
+                  {availableLocations.map((loc, index) => (
+                    <button 
+                      key={index}
+                      onClick={() => handleLocationSelect(loc)}
+                      className="block w-full text-left px-4 py-2 text-sm text-dark-grey hover:bg-light-grey"
+                    >
+                      {loc}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            
+            <div className="h-6 w-px bg-medium-grey opacity-20 mx-1"></div>
+            
+            <div className="search-input flex items-center flex-1 pl-2 pr-3">
+              <input 
+                type="text" 
+                placeholder="Search"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyPress={handleKeyPress}
+                className="bg-transparent w-full text-dark-grey text-sm focus:outline-none"
+              />
+              <button className="ml-2" onClick={handleSearch}>
+                <svg 
+                  width="20" 
+                  height="20" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <circle 
+                    cx="11" 
+                    cy="11" 
+                    r="8" 
+                    stroke="#4B5563" 
+                    strokeWidth="1.5" 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round"
+                  />
+                  <path 
+                    d="M21 21L16.65 16.65" 
+                    stroke="#4B5563" 
+                    strokeWidth="1.5" 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
       
         {/* Specialty Selection Card */}
         <div className="mb-6">
