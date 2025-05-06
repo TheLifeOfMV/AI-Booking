@@ -33,11 +33,11 @@ const UnifiedBookingView = () => {
   });
   
   // Paso 1 y 8: Actualizar el estado para manejar la ubicación y búsqueda
-  const [location, setLocation] = useState('New York');
+  const [location, setLocation] = useState('Ibagué');
   const [searchQuery, setSearchQuery] = useState('');
   const [showLocationDropdown, setShowLocationDropdown] = useState(false);
   const [availableLocations, setAvailableLocations] = useState([
-    'New York', 'Los Angeles', 'Chicago', 'Miami', 'San Francisco'
+    'Bogotá', 'Cali', 'Medellín', 'Pereira', 'Ibagué'
   ]);
   
   const [specialties, setSpecialties] = useState<Specialty[]>([
