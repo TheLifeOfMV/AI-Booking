@@ -101,7 +101,7 @@ export default function LoginPage() {
   
   const toggleIdentifierType = () => {
     setIdentifierType(identifierType === 'email' ? 'phone' : 'email');
-    setIdentifier(''); // Clear the field when switching types
+    // Don't clear the field when switching - better UX
     setIdentifierError('');
   };
   
@@ -156,42 +156,25 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit}>
             {/* First input group with inline toggle */}
             <div className="mb-4">
-              <div className="flex justify-between items-center mb-2">
-                <label htmlFor="identifier" className="block text-sm font-medium text-dark-grey">
+              <div className="mb-2">
+                <button
+                  type="button"
+                  onClick={toggleIdentifierType}
+                  className="group block text-sm font-medium text-dark-grey hover:text-primary focus:outline-none flex items-center gap-1 transition-colors duration-200"
+                  aria-haspopup="true"
+                  aria-label={`Switch to ${identifierType === 'email' ? 'phone' : 'email'} input`}
+                >
                   {identifierType === 'email' ? 'Email' : 'Phone Number'}
-                </label>
-                
-                {/* Email/Phone toggle */}
-                <div className="inline-flex border border-light-grey rounded-full overflow-hidden">
-                  <button
-                    type="button"
-                    onClick={() => setIdentifierType('email')}
-                    className={`px-3 py-1 text-xs font-medium ${
-                      identifierType === 'email'
-                        ? 'bg-light-grey text-dark-grey'
-                        : 'bg-transparent text-dark-grey'
-                    }`}
-                  >
-                    Email
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setIdentifierType('phone')}
-                    className={`px-3 py-1 text-xs font-medium ${
-                      identifierType === 'phone'
-                        ? 'bg-light-grey text-dark-grey'
-                        : 'bg-transparent text-dark-grey'
-                    }`}
-                  >
-                    Phone
-                  </button>
-                </div>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-3 w-3 transition-transform duration-200 group-hover:rotate-180">
+                    <path d="m6 9 6 6 6-6"/>
+                  </svg>
+                </button>
               </div>
               
               <input
                 id="identifier"
                 type={identifierType === 'email' ? 'email' : 'tel'}
-                placeholder={identifierType === 'email' ? 'your@email.com' : '+1 (123) 456-7890'}
+                placeholder={identifierType === 'email' ? 'example@domain.com' : '(123) 456-7890'}
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
                 className={`w-full px-4 py-2 border ${identifierError ? 'border-red-500' : 'border-light-grey'} rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent`}
