@@ -6,6 +6,20 @@ import Image from 'next/image';
 import { useBookingStore } from '../../../store/bookingStore';
 import { Doctor, Specialty, TimeSlot } from '../../../types/booking';
 
+// Estilo global para ocultar barras de desplazamiento en secciones de scroll horizontal
+const scrollbarHideStyle = "flex scrollbar-hide overflow-x-auto";
+
+// Estilo CSS en línea para ocultar barras de desplazamiento en diferentes navegadores
+const hideScrollbarCSS = `
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+`;
+
 const UnifiedBookingView = () => {
   const router = useRouter();
   const { 
@@ -236,6 +250,9 @@ const UnifiedBookingView = () => {
 
   return (
     <>
+      {/* Aplicar estilos CSS para ocultar barras de desplazamiento */}
+      <style jsx global>{hideScrollbarCSS}</style>
+      
       {/* Profile Header - Replacing the back button and title header */}
       <header className="bg-white p-4 border-b border-light-grey">
         <div className="flex items-center justify-between">
@@ -388,7 +405,7 @@ const UnifiedBookingView = () => {
           </div>
           
           {/* Paso 4 y 5: Modificar el componente de tarjeta de especialidad y ajustar los estilos específicos */}
-          <div className="flex overflow-x-auto gap-3 pb-4 -mx-4 px-4 scrollbar-hide">
+          <div className={`${scrollbarHideStyle} gap-3 pb-4 -mx-4 px-4`}>
             {specialties.map((specialty) => (
               <div 
                 key={specialty.id} 
@@ -418,7 +435,7 @@ const UnifiedBookingView = () => {
         <div className="mb-6">
           <h2 className="font-semibold text-base mb-3">Date</h2>
           
-          <div className="flex overflow-x-auto gap-3 pb-4 -mx-4 px-4">
+          <div className={`${scrollbarHideStyle} gap-3 pb-4 -mx-4 px-4`}>
             {dates.map((date, index) => (
               <div 
                 key={index} 
@@ -464,7 +481,7 @@ const UnifiedBookingView = () => {
               </button>
             </div>
           ) : (
-            <div className="flex overflow-x-auto gap-4 pb-4 -mx-4 px-4">
+            <div className={`${scrollbarHideStyle} gap-4 pb-4 -mx-4 px-4`}>
               {(doctors.length > 0 ? doctors : defaultDoctors).map((doctor) => (
                 <div 
                   key={doctor.id} 
