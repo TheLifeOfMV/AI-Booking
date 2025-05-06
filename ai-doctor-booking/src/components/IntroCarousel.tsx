@@ -6,20 +6,9 @@ import SlideIndicators from './SlideIndicators';
 import Button from './Button';
 import { useRouter } from 'next/navigation';
 
-// Define the slide content
+// Define slide structure without unnecessary content
 const slides = [
-  {
-    title: 'Encuentra a tu doctor ideal',
-    description: 'Accede a una extensa red de médicos profesionales especializados para todas tus necesidades de salud.',
-  },
-  {
-    title: 'Agenda citas fácilmente',
-    description: 'Programa tus citas médicas sin complicaciones, en cualquier momento y desde cualquier lugar.',
-  },
-  {
-    title: 'Consultas virtuales',
-    description: 'Accede a consultas médicas desde la comodidad de tu hogar a través de video consultas seguras.',
-  },
+  {}, {}, {}
 ];
 
 const IntroCarousel: React.FC = () => {
@@ -47,10 +36,6 @@ const IntroCarousel: React.FC = () => {
     }
   }, [currentSlide, router]);
 
-  const handleSkip = useCallback(() => {
-    router.push('/auth/register');
-  }, [router]);
-
   return (
     <div className="h-screen flex flex-col bg-white">
       {/* Main Content Area - Split into Two Sections */}
@@ -58,14 +43,14 @@ const IntroCarousel: React.FC = () => {
         {/* Doctor Image Section */}
         <div className="flex-1 relative bg-white rounded-b-[2rem] overflow-hidden">
           {/* Doctor Image */}
-          <div className="w-full h-full flex items-center justify-center">
-            <div className="relative w-[85%] h-[90%] rounded-3xl overflow-hidden shadow-card">
+          <div className="w-full h-full flex items-center justify-center pt-1">
+            <div className="relative w-[95%] h-[95%] rounded-3xl overflow-hidden shadow-card">
               <Image
                 src="/images/Doctor.intro.png"
                 alt="Professional doctor"
                 fill
                 priority
-                style={{ objectFit: 'cover' }}
+                style={{ objectFit: 'contain', objectPosition: 'center 10%' }}
                 className={`rounded-3xl transition-opacity duration-500 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
                 onLoad={() => setImageLoaded(true)}
               />
@@ -109,7 +94,7 @@ const IntroCarousel: React.FC = () => {
           
           {/* Sliding Content */}
           <div className="relative h-28 mb-6 overflow-hidden">
-            {slides.map((slide, index) => (
+            {slides.map((_, index) => (
               <div 
                 key={index}
                 className={`absolute w-full transition-all duration-500 ease-in-out ${
