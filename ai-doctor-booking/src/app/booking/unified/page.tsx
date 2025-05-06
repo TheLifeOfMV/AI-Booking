@@ -457,7 +457,7 @@ const UnifiedBookingView = () => {
             {specialties.map((specialty) => (
               <div 
                 key={specialty.id} 
-                className={`flex-shrink-0 flex flex-col items-center justify-center w-24 h-24 bg-white rounded-2xl shadow-sm p-2 transition-all duration-200`}
+                className="flex-shrink-0 flex flex-col items-center justify-center w-24 h-24 bg-white rounded-2xl shadow-sm p-2 transition-all duration-200"
                 style={{
                   backgroundColor: selectedSpecialty?.id === specialty.id 
                     ? `${specialty.color}10` 
@@ -474,13 +474,6 @@ const UnifiedBookingView = () => {
                 <div className="text-sm text-dark-grey font-medium text-center">
                   {specialty.name}
                 </div>
-                
-                {selectedSpecialty?.id === specialty.id && (
-                  <div className="absolute top-1 right-1 w-4 h-4 rounded-full flex items-center justify-center text-white text-xs"
-                    style={{ backgroundColor: specialty.color }}>
-                    ✓
-                  </div>
-                )}
               </div>
             ))}
           </div>
