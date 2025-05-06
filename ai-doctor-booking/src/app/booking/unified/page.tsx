@@ -40,12 +40,13 @@ const UnifiedBookingView = () => {
     'Bogotá', 'Cali', 'Medellín', 'Pereira', 'Ibagué'
   ]);
   
+  // Paso 1: Modificar el estado inicial de las especialidades
   const [specialties, setSpecialties] = useState<Specialty[]>([
-    { id: '1', name: 'Oculist', imageUrl: '/specialties/oculist.jpg' },
-    { id: '2', name: 'Dentist', imageUrl: '/specialties/dentist.jpg' },
-    { id: '3', name: 'GP', imageUrl: '/specialties/gp.jpg' },
-    { id: '4', name: 'Cardiologist', imageUrl: '/specialties/cardiology.jpg' },
-    { id: '5', name: 'Neurologist', imageUrl: '/specialties/neurology.jpg' },
+    { id: '1', name: 'Neurologist', imageUrl: '/specialties/neurologist.jpg', icon: 'brain' },
+    { id: '2', name: 'Cardiologist', imageUrl: '/specialties/cardiology.jpg', icon: 'heart' },
+    { id: '3', name: 'Orthopedist', imageUrl: '/specialties/orthopedist.jpg', icon: 'bone' },
+    { id: '4', name: 'Pulmonologist', imageUrl: '/specialties/pulmonologist.jpg', icon: 'lungs' },
+    { id: '5', name: 'Dentist', imageUrl: '/specialties/dentist.jpg', icon: 'tooth' },
   ]);
   
   const [dates, setDates] = useState<Date[]>([]);
@@ -77,6 +78,65 @@ const UnifiedBookingView = () => {
       ]
     }
   ]);
+
+  // Paso 3: Crear componente de icono médico
+  const renderSpecialtyIcon = (icon: string | undefined, isSelected: boolean = false) => {
+    const color = isSelected ? '#007AFF' : '#777777';
+    
+    switch (icon) {
+      case 'brain':
+        return (
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M9.5 2a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5z"></path>
+            <path d="M14.5 2a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z"></path>
+            <path d="M19.5 7.5c0 1.57-1.4 3-3 3"></path>
+            <path d="M4.5 7.5c0 1.57 1.4 3 3 3"></path>
+            <path d="M18 10v7a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4v-7"></path>
+            <path d="M10 16.5V10"></path>
+            <path d="M14 16.5V10"></path>
+            <path d="M9 14h6"></path>
+          </svg>
+        );
+      case 'heart':
+        return (
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path>
+          </svg>
+        );
+      case 'bone':
+        return (
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M17 10c.7-.7 1.69-1 2.8-.8 1.1.2 2 1.1 2.2 2.2.2 1.11-.1 2.1-.8 2.8l-3 3c-.7.7-1.69 1-2.8.8-1.1-.2-2-1.1-2.2-2.2-.2-1.11.1-2.1.8-2.8Z"></path>
+            <path d="m9.5 15.5-5 5"></path>
+            <path d="M14 11 9 16"></path>
+            <path d="m17 14 5-5"></path>
+            <path d="M13.5 6.5 19 1"></path>
+            <path d="m13.5 6.5-5 5"></path>
+            <path d="M7 10c-.7.7-1.69 1-2.8.8-1.1-.2-2-1.1-2.2-2.2-.2-1.11.1-2.1.8-2.8l3-3c.7-.7 1.69-1 2.8-.8 1.1.2 2 1.1 2.2 2.2.2 1.11-.1 2.1-.8 2.8Z"></path>
+          </svg>
+        );
+      case 'lungs':
+        return (
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M6.081 20c-1.886 0-3.522-1.254-4.03-3.06C1.39 14.882 1.856 9.877 3.74 7c.886-1.353 2.573-1.144 3.285-.271.712.873.97 2.369.584 3.588A5.24 5.24 0 0 1 6.6 12.71v1.7"></path>
+            <path d="M17.92 20c1.886 0 3.52-1.254 4.03-3.06C22.61 14.882 22.144 9.877 20.26 7c-.887-1.353-2.573-1.144-3.286-.271-.712.873-.97 2.369-.583 3.588.193.631.452 1.235.77 1.793v1.7"></path>
+            <path d="M6.08 20h11.84"></path>
+            <path d="M12 20V4"></path>
+            <path d="M12 4c-1 0-3 .6-3 3"></path>
+            <path d="M12 4c1 0 3 .6 3 3"></path>
+          </svg>
+        );
+      case 'tooth':
+        return (
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 5.5c-1.5-2-3-2.5-4-2.5-3 0-5 2.5-5 5 0 1.5.5 2 1 3 .2.2.2.5 0 1-1 2 1 3 1 3 1 1 3 1 3-1 0-1 .5-1 1-1s1 0 1 1c0 2 2 2 3 1 0 0 2-1 1-3-.2-.5-.2-.8 0-1 .5-1 1-1.5 1-3 0-2.5-2-5-5-5-1 0-2.5.5-4 2.5Z"></path>
+            <path d="M12 5.5V3"></path>
+          </svg>
+        );
+      default:
+        return null;
+    }
+  };
 
   useEffect(() => {
     // Generate the next 14 days for the date picker
@@ -322,28 +382,33 @@ const UnifiedBookingView = () => {
       
         {/* Specialty Selection Card */}
         <div className="mb-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="font-semibold">Specialty</h2>
+          <div className="flex justify-between items-center mb-3">
+            <h2 className="font-semibold text-base">Specialty</h2>
             <span className="text-primary text-sm font-medium">See all</span>
           </div>
           
-          <div className="flex overflow-x-auto gap-4 pb-4 -mx-4 px-4">
+          {/* Paso 4 y 5: Modificar el componente de tarjeta de especialidad y ajustar los estilos específicos */}
+          <div className="flex overflow-x-auto gap-3 pb-4 -mx-4 px-4 scrollbar-hide">
             {specialties.map((specialty) => (
               <div 
                 key={specialty.id} 
-                className={`flex-shrink-0 w-24 h-24 bg-light-grey rounded-lg overflow-hidden relative cursor-pointer ${
-                  selectedSpecialty?.id === specialty.id ? 'ring-2 ring-primary' : ''
+                className={`flex-shrink-0 flex flex-col items-center justify-center w-24 h-24 bg-white rounded-2xl shadow-sm p-2 ${
+                  selectedSpecialty?.id === specialty.id ? 'ring-2 ring-primary' : 'border border-gray-100'
                 }`}
                 onClick={() => handleSpecialtySelect(specialty)}
               >
+                <div className="flex items-center justify-center mb-2">
+                  {renderSpecialtyIcon(specialty.icon, selectedSpecialty?.id === specialty.id)}
+                </div>
+                <div className="text-sm text-dark-grey font-medium text-center">
+                  {specialty.name}
+                </div>
+                
                 {selectedSpecialty?.id === specialty.id && (
-                  <div className="absolute top-2 right-2 bg-primary w-5 h-5 rounded-full flex items-center justify-center text-white text-xs">
+                  <div className="absolute top-1 right-1 bg-primary w-4 h-4 rounded-full flex items-center justify-center text-white text-xs">
                     ✓
                   </div>
                 )}
-                <div className="bg-black bg-opacity-30 text-white p-2 w-full absolute bottom-0 text-sm font-medium">
-                  {specialty.name}
-                </div>
               </div>
             ))}
           </div>
@@ -351,7 +416,7 @@ const UnifiedBookingView = () => {
 
         {/* Date Selection Card */}
         <div className="mb-6">
-          <h2 className="font-semibold mb-4">Date</h2>
+          <h2 className="font-semibold text-base mb-3">Date</h2>
           
           <div className="flex overflow-x-auto gap-3 pb-4 -mx-4 px-4">
             {dates.map((date, index) => (
@@ -379,8 +444,8 @@ const UnifiedBookingView = () => {
 
         {/* Doctor Selection Card with Time Slots */}
         <div className="mb-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="font-semibold">Doctors</h2>
+          <div className="flex justify-between items-center mb-3">
+            <h2 className="font-semibold text-base">Doctors</h2>
             <span className="text-primary text-sm font-medium">See all</span>
           </div>
 
