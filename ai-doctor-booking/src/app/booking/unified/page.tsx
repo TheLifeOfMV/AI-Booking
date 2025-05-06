@@ -56,11 +56,15 @@ const UnifiedBookingView = () => {
   
   // Paso 1: Modificar el estado inicial de las especialidades
   const [specialties, setSpecialties] = useState<Specialty[]>([
-    { id: '1', name: 'Neurologist', imageUrl: '/specialties/neurologist.jpg', icon: 'brain' },
-    { id: '2', name: 'Cardiologist', imageUrl: '/specialties/cardiology.jpg', icon: 'heart' },
-    { id: '3', name: 'Orthopedist', imageUrl: '/specialties/orthopedist.jpg', icon: 'bone' },
-    { id: '4', name: 'Pulmonologist', imageUrl: '/specialties/pulmonologist.jpg', icon: 'lungs' },
-    { id: '5', name: 'Dentist', imageUrl: '/specialties/dentist.jpg', icon: 'tooth' },
+    { id: '1', name: 'Neurologist', imageUrl: '/specialties/neurologist.jpg', icon: 'brain', color: '#E53E3E' },
+    { id: '2', name: 'Cardiologist', imageUrl: '/specialties/cardiology.jpg', icon: 'heart', color: '#DD6B20' },
+    { id: '3', name: 'Orthopedist', imageUrl: '/specialties/orthopedist.jpg', icon: 'bone', color: '#38A169' },
+    { id: '4', name: 'Pulmonologist', imageUrl: '/specialties/pulmonologist.jpg', icon: 'lungs', color: '#3182CE' },
+    { id: '5', name: 'Dentist', imageUrl: '/specialties/dentist.jpg', icon: 'tooth', color: '#00B5D8' },
+    { id: '6', name: 'Dermatologist', imageUrl: '/specialties/dermatologist.jpg', icon: 'skin', color: '#D53F8C' },
+    { id: '7', name: 'Ophthalmologist', imageUrl: '/specialties/ophthalmologist.jpg', icon: 'eye', color: '#805AD5' },
+    { id: '8', name: 'Pediatrician', imageUrl: '/specialties/pediatrician.jpg', icon: 'baby', color: '#4FD1C5' },
+    { id: '9', name: 'Psychiatrist', imageUrl: '/specialties/psychiatrist.jpg', icon: 'mind', color: '#F6AD55' },
   ]);
   
   const [dates, setDates] = useState<Date[]>([]);
@@ -95,56 +99,100 @@ const UnifiedBookingView = () => {
 
   // Paso 3: Crear componente de icono médico
   const renderSpecialtyIcon = (icon: string | undefined, isSelected: boolean = false) => {
-    const color = isSelected ? '#007AFF' : '#777777';
+    // Obtenemos el color correspondiente a la especialidad o usamos un color por defecto
+    const specialty = specialties.find(s => s.icon === icon);
+    // El color del borde siempre será el de la especialidad
+    const color = specialty?.color || '#777777';
+    const strokeWidth = isSelected ? "2" : "1.5";
     
     switch (icon) {
       case 'brain':
         return (
-          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M9.5 2a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5z"></path>
-            <path d="M14.5 2a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z"></path>
-            <path d="M19.5 7.5c0 1.57-1.4 3-3 3"></path>
-            <path d="M4.5 7.5c0 1.57 1.4 3 3 3"></path>
-            <path d="M18 10v7a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4v-7"></path>
-            <path d="M10 16.5V10"></path>
-            <path d="M14 16.5V10"></path>
-            <path d="M9 14h6"></path>
+          <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+            <path d="M6 19a2 2 0 0 1-2-2v-4l-1-1a2 2 0 0 1 0-3l1-1V6a2 2 0 0 1 2-2h3.93a2 2 0 0 1 1.66.9l.41.59a2 2 0 0 0 1.66.9H16a2 2 0 0 1 2 2v1.5"></path>
+            <path d="M12 19v-2.5a2.5 2.5 0 0 1 2.5-2.5A2.5 2.5 0 0 0 17 11.5v-3a2.5 2.5 0 0 1 2.5-2.5h1a1.5 1.5 0 0 1 1.5 1.5v4a1.5 1.5 0 0 1-1.5 1.5h-1a2.5 2.5 0 0 0-2.5 2.5v3.5a2 2 0 0 1-2 2Z"></path>
+            <path d="M12 13a4 4 0 0 1 0-8"></path>
+            <path d="M10 9.5a2.5 2.5 0 0 0 0 5"></path>
           </svg>
         );
       case 'heart':
         return (
-          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
             <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path>
+            <path d="M12 5 9.04 7.96a2.17 2.17 0 0 0 0 3.08v0c.82.82 2.13.82 2.95 0l1.9-1.9c.2-.2.51-.2.71 0v0c.2.2.2.51 0 .71L12 12.34"></path>
           </svg>
         );
       case 'bone':
         return (
-          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M17 10c.7-.7 1.69-1 2.8-.8 1.1.2 2 1.1 2.2 2.2.2 1.11-.1 2.1-.8 2.8l-3 3c-.7.7-1.69 1-2.8.8-1.1-.2-2-1.1-2.2-2.2-.2-1.11.1-2.1.8-2.8Z"></path>
-            <path d="m9.5 15.5-5 5"></path>
-            <path d="M14 11 9 16"></path>
-            <path d="m17 14 5-5"></path>
-            <path d="M13.5 6.5 19 1"></path>
-            <path d="m13.5 6.5-5 5"></path>
-            <path d="M7 10c-.7.7-1.69 1-2.8.8-1.1-.2-2-1.1-2.2-2.2-.2-1.11.1-2.1.8-2.8l3-3c.7-.7 1.69-1 2.8-.8 1.1.2 2 1.1 2.2 2.2.2 1.11-.1 2.1-.8 2.8Z"></path>
+          <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+            <path d="M18 6.42v-.06a2.97 2.97 0 0 0-2.97-2.97h-.05a2.97 2.97 0 0 0-2.84 3.75L12 8"></path>
+            <path d="M12 16.01V16l.12.87a2.96 2.96 0 0 0 2.86 2.48 2.97 2.97 0 0 0 2.97-2.97v-.11A2.97 2.97 0 0 0 14.9 13.4L12 12l-2.8-1.4a2.97 2.97 0 0 0-3.06-.04 2.97 2.97 0 0 0-.03 5.05l1.4.86"></path>
+            <path d="M12 8.02v-.04A2.97 2.97 0 0 0 9.03 5h-.08a2.97 2.97 0 0 0-2.97 2.97v.05a2.97 2.97 0 0 0 1.84 2.76L12 12"></path>
           </svg>
         );
       case 'lungs':
         return (
-          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M6.081 20c-1.886 0-3.522-1.254-4.03-3.06C1.39 14.882 1.856 9.877 3.74 7c.886-1.353 2.573-1.144 3.285-.271.712.873.97 2.369.584 3.588A5.24 5.24 0 0 1 6.6 12.71v1.7"></path>
-            <path d="M17.92 20c1.886 0 3.52-1.254 4.03-3.06C22.61 14.882 22.144 9.877 20.26 7c-.887-1.353-2.573-1.144-3.286-.271-.712.873-.97 2.369-.583 3.588.193.631.452 1.235.77 1.793v1.7"></path>
-            <path d="M6.08 20h11.84"></path>
-            <path d="M12 20V4"></path>
-            <path d="M12 4c-1 0-3 .6-3 3"></path>
-            <path d="M12 4c1 0 3 .6 3 3"></path>
+          <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+            <path d="M8.5 6a.5.5 0 1 0-1 0 .5.5 0 0 0 1 0Z"></path>
+            <path d="M18.5 7c0-1-1-2-3-2s-2.9 1-2.9 2c.1 2 .9 3 1.9 3 .9 0 1.6-.8 1.9-2"></path>
+            <path d="M10.5 7c0-1-1-2-3-2s-3 1-3 2c.1 2 .9 3 1.9 3 1 0 1.6-.8 1.9-2"></path>
+            <path d="M12 12V4"></path>
+            <path d="M8 21c-4-1-4-4-4-10"></path>
+            <path d="M16 21c4-1 4-4 4-10"></path>
           </svg>
         );
       case 'tooth':
         return (
-          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
             <path d="M12 5.5c-1.5-2-3-2.5-4-2.5-3 0-5 2.5-5 5 0 1.5.5 2 1 3 .2.2.2.5 0 1-1 2 1 3 1 3 1 1 3 1 3-1 0-1 .5-1 1-1s1 0 1 1c0 2 2 2 3 1 0 0 2-1 1-3-.2-.5-.2-.8 0-1 .5-1 1-1.5 1-3 0-2.5-2-5-5-5-1 0-2.5.5-4 2.5Z"></path>
-            <path d="M12 5.5V3"></path>
+            <path d="M15.5 12.5c-.7 1-1.5 2.3-3.5 2.5-2-.2-2.8-1.5-3.5-2.5"></path>
+          </svg>
+        );
+      case 'skin':
+        return (
+          <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+            <path d="M5 3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2H5Z"></path>
+            <path d="m8 9 3 3 5-5"></path>
+            <path d="M16 14v2.5"></path>
+            <path d="M14 17.5v-1"></path>
+            <path d="M10 13v-2.5"></path>
+            <path d="M7 10.5v1"></path>
+          </svg>
+        );
+      case 'eye':
+        return (
+          <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M12 9v0"></path>
+            <path d="M12 15v0"></path>
+            <path d="M9 12h0"></path>
+            <path d="M15 12h0"></path>
+          </svg>
+        );
+      case 'baby':
+        return (
+          <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+            <path d="M9 12h0"></path>
+            <path d="M15 12h0"></path>
+            <path d="M10 16c0 1.1.9 2 2 2s2-.9 2-2"></path>
+            <path d="M17 9a5 5 0 0 0-10 0"></path>
+            <path d="M12 3c.6 0 1.1.2 1.5.5"></path>
+            <path d="M12 3v2"></path>
+            <path d="m8 18-2 3"></path>
+            <path d="m16 18 2 3"></path>
+            <path d="M12 20v-6"></path>
+          </svg>
+        );
+      case 'mind':
+        return (
+          <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+            <path d="M9.3 16a4.8 4.8 0 0 0 5.4 0"></path>
+            <path d="M7 10c0-1.7 1.3-3 3-3h4c1.7 0 3 1.3 3 3v2c0 1.7-1.3 3-3 3h-4c-1.7 0-3-1.3-3-3v-2z"></path>
+            <circle cx="8" cy="12" r="1"></circle>
+            <circle cx="16" cy="12" r="1"></circle>
+            <path d="M16 7h3a2 2 0 0 1 2 2v1.5"></path>
+            <path d="M3 11v-1a2 2 0 0 1 2-2h3"></path>
           </svg>
         );
       default:
@@ -409,9 +457,15 @@ const UnifiedBookingView = () => {
             {specialties.map((specialty) => (
               <div 
                 key={specialty.id} 
-                className={`flex-shrink-0 flex flex-col items-center justify-center w-24 h-24 bg-white rounded-2xl shadow-sm p-2 ${
-                  selectedSpecialty?.id === specialty.id ? 'ring-2 ring-primary' : 'border border-gray-100'
-                }`}
+                className={`flex-shrink-0 flex flex-col items-center justify-center w-24 h-24 bg-white rounded-2xl shadow-sm p-2 transition-all duration-200`}
+                style={{
+                  backgroundColor: selectedSpecialty?.id === specialty.id 
+                    ? `${specialty.color}10` 
+                    : 'white',
+                  border: selectedSpecialty?.id === specialty.id 
+                    ? `2px solid ${specialty.color}` 
+                    : '1px solid #f3f4f6',
+                }}
                 onClick={() => handleSpecialtySelect(specialty)}
               >
                 <div className="flex items-center justify-center mb-2">
@@ -422,7 +476,8 @@ const UnifiedBookingView = () => {
                 </div>
                 
                 {selectedSpecialty?.id === specialty.id && (
-                  <div className="absolute top-1 right-1 bg-primary w-4 h-4 rounded-full flex items-center justify-center text-white text-xs">
+                  <div className="absolute top-1 right-1 w-4 h-4 rounded-full flex items-center justify-center text-white text-xs"
+                    style={{ backgroundColor: specialty.color }}>
                     ✓
                   </div>
                 )}

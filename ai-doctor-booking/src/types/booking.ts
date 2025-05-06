@@ -3,6 +3,7 @@ export interface Specialty {
   name: string;
   imageUrl?: string;
   icon?: string;
+  color?: string;
 }
 
 export interface TimeSlot {
