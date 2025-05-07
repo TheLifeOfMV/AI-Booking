@@ -28,6 +28,8 @@ export default function BookingLayout({
       // Allow manual navigation from success screen
       router.push('/bookings');
     } else if (pathname === '/booking/unified') {
+      router.push('/booking/insurance');
+    } else if (pathname === '/booking/insurance') {
       router.push('/channel');
     } else {
       router.back();

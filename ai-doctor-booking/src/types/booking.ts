@@ -27,6 +27,8 @@ export interface DraftBooking {
   doctorId: string;
   date: Date;
   slotId: string;
+  hasInsurance?: boolean;
+  insuranceProvider?: string;
 }
 
 export interface Booking extends DraftBooking {
