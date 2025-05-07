@@ -40,18 +40,21 @@ const IntroCarousel: React.FC = () => {
     <div className="h-screen flex flex-col bg-white">
       {/* Main Content Area - Split into Two Sections */}
       <div className="flex-1 flex flex-col">
-        {/* Doctor Image Section */}
+        {/* Doctor Image Section - Modified to take remaining space */}
         <div className="flex-1 relative bg-white rounded-b-[2rem] overflow-hidden">
-          {/* Doctor Image */}
-          <div className="w-full h-full flex items-center justify-center pt-1">
-            <div className="relative w-[95%] h-[95%] rounded-3xl overflow-hidden shadow-card">
+          {/* Doctor Image - Modified container to fill available space */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="relative w-full h-full">
               <Image
                 src="/images/Doctor.intro.png"
                 alt="Professional doctor"
                 fill
                 priority
-                style={{ objectFit: 'contain', objectPosition: 'center 10%' }}
-                className={`rounded-3xl transition-opacity duration-500 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                style={{ 
+                  objectFit: 'cover', 
+                  objectPosition: 'center 10%'
+                }}
+                className={`transition-opacity duration-500 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
                 onLoad={() => setImageLoaded(true)}
               />
               {!imageLoaded && (
