@@ -110,9 +110,14 @@ export default function LoginPage() {
   };
   
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-white p-4">
+    <div className="h-[100dvh] flex flex-col items-center justify-center bg-gradient-to-b from-blue-50 to-white py-4 px-4 overflow-hidden">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
+          <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-3">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
           <h1 className="text-3xl font-bold text-dark-grey mb-2">
             {mode === 'login' ? 'Welcome Back' : 'Create Account'}
           </h1>
@@ -124,17 +129,17 @@ export default function LoginPage() {
           </p>
         </div>
         
-        <div className="bg-white rounded-xl shadow-lg p-6 md:p-8">
+        <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8">
           {/* Role selection toggle */}
           <div className="flex justify-center mb-6">
             <div className="inline-flex border border-light-grey rounded-full overflow-hidden">
               <button
                 type="button"
                 onClick={() => setUserRole('client')}
-                className={`px-4 py-2 text-sm font-medium ${
+                className={`px-4 py-2 text-sm font-medium transition-all duration-300 ${
                   userRole === 'client'
-                    ? 'bg-light-grey text-dark-grey'
-                    : 'bg-transparent text-dark-grey'
+                    ? 'bg-gradient-to-r from-blue-50 to-white text-dark-grey'
+                    : 'bg-transparent text-dark-grey hover:bg-blue-50'
                 }`}
               >
                 Client
@@ -142,10 +147,10 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => setUserRole('doctor')}
-                className={`px-4 py-2 text-sm font-medium ${
+                className={`px-4 py-2 text-sm font-medium transition-all duration-300 ${
                   userRole === 'doctor'
-                    ? 'bg-light-grey text-dark-grey'
-                    : 'bg-transparent text-dark-grey'
+                    ? 'bg-gradient-to-r from-blue-50 to-white text-dark-grey'
+                    : 'bg-transparent text-dark-grey hover:bg-blue-50'
                 }`}
               >
                 Doctor
@@ -160,7 +165,7 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={toggleIdentifierType}
-                  className="group block text-sm font-medium text-dark-grey hover:text-primary focus:outline-none flex items-center gap-1 transition-colors duration-200"
+                  className="group block text-sm font-medium text-dark-grey hover:text-dark-grey focus:outline-none flex items-center gap-1 transition-colors duration-200"
                   aria-haspopup="true"
                   aria-label={`Switch to ${identifierType === 'email' ? 'phone' : 'email'} input`}
                 >
@@ -177,7 +182,7 @@ export default function LoginPage() {
                 placeholder={identifierType === 'email' ? 'example@domain.com' : '(123) 456-7890'}
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
-                className={`w-full px-4 py-2 border ${identifierError ? 'border-red-500' : 'border-light-grey'} rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent`}
+                className={`w-full px-4 py-2 border ${identifierError ? 'border-red-500' : 'border-light-grey'} rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300`}
                 required
               />
               {identifierError && (
@@ -220,7 +225,7 @@ export default function LoginPage() {
               type="primary"
               fullWidth
               disabled={isLoading}
-              className="mt-2"
+              className="mt-2 transition-all duration-300 hover:shadow-md"
             >
               {isLoading ? 'Loading...' : mode === 'login' ? 'Sign In' : 'Sign Up'}
             </Button>
@@ -238,6 +243,16 @@ export default function LoginPage() {
               </button>
             </p>
           </div>
+        </div>
+        
+        {/* Info section */}
+        <div className="text-center text-xs text-medium-grey mt-4">
+          <p className="mt-1 flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-primary mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Your data is secure and encrypted
+          </p>
         </div>
       </div>
     </div>

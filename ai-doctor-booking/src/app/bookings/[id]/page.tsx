@@ -85,7 +85,7 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
   if (isLoading) {
     return (
       <div className="p-4 flex justify-center items-center min-h-screen">
-        <p className="text-medium-grey">Cargando detalles de la cita... / Loading booking details...</p>
+        <p className="text-medium-grey">Cargando detalles de la cita... </p>
       </div>
     );
   }
@@ -98,7 +98,7 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
           className="mt-4 text-primary font-medium"
           onClick={() => fetchBookingById(params.id)}
         >
-          Intentar de nuevo / Try Again
+          Intentar de nuevo
         </button>
       </div>
     );
@@ -107,12 +107,12 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
   if (!selectedBooking) {
     return (
       <div className="p-4 text-center min-h-screen">
-        <p className="text-medium-grey">Cita no encontrada / Booking not found</p>
+        <p className="text-medium-grey">Cita no encontrada</p>
         <button 
           className="mt-4 text-primary font-medium"
           onClick={handleBack}
         >
-          Regresar / Go Back
+          Regresar
         </button>
       </div>
     );
@@ -135,10 +135,10 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
             <path d="M19 12H5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             <path d="M12 19L5 12L12 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
-          <span className="ml-2">Regresar / Back</span>
+          <span className="ml-2">Regresar</span>
         </button>
         
-        <h1 className="text-xl font-semibold mb-4">Detalles de la Cita / Appointment Details</h1>
+        <h1 className="text-xl font-semibold mb-4">Detalles de la Cita</h1>
         
         <div className="text-lg font-semibold mb-3">
           {formatDate(selectedBooking.date)}, {selectedBooking.slotTime}
@@ -179,26 +179,26 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
                 ? 'bg-blue-500' 
                 : 'bg-yellow-500'
         }`}>
-          {selectedBooking.status === 'confirmed' ? 'Confirmada / Confirmed' : 
-           selectedBooking.status === 'cancelled' ? 'Cancelada / Cancelled' : 
-           selectedBooking.status === 'completed' ? 'Completada / Completed' : 
-           'Pendiente / Pending'}
+          {selectedBooking.status === 'confirmed' ? 'Confirmada' : 
+           selectedBooking.status === 'cancelled' ? 'Cancelada' : 
+           selectedBooking.status === 'completed' ? 'Completada' : 
+           'Pendiente'}
         </div>
       </div>
       
       {/* Booking information */}
       <div className="p-4">
         <div className="bg-white rounded-xl p-4 shadow-sm mb-6">
-          <h2 className="font-semibold text-lg mb-3">Información de la Cita / Appointment Information</h2>
+          <h2 className="font-semibold text-lg mb-3">Información de la Cita</h2>
           
           <div className="space-y-4">
             <div className="flex justify-between py-2 border-b border-light-grey">
-              <span className="text-medium-grey">Fecha / Date</span>
+              <span className="text-medium-grey">Fecha</span>
               <span className="font-medium">{formatDate(selectedBooking.date)}</span>
             </div>
             
             <div className="flex justify-between py-2 border-b border-light-grey">
-              <span className="text-medium-grey">Hora / Time</span>
+              <span className="text-medium-grey">Hora</span>
               <span className="font-medium">{selectedBooking.slotTime}</span>
             </div>
             
@@ -208,22 +208,22 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
             </div>
             
             <div className="flex justify-between py-2 border-b border-light-grey">
-              <span className="text-medium-grey">Especialidad / Specialty</span>
+              <span className="text-medium-grey">Especialidad</span>
               <span className="font-medium">{selectedBooking.specialtyName}</span>
             </div>
             
             <div className="flex justify-between py-2 border-b border-light-grey">
-              <span className="text-medium-grey">Ubicación / Location</span>
+              <span className="text-medium-grey">Ubicación</span>
               <span className="font-medium">{selectedBooking.location}</span>
             </div>
             
             <div className="flex justify-between py-2 border-b border-light-grey">
-              <span className="text-medium-grey">Precio / Price</span>
+              <span className="text-medium-grey">Precio</span>
               <span className="font-medium">${selectedBooking.price}</span>
             </div>
             
             <div className="flex justify-between py-2">
-              <span className="text-medium-grey">Estado / Status</span>
+              <span className="text-medium-grey">Estado</span>
               <span className={`font-medium ${
                 selectedBooking.status === 'confirmed' 
                   ? 'text-green-600' 
@@ -233,10 +233,10 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
                       ? 'text-blue-600' 
                       : 'text-yellow-600'
               }`}>
-                {selectedBooking.status === 'confirmed' ? 'Confirmada / Confirmed' : 
-                 selectedBooking.status === 'cancelled' ? 'Cancelada / Cancelled' : 
-                 selectedBooking.status === 'completed' ? 'Completada / Completed' : 
-                 'Pendiente / Pending'}
+                {selectedBooking.status === 'confirmed' ? 'Confirmada' : 
+                 selectedBooking.status === 'cancelled' ? 'Cancelada' : 
+                 selectedBooking.status === 'completed' ? 'Completada' : 
+                 'Pendiente'}
               </span>
             </div>
           </div>
@@ -244,10 +244,9 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
         
         {/* Contact doctor */}
         <div className="bg-white rounded-xl p-4 shadow-sm mb-6">
-          <h2 className="font-semibold text-lg mb-3">Contactar al Doctor / Contact Doctor</h2>
+          <h2 className="font-semibold text-lg mb-3">Contactar al Doctor</h2>
           <p className="text-medium-grey mb-3">
             ¿Necesitas hacer una pregunta antes de tu cita? Puedes contactar a tu doctor directamente.
-            <br /><small>Need to ask a question before your appointment? You can contact your doctor directly.</small>
           </p>
           
           <div className="flex flex-col space-y-3">
@@ -258,7 +257,7 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2">
                 <path d="M22 16.92V19.92C22 20.4704 21.7893 20.9996 21.4142 21.3746C21.0391 21.7497 20.5099 21.9604 19.9595 21.96C16.4275 21.6886 13.0149 20.346 10.0905 18.08C7.37456 16.0001 5.13092 13.7565 3.051 11.04C0.780377 8.1055 -0.562316 4.6805 0.0395304 1.14C0.0390863 0.589939 0.249685 0.061002 0.624749 -0.314058C0.999813 -0.689118 1.52902 -0.899891 2.08 -0.9H5.08C6.08866 -0.913677 6.9167 0.249001 7.08 1.23C7.23842 2.25478 7.52283 3.25824 7.931 4.22C8.24627 5.01723 8.08471 5.91214 7.59 6.51L6.39 7.71C8.33361 10.5381 10.6619 12.8664 13.49 14.81L14.69 13.61C15.2879 13.1153 16.1828 12.9537 16.98 13.27C17.9417 13.6782 18.9452 13.9626 19.97 14.12C20.9582 14.2851 21.5791 15.1132 21.565 16.12L22 16.92Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-              Llamar al Doctor / Call Doctor
+              Llamar al Doctor
             </a>
             
             <a 
@@ -269,7 +268,7 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
                 <path d="M4 4H20C21.1 4 22 4.9 22 6V18C22 19.1 21.1 20 20 20H4C2.9 20 2 19.1 2 18V6C2 4.9 2.9 4 4 4Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 <path d="M22 6L12 13L2 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-              Enviar Email / Email Doctor
+              Enviar Email
             </a>
 
             <a 
@@ -299,7 +298,7 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
                 <path d="M4 11H20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 <path d="M10 16L12 14V19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-              Reprogramar Cita / Reschedule Appointment
+              Reprogramar Cita
             </button>
           )}
           
@@ -313,7 +312,7 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
                 <path d="M15 9L9 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 <path d="M9 9L15 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-              Cancelar Cita / Cancel Appointment
+              Cancelar Cita
             </button>
           )}
           
@@ -321,7 +320,7 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
             href="/bookings"
             className="border border-dark-grey text-dark-grey w-full py-3 rounded-lg font-medium flex items-center justify-center"
           >
-            Ver Todas las Citas / View All Appointments
+            Ver Todas las Citas
           </Link>
         </div>
       </div>
@@ -343,7 +342,7 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
               <path d="M4 11H20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               <path d="M12 16H12.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
-            Añadir al Calendario / Add to Calendar
+            Añadir al Calendario
           </button>
         </div>
       )}
@@ -352,10 +351,9 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
       {showCancelConfirm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl p-5 w-full max-w-md">
-            <h3 className="font-semibold text-lg mb-3">¿Estás seguro? / Are you sure?</h3>
+            <h3 className="font-semibold text-lg mb-3">¿Estás seguro?</h3>
             <p className="text-medium-grey mb-5">
               Esta acción cancelará tu cita con {selectedBooking.doctorName} el {formatDate(selectedBooking.date)} a las {selectedBooking.slotTime}.
-              <br /><small>This action will cancel your appointment with {selectedBooking.doctorName} on {formatDate(selectedBooking.date)} at {selectedBooking.slotTime}.</small>
             </p>
             
             <div className="flex gap-3">
@@ -364,7 +362,7 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
                 className="flex-1 border border-dark-grey text-dark-grey py-2 rounded-lg font-medium"
                 disabled={cancelling}
               >
-                No, Mantener / Keep
+                No, Mantener
               </button>
               <button 
                 onClick={handleCancelBooking}
@@ -372,9 +370,9 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
                 disabled={cancelling}
               >
                 {cancelling ? (
-                  <span>Cancelando... / Cancelling...</span>
+                  <span>Cancelando...</span>
                 ) : (
-                  <span>Sí, Cancelar / Cancel</span>
+                  <span>Sí, Cancelar</span>
                 )}
               </button>
             </div>
@@ -386,10 +384,9 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
       {showRescheduleModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl p-5 w-full max-w-md">
-            <h3 className="font-semibold text-lg mb-3">Reprogramar Cita / Reschedule Appointment</h3>
+            <h3 className="font-semibold text-lg mb-3">Reprogramar Cita</h3>
             <p className="text-medium-grey mb-5">
               ¿Deseas reprogramar tu cita con {selectedBooking.doctorName}?
-              <br /><small>Do you want to reschedule your appointment with {selectedBooking.doctorName}?</small>
             </p>
             
             <div className="flex gap-3">
@@ -397,13 +394,13 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
                 onClick={() => setShowRescheduleModal(false)}
                 className="flex-1 border border-dark-grey text-dark-grey py-2 rounded-lg font-medium"
               >
-                Cancelar / Cancel
+                Cancelar
               </button>
               <Link
                 href={`/booking/reschedule/${selectedBooking.id}`}
                 className="flex-1 bg-primary text-white py-2 rounded-lg font-medium flex items-center justify-center"
               >
-                Continuar / Continue
+                Continuar
               </Link>
             </div>
           </div>

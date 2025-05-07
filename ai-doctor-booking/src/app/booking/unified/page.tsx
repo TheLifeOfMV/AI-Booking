@@ -297,12 +297,12 @@ const UnifiedBookingView = () => {
   };
 
   return (
-    <>
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
       {/* Aplicar estilos CSS para ocultar barras de desplazamiento */}
       <style jsx global>{hideScrollbarCSS}</style>
       
       {/* Profile Header - Replacing the back button and title header */}
-      <header className="bg-white p-4 border-b border-light-grey">
+      <header className="p-4 border-b border-light-grey">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             <div className="w-10 h-10 bg-light-grey rounded-full overflow-hidden mr-3">
@@ -600,7 +600,7 @@ const UnifiedBookingView = () => {
           Book Appointment <span className="ml-2">›</span>
         </button>
       </div>
-    </>
+    </div>
   );
 };
 
