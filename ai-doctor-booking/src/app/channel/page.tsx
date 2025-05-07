@@ -19,12 +19,7 @@ export default function ChannelSelectionPage() {
   
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-white p-6 relative overflow-hidden">
-      {/* Decorative wavy pattern for visual interest as shown in style guide */}
-      <div className="absolute top-0 w-full h-12 opacity-20">
-        <svg viewBox="0 0 800 80" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-          <path d="M0,40 Q80,80 160,40 T320,40 T480,40 T640,40 T800,40" stroke="#333333" fill="none" strokeWidth="2"/>
-        </svg>
-      </div>
+      {/* Decorative wavy pattern removed */}
       
       <div className="w-full max-w-md text-center mb-10">
         <h1 className="text-3xl font-bold text-dark-grey mb-3">
@@ -91,12 +86,7 @@ export default function ChannelSelectionPage() {
         </div>
       </div>
       
-      {/* Bottom decorative wavy pattern */}
-      <div className="absolute bottom-0 w-full h-12 opacity-20">
-        <svg viewBox="0 0 800 80" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-          <path d="M0,40 Q80,0 160,40 T320,40 T480,40 T640,40 T800,40" stroke="#333333" fill="none" strokeWidth="2"/>
-        </svg>
-      </div>
+      {/* Bottom decorative wavy pattern removed */}
     </div>
   );
 } 
