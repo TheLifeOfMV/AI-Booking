@@ -33,7 +33,7 @@ const IntroCarousel: React.FC = () => {
     if (currentSlide < slides.length - 1) {
       setCurrentSlide(prev => prev + 1);
     } else {
-      router.push('/auth/register');
+      router.push('/login');
     }
   }, [currentSlide, router]);
 
