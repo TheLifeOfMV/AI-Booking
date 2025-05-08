@@ -5,6 +5,7 @@ import Image from 'next/image';
 import SlideIndicators from './SlideIndicators';
 import Button from './Button';
 import { useRouter } from 'next/navigation';
+import HighQualityImage from './HighQualityImage';
 
 // Define slide structure without unnecessary content
 const slides = [
@@ -14,7 +15,7 @@ const slides = [
 const IntroCarousel: React.FC = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlay, setIsAutoPlay] = useState(true);
-  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
@@ -45,40 +46,11 @@ const IntroCarousel: React.FC = () => {
           {/* Doctor Image - Modified container to fill available space */}
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="relative w-full h-full">
-              <Image
+              <HighQualityImage
                 src="/images/Doctor.intro.png"
                 alt="Professional doctor"
-                fill
-                priority
-                style={{ 
-                  objectFit: 'cover', 
-                  objectPosition: 'center 10%'
-                }}
-                className={`transition-opacity duration-500 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
-                onLoad={() => setImageLoaded(true)}
+                className="z-0"
               />
-              {!imageLoaded && (
-                <div className="absolute inset-0 flex items-center justify-center bg-light-grey/50">
-                  <div className="animate-pulse flex flex-col items-center gap-3 text-medium-grey">
-                    <svg 
-                      xmlns="http://www.w3.org/2000/svg" 
-                      width="48" 
-                      height="48" 
-                      viewBox="0 0 24 24" 
-                      fill="none" 
-                      stroke="currentColor" 
-                      strokeWidth="1.5" 
-                      strokeLinecap="round" 
-                      strokeLinejoin="round"
-                    >
-                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                      <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                      <polyline points="21 15 16 10 5 21"></polyline>
-                    </svg>
-                    <span>Loading image...</span>
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         </div>
