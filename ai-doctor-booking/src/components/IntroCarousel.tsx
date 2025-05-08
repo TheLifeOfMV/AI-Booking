@@ -87,7 +87,7 @@ const IntroCarousel: React.FC = () => {
         <div className="bg-dark-grey rounded-t-[2rem] -mt-6 text-white p-8 pb-6 z-10 overflow-hidden">
           {/* JUST TWO CLICKS */}
           <div className="uppercase text-xs tracking-wider mb-2 opacity-60 flex items-center">
-            Just two clicks
+            Solo dos clics
             <div className="flex ml-4 items-center gap-1">
               <span className="inline-block w-1 h-1 rounded-full bg-white opacity-60"></span>
               <span className="inline-block w-1 h-1 rounded-full bg-white opacity-60"></span>
@@ -140,10 +140,10 @@ const IntroCarousel: React.FC = () => {
             className="mt-6 py-4 rounded-xl flex items-center justify-center font-medium"
           >
             {currentSlide < slides.length - 1 ? (
-              'Get Started'
+              'Comenzar'
             ) : (
               <>
-                Get Started
+                Comenzar
                 <span className="ml-2">›</span>
               </>
             )}

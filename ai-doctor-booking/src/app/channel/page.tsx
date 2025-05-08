@@ -14,7 +14,7 @@ export default function ChannelSelectionPage() {
     } else {
       // For now, we just show an alert for phone/whatsapp options
       // This would be replaced with actual functionality in the future
-      alert(`${channel} booking will be available in a future update.`);
+      alert(`La reserva por ${channel === 'phone' ? 'teléfono' : 'WhatsApp'} estará disponible en una actualización futura.`);
     }
   };
   
@@ -23,10 +23,10 @@ export default function ChannelSelectionPage() {
       {/* Header - Reduced bottom margin */}
       <div className="w-full max-w-md text-center mx-auto mb-3 mt-2">
         <h1 className="text-2xl font-bold text-dark-grey mb-1">
-          Choose Your Booking Channel
+          Elige tu Canal de Reserva
         </h1>
         <p className="text-medium-grey text-sm">
-          Select your preferred way to schedule your appointment
+          Selecciona tu forma preferida para agendar tu cita
         </p>
       </div>
       
@@ -41,7 +41,7 @@ export default function ChannelSelectionPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h2 className="text-sm font-semibold text-primary uppercase tracking-wide">Available Options</h2>
+            <h2 className="text-sm font-semibold text-primary uppercase tracking-wide">Opciones Disponibles</h2>
           </div>
           
           {/* Phone Call Card - With blue gradient background */}
@@ -55,11 +55,11 @@ export default function ChannelSelectionPage() {
               </svg>
             </div>
             <div className="ml-4 flex-1">
-              <h3 className="text-lg font-semibold text-dark-grey">Phone Call</h3>
-              <p className="text-medium-grey text-sm mb-1">Speak with our virtual assistant</p>
+              <h3 className="text-lg font-semibold text-dark-grey">Llamada Telefónica</h3>
+              <p className="text-medium-grey text-sm mb-1">Habla con nuestro asistente virtual</p>
             </div>
             <Button type="text" className="shrink-0 flex items-center justify-center">
-              Select <span className="ml-1">›</span>
+              Seleccionar <span className="ml-1">›</span>
             </Button>
           </div>
           
@@ -75,10 +75,10 @@ export default function ChannelSelectionPage() {
             </div>
             <div className="ml-4 flex-1">
               <h3 className="text-lg font-semibold text-dark-grey">WhatsApp</h3>
-              <p className="text-medium-grey text-sm mb-1">Chat with our AI assistant</p>
+              <p className="text-medium-grey text-sm mb-1">Chatea con nuestro asistente IA</p>
             </div>
             <Button type="text" className="shrink-0 flex items-center justify-center">
-              Select <span className="ml-1">›</span>
+              Seleccionar <span className="ml-1">›</span>
             </Button>
           </div>
           
@@ -93,23 +93,23 @@ export default function ChannelSelectionPage() {
               </svg>
             </div>
             <div className="ml-4 flex-1">
-              <h3 className="text-lg font-semibold text-dark-grey">In-App</h3>
-              <p className="text-medium-grey text-sm mb-1">Book directly through our app</p>
+              <h3 className="text-lg font-semibold text-dark-grey">En la App</h3>
+              <p className="text-medium-grey text-sm mb-1">Reserva directamente a través de nuestra app</p>
             </div>
             <Button type="text" className="shrink-0 flex items-center justify-center">
-              Select <span className="ml-1">›</span>
+              Seleccionar <span className="ml-1">›</span>
             </Button>
           </div>
         </div>
         
         {/* Info section */}
         <div className="text-center text-xs text-medium-grey mt-2">
-          <p>All booking methods provide the same high-quality service</p>
+          <p>Todos los métodos de reserva ofrecen el mismo servicio de alta calidad</p>
           <p className="mt-1 flex items-center justify-center">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-primary mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            Appointment can be rescheduled at any time
+            Las citas pueden ser reprogramadas en cualquier momento
           </p>
         </div>
       </div>

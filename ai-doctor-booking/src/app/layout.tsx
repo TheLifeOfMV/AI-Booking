@@ -5,7 +5,7 @@ import BottomNavigation from "@/components/BottomNavigation";
 
 export const metadata: Metadata = {
   title: "AI Doctor Booking",
-  description: "Multi-channel platform for patients to book medical appointments via app, WhatsApp or phone",
+  description: "Plataforma multicanal para que los pacientes reserven citas médicas a través de la aplicación, WhatsApp o teléfono",
 };
 
 export default function RootLayout({
@@ -14,7 +14,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="es">
       <body className="antialiased">
         <RouteGuardProvider>
           <main className="min-h-screen pb-16">

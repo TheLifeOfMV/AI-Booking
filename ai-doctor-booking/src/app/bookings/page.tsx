@@ -15,7 +15,7 @@ export default function BookingsPage() {
   }, [fetchUserBookings]);
   
   const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('en-US', {
+    return new Intl.DateTimeFormat('es-ES', {
       day: 'numeric',
       month: 'long',
       year: 'numeric'
@@ -41,7 +41,7 @@ export default function BookingsPage() {
   if (isLoading) {
     return (
       <div className="p-4 flex justify-center items-center min-h-screen">
-        <p className="text-medium-grey">Loading bookings...</p>
+        <p className="text-medium-grey">Cargando citas...</p>
       </div>
     );
   }
@@ -54,7 +54,7 @@ export default function BookingsPage() {
           className="mt-4 text-primary font-medium"
           onClick={() => fetchUserBookings()}
         >
-          Try Again
+          Intentar de nuevo
         </button>
       </div>
     );
@@ -63,16 +63,16 @@ export default function BookingsPage() {
   return (
     <div className="p-4 pb-24 bg-gray-50">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold text-dark-grey">My Bookings</h1>
+        <h1 className="text-2xl font-semibold text-dark-grey">Mis Citas</h1>
       </div>
       
       <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-4">Upcoming Appointments</h2>
+        <h2 className="text-xl font-semibold mb-4">Citas Próximas</h2>
         {upcomingBookings.length === 0 ? (
           <div className="bg-white rounded-xl p-4 shadow-sm text-center">
-            <p className="text-medium-grey">No upcoming appointments</p>
+            <p className="text-medium-grey">No hay citas próximas</p>
             <Link href="/booking/specialty" className="text-primary font-medium mt-2 inline-block">
-              Book an Appointment
+              Agendar una Cita
             </Link>
           </div>
         ) : (
@@ -117,7 +117,7 @@ export default function BookingsPage() {
                   </div>
                   <div className="text-sm opacity-80 mb-4">{booking.location}</div>
                   <div className="bg-primary text-white py-2 px-4 rounded-lg inline-flex items-center font-medium text-sm">
-                    Pay now • {booking.price}$ <span className="ml-2">›</span>
+                    Pagar ahora • {booking.price}$ <span className="ml-2">›</span>
                   </div>
                 </div>
               </div>
@@ -127,10 +127,10 @@ export default function BookingsPage() {
       </section>
       
       <section>
-        <h2 className="text-xl font-semibold mb-4">Past Appointments</h2>
+        <h2 className="text-xl font-semibold mb-4">Citas Pasadas</h2>
         {pastBookings.length === 0 ? (
           <div className="bg-white rounded-xl p-4 shadow-sm text-center">
-            <p className="text-medium-grey">No past appointments</p>
+            <p className="text-medium-grey">No hay citas pasadas</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -173,7 +173,7 @@ export default function BookingsPage() {
                       ? 'bg-green-100 text-green-800' 
                       : 'bg-red-100 text-red-800'
                   }`}>
-                    {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
+                    {booking.status === 'completed' ? 'Completada' : 'Cancelada'}
                   </div>
                 </div>
               </div>

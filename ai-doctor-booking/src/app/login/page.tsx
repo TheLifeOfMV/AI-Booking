@@ -40,28 +40,28 @@ export default function LoginPage() {
     
     // Validate identifier (email or phone)
     if (!validateRequired(identifier)) {
-      setIdentifierError(identifierType === 'email' ? 'Email is required' : 'Phone number is required');
+      setIdentifierError(identifierType === 'email' ? 'El correo es requerido' : 'El número de teléfono es requerido');
       isValid = false;
     } else if (
       (identifierType === 'email' && !validateEmail(identifier)) ||
       (identifierType === 'phone' && !validatePhone(identifier))
     ) {
-      setIdentifierError(identifierType === 'email' ? 'Invalid email format' : 'Invalid phone number format');
+      setIdentifierError(identifierType === 'email' ? 'Formato de correo inválido' : 'Formato de teléfono inválido');
       isValid = false;
     }
     
     // Validate password
     if (!validateRequired(password)) {
-      setPasswordError('Password is required');
+      setPasswordError('La contraseña es requerida');
       isValid = false;
     } else if (!validatePassword(password)) {
-      setPasswordError('Password must be at least 8 characters');
+      setPasswordError('La contraseña debe tener al menos 8 caracteres');
       isValid = false;
     }
     
     // Additional validation for signup mode
     if (mode === 'signup' && password !== passwordConfirm) {
-      setPasswordConfirmError('Passwords do not match');
+      setPasswordConfirmError('Las contraseñas no coinciden');
       isValid = false;
     }
     
@@ -119,12 +119,12 @@ export default function LoginPage() {
             </svg>
           </div>
           <h1 className="text-3xl font-bold text-dark-grey mb-2">
-            {mode === 'login' ? 'Welcome Back' : 'Create Account'}
+            {mode === 'login' ? 'Bienvenido de Nuevo' : 'Crear Cuenta'}
           </h1>
           <p className="text-medium-grey">
             {mode === 'login' 
-              ? 'Sign in to continue to AI Doctor Booking'
-              : 'Sign up to start booking medical appointments'
+              ? 'Inicia sesión para continuar en AI Doctor Booking'
+              : 'Regístrate para empezar a agendar citas médicas'
             }
           </p>
         </div>
@@ -142,7 +142,7 @@ export default function LoginPage() {
                     : 'bg-transparent text-dark-grey hover:bg-blue-50'
                 }`}
               >
-                Client
+                Paciente
               </button>
               <button
                 type="button"
@@ -169,7 +169,7 @@ export default function LoginPage() {
                   aria-haspopup="true"
                   aria-label={`Switch to ${identifierType === 'email' ? 'phone' : 'email'} input`}
                 >
-                  {identifierType === 'email' ? 'Email' : 'Phone Number'}
+                  {identifierType === 'email' ? 'Correo' : 'Número de Teléfono'}
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-3 w-3 transition-transform duration-200 group-hover:rotate-180">
                     <path d="m6 9 6 6 6-6"/>
                   </svg>
@@ -193,8 +193,8 @@ export default function LoginPage() {
             <Input
               id="password"
               type="password"
-              label="Password"
-              placeholder="Enter your password"
+              label="Contraseña"
+              placeholder="Ingresa tu contraseña"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               error={passwordError}
