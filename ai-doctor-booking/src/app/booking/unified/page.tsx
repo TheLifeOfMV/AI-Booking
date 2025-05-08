@@ -297,7 +297,7 @@ const UnifiedBookingView = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
+    <div className="min-h-screen bg-gray-50">
       {/* Aplicar estilos CSS para ocultar barras de desplazamiento */}
       <style jsx global>{hideScrollbarCSS}</style>
       
@@ -354,7 +354,7 @@ const UnifiedBookingView = () => {
       </header>
 
       {/* Main Content */}
-      <div className="px-4 py-6 pb-20">
+      <div className="px-4 py-6 pb-20 bg-gray-50">
         {/* Paso 2 y 6: Crear el componente de barra de búsqueda y ajustar el estilo del contenedor */}
         <div className="search-bar-container mb-6 mt-2">
           <div className="flex items-center bg-light-grey rounded-full p-1 shadow-sm">

@@ -61,7 +61,7 @@ export default function BookingsPage() {
   }
   
   return (
-    <div className="p-4 pb-24">
+    <div className="p-4 pb-24 bg-gray-50">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-semibold text-dark-grey">My Bookings</h1>
       </div>

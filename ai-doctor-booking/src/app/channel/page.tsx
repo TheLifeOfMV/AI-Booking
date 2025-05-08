@@ -19,7 +19,7 @@ export default function ChannelSelectionPage() {
   };
   
   return (
-    <div className="h-[100dvh] flex flex-col bg-gradient-to-b from-blue-50 to-white py-4 px-4 overflow-hidden">
+    <div className="h-[100dvh] flex flex-col bg-gray-50 py-4 px-4 overflow-hidden">
       {/* Header - Reduced bottom margin */}
       <div className="w-full max-w-md text-center mx-auto mb-3 mt-2">
         <h1 className="text-2xl font-bold text-dark-grey mb-1">
@@ -47,7 +47,7 @@ export default function ChannelSelectionPage() {
           {/* Phone Call Card - With blue gradient background */}
           <div 
             onClick={() => handleChannelSelect('phone')}
-            className="bg-gradient-to-r from-blue-50 to-white rounded-xl shadow-sm p-3 transition-all duration-300 hover:shadow-md cursor-pointer border border-light-grey flex items-center mb-3"
+            className="bg-white rounded-xl shadow-sm p-3 transition-all duration-300 hover:shadow-md cursor-pointer border border-light-grey flex items-center mb-3"
           >
             <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center shrink-0">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -66,7 +66,7 @@ export default function ChannelSelectionPage() {
           {/* WhatsApp Card - Changed to blue gradient background */}
           <div 
             onClick={() => handleChannelSelect('whatsapp')}
-            className="bg-gradient-to-r from-blue-50 to-white rounded-xl shadow-sm p-3 transition-all duration-300 hover:shadow-md cursor-pointer border border-light-grey flex items-center mb-3"
+            className="bg-white rounded-xl shadow-sm p-3 transition-all duration-300 hover:shadow-md cursor-pointer border border-light-grey flex items-center mb-3"
           >
             <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center shrink-0">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-green-600" viewBox="0 0 24 24" fill="currentColor">
@@ -85,7 +85,7 @@ export default function ChannelSelectionPage() {
           {/* In-App Card - With consistent styling but gradient background restored */}
           <div 
             onClick={() => handleChannelSelect('app')}
-            className="bg-gradient-to-r from-primary/10 to-white rounded-xl shadow-sm p-3 transition-all duration-300 hover:shadow-md cursor-pointer border border-light-grey flex items-center relative overflow-hidden"
+            className="bg-white rounded-xl shadow-sm p-3 transition-all duration-300 hover:shadow-md cursor-pointer border border-light-grey flex items-center relative overflow-hidden"
           >
             <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center shrink-0">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">

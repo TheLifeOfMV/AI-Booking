@@ -18,7 +18,7 @@ export const SplashScreen: React.FC = () => {
   }, [router]);
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-white">
+    <div className="flex flex-col items-center justify-center h-screen bg-gray-50">
       <div className="w-64 h-64 relative mb-6">
         <Image
           src="/images/ChatGPT Image 6. Mai 2025, 23_19_44.png"

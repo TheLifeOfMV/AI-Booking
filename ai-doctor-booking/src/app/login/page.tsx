@@ -110,7 +110,7 @@ export default function LoginPage() {
   };
   
   return (
-    <div className="h-[100dvh] flex flex-col items-center justify-center bg-gradient-to-b from-blue-50 to-white py-4 px-4 overflow-hidden">
+    <div className="h-[100dvh] flex flex-col items-center justify-center bg-gray-50 py-4 px-4 overflow-hidden">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-3">

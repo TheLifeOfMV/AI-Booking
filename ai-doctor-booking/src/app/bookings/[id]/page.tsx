@@ -119,7 +119,7 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
   }
   
   return (
-    <div className="pb-24">
+    <div className="pb-24 bg-gray-50">
       {/* Header */}
       <div className="bg-dark-grey text-white p-6 relative">
         <div className="absolute top-3 right-3 left-3 h-8 z-10">
@@ -187,7 +187,7 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
       </div>
       
       {/* Booking information */}
-      <div className="p-4">
+      <div className="p-4 bg-gray-50">
         <div className="bg-white rounded-xl p-4 shadow-sm mb-6">
           <h2 className="font-semibold text-lg mb-3">Información de la Cita</h2>
           
