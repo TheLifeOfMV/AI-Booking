@@ -9,9 +9,10 @@ interface AuthState {
   login: (credentials: LoginCredentials) => Promise<void>;
   logout: () => void;
   clearError: () => void;
+  isAdmin: () => boolean;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
+export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   isLoading: false,
   isAuthenticated: false,
@@ -25,10 +26,14 @@ export const useAuthStore = create<AuthState>((set) => ({
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       // Simulate a successful login
+      // For demo: if login includes 'admin', assign admin role
+      const isAdminLogin = credentials.identifier.includes('admin');
+      
       const user: User = {
         id: '1',
         email: credentials.identifier.includes('@') ? credentials.identifier : 'user@example.com',
         phone: !credentials.identifier.includes('@') ? credentials.identifier : undefined,
+        role: isAdminLogin ? 'admin' : 'client',
       };
       
       set({ 
@@ -57,4 +62,9 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   clearError: () => set({ error: null }),
+  
+  isAdmin: () => {
+    const state = get();
+    return state.isAuthenticated && state.user?.role === 'admin';
+  },
 })); 

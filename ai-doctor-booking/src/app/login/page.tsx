@@ -1,16 +1,17 @@
 'use client';
 
-import React, { useState, FormEvent } from 'react';
+import React, { useState, FormEvent, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Input from '@/components/Input';
 import Button from '@/components/Button';
 import { useAuthStore } from '@/store/authStore';
 import { validateEmail, validatePhone, validateRequired, validatePassword } from '@/utils/validation';
+import Image from 'next/image';
 
 type AuthMode = 'login' | 'signup';
 type IdentifierType = 'email' | 'phone';
-type UserRole = 'client' | 'doctor';
+type UserRole = 'client' | 'doctor' | 'admin';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -29,6 +30,11 @@ export default function LoginPage() {
   const [identifierError, setIdentifierError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [passwordConfirmError, setPasswordConfirmError] = useState('');
+  
+  // Clear errors on unmount
+  useEffect(() => {
+    return () => clearError();
+  }, [clearError]);
   
   const validateForm = (): boolean => {
     let isValid = true;
@@ -79,15 +85,28 @@ export default function LoginPage() {
       return;
     }
     
-    if (mode === 'login') {
-      await login({ identifier, password });
-      // Redirect on successful login
-      router.push('/channel');
-    } else {
-      // Signup logic would go here in a real implementation
-      console.log('Signup with:', { identifier, password });
-      // For now, just switch to login mode
-      setMode('login');
+    // Prepare identifier based on login mode
+    let loginIdentifier = identifier;
+    
+    // For demo, add admin to identifier if admin role is selected
+    if (userRole === 'admin') {
+      loginIdentifier = `admin-${identifier}`;
+    }
+    
+    try {
+      await login({
+        identifier: loginIdentifier,
+        password
+      });
+      
+      // Redirect based on role
+      if (userRole === 'admin') {
+        router.push('/admin');
+      } else {
+        router.push('/channel');
+      }
+    } catch (err) {
+      // Error handling is managed by the store
     }
   };
   
@@ -106,155 +125,115 @@ export default function LoginPage() {
   };
   
   const toggleRole = () => {
-    setUserRole(userRole === 'client' ? 'doctor' : 'client');
+    if (userRole === 'admin') {
+      setUserRole('client');
+    } else if (userRole === 'client') {
+      setUserRole('doctor');
+    } else {
+      setUserRole('admin');
+    }
   };
   
   return (
-    <div className="h-[100dvh] flex flex-col items-center justify-center bg-gray-50 py-4 px-4 overflow-hidden">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-3">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
-          </div>
-          <h1 className="text-3xl font-bold text-dark-grey mb-2">
-            {mode === 'login' ? 'Bienvenido de Nuevo' : 'Crear Cuenta'}
-          </h1>
-          <p className="text-medium-grey">
-            {mode === 'login' 
-              ? 'Inicia sesión para continuar en AI Doctor Booking'
-              : 'Regístrate para empezar a agendar citas médicas'
-            }
-          </p>
+    <div className="min-h-screen flex flex-col bg-white">
+      {/* Header with logo */}
+      <header className="p-4 flex items-center justify-center border-b border-light-grey">
+        <div className="w-40">
+          <Image 
+            src="/logo.png" 
+            alt="AI Doctor Booking Logo" 
+            width={160} 
+            height={40} 
+            priority
+          />
         </div>
-        
-        <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+      </header>
+      
+      {/* Main content */}
+      <main className="flex-1 flex flex-col items-center justify-center p-6">
+        <div className="w-full max-w-sm">
+          <h1 className="text-2xl font-bold text-center mb-8">
+            Iniciar Sesión
+          </h1>
+          
           {/* Role selection toggle */}
-          <div className="flex justify-center mb-6">
-            <div className="inline-flex border border-light-grey rounded-full overflow-hidden">
-              <button
-                type="button"
-                onClick={() => setUserRole('client')}
-                className={`px-4 py-2 text-sm font-medium transition-all duration-300 ${
-                  userRole === 'client'
-                    ? 'bg-gradient-to-r from-blue-50 to-white text-dark-grey'
-                    : 'bg-transparent text-dark-grey hover:bg-blue-50'
-                }`}
-              >
-                Paciente
-              </button>
-              <button
-                type="button"
-                onClick={() => setUserRole('doctor')}
-                className={`px-4 py-2 text-sm font-medium transition-all duration-300 ${
-                  userRole === 'doctor'
-                    ? 'bg-gradient-to-r from-blue-50 to-white text-dark-grey'
-                    : 'bg-transparent text-dark-grey hover:bg-blue-50'
-                }`}
-              >
-                Doctor
-              </button>
-            </div>
+          <div className="flex rounded-lg bg-light-grey p-1 mb-8">
+            <button 
+              className={`flex-1 py-2 text-sm font-medium rounded-md transition ${
+                userRole === 'client' 
+                  ? 'bg-white text-primary shadow-sm' 
+                  : 'text-medium-grey'
+              }`}
+              onClick={() => setUserRole('client')}
+            >
+              Paciente
+            </button>
+            <button 
+              className={`flex-1 py-2 text-sm font-medium rounded-md transition ${
+                userRole === 'doctor' 
+                  ? 'bg-white text-primary shadow-sm' 
+                  : 'text-medium-grey'
+              }`}
+              onClick={() => setUserRole('doctor')}
+            >
+              Doctor
+            </button>
+            <button 
+              className={`flex-1 py-2 text-sm font-medium rounded-md transition ${
+                userRole === 'admin' 
+                  ? 'bg-white text-primary shadow-sm' 
+                  : 'text-medium-grey'
+              }`}
+              onClick={() => setUserRole('admin')}
+            >
+              Admin
+            </button>
           </div>
           
+          {/* Login form */}
           <form onSubmit={handleSubmit}>
-            {/* First input group with inline toggle */}
-            <div className="mb-4">
-              <div className="mb-2">
-                <button
-                  type="button"
-                  onClick={toggleIdentifierType}
-                  className="group block text-sm font-medium text-dark-grey hover:text-dark-grey focus:outline-none flex items-center gap-1 transition-colors duration-200"
-                  aria-haspopup="true"
-                  aria-label={`Switch to ${identifierType === 'email' ? 'phone' : 'email'} input`}
-                >
-                  {identifierType === 'email' ? 'Correo' : 'Número de Teléfono'}
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-3 w-3 transition-transform duration-200 group-hover:rotate-180">
-                    <path d="m6 9 6 6 6-6"/>
-                  </svg>
-                </button>
-              </div>
-              
-              <input
-                id="identifier"
-                type={identifierType === 'email' ? 'email' : 'tel'}
-                placeholder={identifierType === 'email' ? 'example@domain.com' : '(123) 456-7890'}
+            <div className="space-y-4">
+              <Input
+                label="Email o teléfono"
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
-                className={`w-full px-4 py-2 border ${identifierError ? 'border-red-500' : 'border-light-grey'} rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300`}
                 required
+                placeholder={userRole === 'admin' ? "admin@example.com" : "email@ejemplo.com"}
               />
-              {identifierError && (
-                <p className="mt-1 text-xs text-red-500">{identifierError}</p>
-              )}
-            </div>
-            
-            <Input
-              id="password"
-              type="password"
-              label="Contraseña"
-              placeholder="Ingresa tu contraseña"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              error={passwordError}
-              required
-            />
-            
-            {mode === 'signup' && (
+              
               <Input
-                id="passwordConfirm"
+                label="Contraseña"
                 type="password"
-                label="Confirm Password"
-                placeholder="Confirm your password"
-                value={passwordConfirm}
-                onChange={(e) => setPasswordConfirm(e.target.value)}
-                error={passwordConfirmError}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 required
+                placeholder="••••••••"
               />
-            )}
-            
-            {error && (
-              <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg">
-                {error}
-              </div>
-            )}
-            
-            <Button
-              htmlType="submit"
-              type="primary"
-              fullWidth
-              disabled={isLoading}
-              className="mt-2 transition-all duration-300 hover:shadow-md"
-            >
-              {isLoading ? 'Loading...' : mode === 'login' ? 'Sign In' : 'Sign Up'}
-            </Button>
+              
+              {error && (
+                <div className="py-2 px-3 bg-red-50 text-red-500 text-sm rounded-lg">
+                  {error}
+                </div>
+              )}
+              
+              <Button 
+                type="primary" 
+                className="w-full"
+                htmlType="submit"
+                disabled={isLoading}
+              >
+                {isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
+              </Button>
+            </div>
           </form>
           
           <div className="mt-6 text-center">
-            <p className="text-medium-grey">
-              {mode === 'login' ? "Don't have an account?" : "Already have an account?"}
-              <button 
-                type="button"
-                onClick={toggleMode}
-                className="ml-1 text-primary font-medium"
-              >
-                {mode === 'login' ? 'Sign Up' : 'Sign In'}
-              </button>
+            <p className="text-medium-grey text-sm">
+              Para propósitos de demo, puedes usar cualquier email y contraseña
             </p>
           </div>
         </div>
-        
-        {/* Info section */}
-        <div className="text-center text-xs text-medium-grey mt-4">
-          <p className="mt-1 flex items-center justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-primary mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            Your data is secure and encrypted
-          </p>
-        </div>
-      </div>
+      </main>
     </div>
   );
 } 

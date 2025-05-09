@@ -3,6 +3,7 @@ export interface User {
   email: string;
   name?: string;
   phone?: string;
+  role?: 'client' | 'doctor' | 'admin';
 }
 
 export interface LoginCredentials {
