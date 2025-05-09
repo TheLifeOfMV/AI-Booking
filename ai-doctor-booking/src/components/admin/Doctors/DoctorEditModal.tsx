@@ -2,7 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { Doctor, CredentialStatus } from '@/types/doctor';
-import { SPECIALTIES } from '@/services/doctorService';
+import { updateDoctor } from '@/services/doctorService';
+import { useToast } from '@/components/ToastProvider';
+import ProfileStep from './steps/ProfileStep';
+import SpecialtiesStep from './steps/SpecialtiesStep';
+import AvailabilityStep from './steps/AvailabilityStep';
 
 interface DoctorEditModalProps {
   isOpen: boolean;
@@ -15,9 +19,11 @@ interface DoctorEditModalProps {
  * Multi-step edit modal for doctors
  * 
  * Allows editing of doctor details including:
- * - Basic profile information
- * - Specialty and credentials
- * - Availability and fees
+ * - Basic profile information (step 1)
+ * - Specialty and credentials (step 2)
+ * - Availability and fees (step 3)
+ * 
+ * Features UI optimistic updates for a seamless user experience
  */
 const DoctorEditModal: React.FC<DoctorEditModalProps> = ({
   isOpen,
@@ -35,6 +41,9 @@ const DoctorEditModal: React.FC<DoctorEditModalProps> = ({
   // Form state - initialize with current doctor data
   const [formData, setFormData] = useState<Doctor>({ ...doctor });
   
+  // Original data for optimistic UI reversal if needed
+  const [originalData, setOriginalData] = useState<Doctor>({ ...doctor });
+  
   // Loading and error states
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -42,32 +51,30 @@ const DoctorEditModal: React.FC<DoctorEditModalProps> = ({
   // Validation states
   const [errors, setErrors] = useState<Record<string, string>>({});
   
-  // Specialties state
-  const [specialties, setSpecialties] = useState(SPECIALTIES);
+  // Change confirmation state
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   
-  // Load specialties
+  // Toast notification
+  const { showToast } = useToast();
+  
+  // Initialize form data when doctor changes
   useEffect(() => {
-    const fetchSpecialties = async () => {
-      try {
-        const response = await fetch('/api/admin/doctors/specialties');
-        if (response.ok) {
-          const data = await response.json();
-          setSpecialties(data.specialties);
-        }
-      } catch (error) {
-        console.error('Error fetching specialties:', error);
-        // Fall back to mock data already loaded
-      }
-    };
-    
-    fetchSpecialties();
-  }, []);
+    setFormData({ ...doctor });
+    setOriginalData({ ...doctor });
+  }, [doctor]);
+  
+  // Check for unsaved changes
+  useEffect(() => {
+    const hasChanges = JSON.stringify(formData) !== JSON.stringify(originalData);
+    setHasUnsavedChanges(hasChanges);
+  }, [formData, originalData]);
   
   // Handle form field changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target as HTMLInputElement;
     
-    // For nested properties, use a switch statement
+    // For nested properties, use a split
     if (name.includes('.')) {
       const [parent, child] = name.split('.');
       
@@ -84,8 +91,8 @@ const DoctorEditModal: React.FC<DoctorEditModalProps> = ({
       // Convert to number if it's a number input
       const finalValue = type === 'number' ? parseFloat(value) : value;
       
-      // Handle approval checkbox
-      if (name === 'approvalStatus') {
+      // Handle checkbox
+      if (type === 'checkbox') {
         setFormData({
           ...formData,
           [name]: (e.target as HTMLInputElement).checked,
@@ -107,6 +114,23 @@ const DoctorEditModal: React.FC<DoctorEditModalProps> = ({
     }
   };
   
+  // Handle specialty change
+  const handleSpecialtyChange = (specialtyId: string, specialtyName: string) => {
+    setFormData({
+      ...formData,
+      specialtyId,
+      specialtyName
+    });
+    
+    // Clear specialty error if exists
+    if (errors.specialtyId) {
+      setErrors({
+        ...errors,
+        specialtyId: '',
+      });
+    }
+  };
+  
   // Handle credential status change
   const handleCredentialStatusChange = (status: CredentialStatus) => {
     setFormData({
@@ -116,6 +140,14 @@ const DoctorEditModal: React.FC<DoctorEditModalProps> = ({
         status,
         ...(status === 'verified' ? { verifiedAt: new Date().toISOString() } : {}),
       },
+    });
+  };
+  
+  // Handle availability change
+  const handleAvailabilityChange = (availableTimes: Doctor['availableTimes']) => {
+    setFormData({
+      ...formData,
+      availableTimes
     });
   };
   
@@ -135,7 +167,7 @@ const DoctorEditModal: React.FC<DoctorEditModalProps> = ({
         newErrors.email = 'Valid email is required';
       }
       
-      if (!formData.phone.trim()) {
+      if (!formData.phone?.trim()) {
         newErrors.phone = 'Phone is required';
       }
     } else if (currentStep === 2) {
@@ -160,6 +192,10 @@ const DoctorEditModal: React.FC<DoctorEditModalProps> = ({
       if (!formData.consultationFee || formData.consultationFee <= 0) {
         newErrors.consultationFee = 'Valid consultation fee is required';
       }
+      
+      if (!formData.availableTimes || formData.availableTimes.length === 0) {
+        newErrors.availableTimes = 'At least one availability slot is required';
+      }
     }
     
     setErrors(newErrors);
@@ -178,7 +214,27 @@ const DoctorEditModal: React.FC<DoctorEditModalProps> = ({
     setCurrentStep(prev => Math.max(prev - 1, 1));
   };
   
-  // Handle saving the form
+  // Handle cancel
+  const handleCancel = () => {
+    if (hasUnsavedChanges) {
+      setShowConfirmDialog(true);
+    } else {
+      onClose();
+    }
+  };
+  
+  // Confirm discard changes
+  const confirmDiscard = () => {
+    setShowConfirmDialog(false);
+    onClose();
+  };
+  
+  // Cancel discard changes
+  const cancelDiscard = () => {
+    setShowConfirmDialog(false);
+  };
+  
+  // Handle saving the form with optimistic updates
   const handleSave = async () => {
     if (!validateStep()) {
       return;
@@ -187,28 +243,32 @@ const DoctorEditModal: React.FC<DoctorEditModalProps> = ({
     setIsLoading(true);
     setError(null);
     
+    // Optimistically update the UI
+    onSave(formData);
+    
     try {
-      const response = await fetch(`/api/admin/doctors/${doctor.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
+      const updatedDoctor = await updateDoctor(doctor.id, formData);
       
-      if (!response.ok) {
-        throw new Error('Failed to save doctor information');
-      }
+      // Show success message
+      showToast('success', 'Doctor updated successfully');
       
-      const data = await response.json();
-      
-      // Call the onSave handler with the updated doctor
-      onSave(data.doctor);
+      // Close the modal
+      onClose();
     } catch (err: any) {
+      // Revert the optimistic update
+      onSave(originalData);
+      
+      // Show error message
       setError(err.message || 'An error occurred while saving');
+      showToast('error', err.message || 'Failed to update doctor');
     } finally {
       setIsLoading(false);
     }
+  };
+  
+  // Get the current step progress percentage
+  const getProgressPercentage = () => {
+    return ((currentStep - 1) / (totalSteps - 1)) * 100;
   };
   
   // Render the step content based on current step
@@ -216,306 +276,31 @@ const DoctorEditModal: React.FC<DoctorEditModalProps> = ({
     switch (currentStep) {
       case 1:
         return (
-          <div className="space-y-4">
-            <h2 className="text-xl font-semibold text-dark-grey mb-4">Basic Information</h2>
-            
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium text-dark-grey mb-1">
-                Full Name
-              </label>
-              <input
-                id="name"
-                name="name"
-                type="text"
-                value={formData.name}
-                onChange={handleChange}
-                className={`w-full p-2 border ${
-                  errors.name ? 'border-red-500' : 'border-gray-300'
-                } rounded-md focus:ring-primary focus:border-primary`}
-              />
-              {errors.name && <p className="mt-1 text-sm text-red-500">{errors.name}</p>}
-            </div>
-            
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-dark-grey mb-1">
-                Email
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={handleChange}
-                className={`w-full p-2 border ${
-                  errors.email ? 'border-red-500' : 'border-gray-300'
-                } rounded-md focus:ring-primary focus:border-primary`}
-              />
-              {errors.email && <p className="mt-1 text-sm text-red-500">{errors.email}</p>}
-            </div>
-            
-            <div>
-              <label htmlFor="phone" className="block text-sm font-medium text-dark-grey mb-1">
-                Phone Number
-              </label>
-              <input
-                id="phone"
-                name="phone"
-                type="tel"
-                value={formData.phone}
-                onChange={handleChange}
-                className={`w-full p-2 border ${
-                  errors.phone ? 'border-red-500' : 'border-gray-300'
-                } rounded-md focus:ring-primary focus:border-primary`}
-              />
-              {errors.phone && <p className="mt-1 text-sm text-red-500">{errors.phone}</p>}
-            </div>
-            
-            <div>
-              <label htmlFor="status" className="block text-sm font-medium text-dark-grey mb-1">
-                Status
-              </label>
-              <select
-                id="status"
-                name="status"
-                value={formData.status}
-                onChange={handleChange}
-                className="w-full p-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary"
-              >
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-                <option value="pending">Pending</option>
-              </select>
-            </div>
-          </div>
+          <ProfileStep 
+            formData={formData} 
+            errors={errors} 
+            handleChange={handleChange} 
+          />
         );
-        
       case 2:
         return (
-          <div className="space-y-4">
-            <h2 className="text-xl font-semibold text-dark-grey mb-4">Specialty & Credentials</h2>
-            
-            <div>
-              <label htmlFor="specialtyId" className="block text-sm font-medium text-dark-grey mb-1">
-                Specialty
-              </label>
-              <select
-                id="specialtyId"
-                name="specialtyId"
-                value={formData.specialtyId}
-                onChange={(e) => {
-                  const selectedSpecialty = specialties.find(s => s.id === e.target.value);
-                  setFormData({
-                    ...formData,
-                    specialtyId: e.target.value,
-                    specialtyName: selectedSpecialty ? selectedSpecialty.name : formData.specialtyName
-                  });
-                }}
-                className={`w-full p-2 border ${
-                  errors.specialtyId ? 'border-red-500' : 'border-gray-300'
-                } rounded-md focus:ring-primary focus:border-primary`}
-              >
-                <option value="">Select Specialty</option>
-                {specialties.map((specialty) => (
-                  <option key={specialty.id} value={specialty.id}>
-                    {specialty.name}
-                  </option>
-                ))}
-              </select>
-              {errors.specialtyId && <p className="mt-1 text-sm text-red-500">{errors.specialtyId}</p>}
-            </div>
-            
-            <div>
-              <label htmlFor="experience" className="block text-sm font-medium text-dark-grey mb-1">
-                Experience
-              </label>
-              <input
-                id="experience"
-                name="experience"
-                type="text"
-                placeholder="e.g. 10+ years"
-                value={formData.experience}
-                onChange={handleChange}
-                className={`w-full p-2 border ${
-                  errors.experience ? 'border-red-500' : 'border-gray-300'
-                } rounded-md focus:ring-primary focus:border-primary`}
-              />
-              {errors.experience && <p className="mt-1 text-sm text-red-500">{errors.experience}</p>}
-            </div>
-            
-            <div className="border-t pt-4 mt-4">
-              <h3 className="text-lg font-medium text-dark-grey mb-3">Credential Information</h3>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="licenseNumber" className="block text-sm font-medium text-dark-grey mb-1">
-                    License Number
-                  </label>
-                  <input
-                    id="licenseNumber"
-                    name="credentials.licenseNumber"
-                    type="text"
-                    value={formData.credentials.licenseNumber}
-                    onChange={handleChange}
-                    className={`w-full p-2 border ${
-                      errors['credentials.licenseNumber'] ? 'border-red-500' : 'border-gray-300'
-                    } rounded-md focus:ring-primary focus:border-primary`}
-                  />
-                  {errors['credentials.licenseNumber'] && (
-                    <p className="mt-1 text-sm text-red-500">{errors['credentials.licenseNumber']}</p>
-                  )}
-                </div>
-                
-                <div>
-                  <label htmlFor="expiryDate" className="block text-sm font-medium text-dark-grey mb-1">
-                    Expiry Date
-                  </label>
-                  <input
-                    id="expiryDate"
-                    name="credentials.expiryDate"
-                    type="date"
-                    value={formData.credentials.expiryDate.split('T')[0]}
-                    onChange={handleChange}
-                    className={`w-full p-2 border ${
-                      errors['credentials.expiryDate'] ? 'border-red-500' : 'border-gray-300'
-                    } rounded-md focus:ring-primary focus:border-primary`}
-                  />
-                  {errors['credentials.expiryDate'] && (
-                    <p className="mt-1 text-sm text-red-500">{errors['credentials.expiryDate']}</p>
-                  )}
-                </div>
-              </div>
-              
-              <div className="mt-4">
-                <label className="block text-sm font-medium text-dark-grey mb-2">
-                  Credential Status
-                </label>
-                <div className="flex space-x-4">
-                  <button
-                    type="button"
-                    onClick={() => handleCredentialStatusChange('pending')}
-                    className={`px-3 py-1 rounded-full border ${
-                      formData.credentials.status === 'pending'
-                        ? 'bg-yellow-100 border-yellow-300 text-yellow-800'
-                        : 'border-gray-300 text-medium-grey'
-                    }`}
-                  >
-                    Pending Review
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleCredentialStatusChange('verified')}
-                    className={`px-3 py-1 rounded-full border ${
-                      formData.credentials.status === 'verified'
-                        ? 'bg-green-100 border-green-300 text-green-800'
-                        : 'border-gray-300 text-medium-grey'
-                    }`}
-                  >
-                    Verified
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleCredentialStatusChange('rejected')}
-                    className={`px-3 py-1 rounded-full border ${
-                      formData.credentials.status === 'rejected'
-                        ? 'bg-red-100 border-red-300 text-red-800'
-                        : 'border-gray-300 text-medium-grey'
-                    }`}
-                  >
-                    Rejected
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
+          <SpecialtiesStep 
+            formData={formData} 
+            errors={errors} 
+            handleChange={handleChange}
+            handleSpecialtyChange={handleSpecialtyChange}
+            handleCredentialStatusChange={handleCredentialStatusChange}
+          />
         );
-        
       case 3:
         return (
-          <div className="space-y-4">
-            <h2 className="text-xl font-semibold text-dark-grey mb-4">Availability & Settings</h2>
-            
-            <div className="flex items-center space-x-2 mb-6">
-              <input
-                id="approvalStatus"
-                name="approvalStatus"
-                type="checkbox"
-                checked={formData.approvalStatus}
-                onChange={handleChange}
-                className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
-              />
-              <label htmlFor="approvalStatus" className="block text-sm font-medium text-dark-grey">
-                Approved for Booking (Visible to Patients)
-              </label>
-            </div>
-            
-            <div>
-              <label htmlFor="consultationFee" className="block text-sm font-medium text-dark-grey mb-1">
-                Consultation Fee ($)
-              </label>
-              <input
-                id="consultationFee"
-                name="consultationFee"
-                type="number"
-                min="0"
-                step="5"
-                value={formData.consultationFee}
-                onChange={handleChange}
-                className={`w-full p-2 border ${
-                  errors.consultationFee ? 'border-red-500' : 'border-gray-300'
-                } rounded-md focus:ring-primary focus:border-primary`}
-              />
-              {errors.consultationFee && (
-                <p className="mt-1 text-sm text-red-500">{errors.consultationFee}</p>
-              )}
-            </div>
-            
-            <div className="flex items-center space-x-2 mb-2">
-              <input
-                id="isVirtual"
-                name="isVirtual"
-                type="checkbox"
-                checked={formData.isVirtual}
-                onChange={handleChange}
-                className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
-              />
-              <label htmlFor="isVirtual" className="block text-sm font-medium text-dark-grey">
-                Offers Virtual Consultations
-              </label>
-            </div>
-            
-            <div>
-              <label htmlFor="location" className="block text-sm font-medium text-dark-grey mb-1">
-                Office Location
-              </label>
-              <input
-                id="location"
-                name="location"
-                type="text"
-                value={formData.location || ''}
-                onChange={handleChange}
-                className="w-full p-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary"
-              />
-            </div>
-            
-            <div className="border-t pt-4 mt-4">
-              <h3 className="text-lg font-medium text-dark-grey mb-3">Availability Schedule</h3>
-              <p className="text-sm text-medium-grey mb-4">
-                Detailed availability scheduling can be managed from the dedicated scheduling interface.
-              </p>
-              <button
-                type="button"
-                className="px-4 py-2 border border-primary text-primary rounded-md hover:bg-primary/5"
-                onClick={() => {
-                  // This would open a more detailed scheduling interface in a real app
-                  alert('Scheduling interface would open here in the complete implementation');
-                }}
-              >
-                Manage Availability Schedule
-              </button>
-            </div>
-          </div>
+          <AvailabilityStep 
+            formData={formData} 
+            errors={errors} 
+            handleChange={handleChange}
+            handleAvailabilityChange={handleAvailabilityChange}
+          />
         );
-        
       default:
         return null;
     }
@@ -528,49 +313,84 @@ const DoctorEditModal: React.FC<DoctorEditModalProps> = ({
         <div className="flex justify-between items-center px-6 py-4 border-b">
           <h2 className="text-xl font-semibold text-dark-grey">Edit Doctor</h2>
           <button
-            onClick={onClose}
+            onClick={handleCancel}
             className="text-medium-grey hover:text-dark-grey"
+            aria-label="Close"
           >
-            ✕
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
           </button>
         </div>
         
-        {/* Modal content */}
+        {/* Progress indicator */}
+        <div className="w-full h-1 bg-light-grey">
+          <div 
+            className="h-full bg-primary transition-all duration-300 ease-in-out"
+            style={{ width: `${getProgressPercentage()}%` }}
+          />
+        </div>
+        
         <div className="flex">
           {/* Step indicator */}
-          <div className="w-48 bg-light-grey p-4 flex flex-col">
-            <div className="space-y-1 flex-1">
+          <div className="w-64 bg-light-grey p-4 flex flex-col">
+            <div className="space-y-3 flex-1">
               <button
                 onClick={() => setCurrentStep(1)}
-                className={`w-full text-left p-2 rounded-md ${
+                className={`w-full text-left p-3 rounded-md transition-colors duration-200 ${
                   currentStep === 1 ? 'bg-primary text-white' : 'hover:bg-gray-200'
                 }`}
               >
-                1. Basic Information
+                <div className="flex items-center">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-3 ${
+                    currentStep === 1 ? 'bg-white text-primary' : 'bg-gray-300 text-medium-grey'
+                  }`}>
+                    1
+                  </div>
+                  <span>Basic Information</span>
+                </div>
               </button>
+              
               <button
                 onClick={() => validateStep() && setCurrentStep(2)}
-                className={`w-full text-left p-2 rounded-md ${
+                className={`w-full text-left p-3 rounded-md transition-colors duration-200 ${
                   currentStep === 2 ? 'bg-primary text-white' : 'hover:bg-gray-200'
                 }`}
               >
-                2. Specialty & Credentials
+                <div className="flex items-center">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-3 ${
+                    currentStep === 2 ? 'bg-white text-primary' : 'bg-gray-300 text-medium-grey'
+                  }`}>
+                    2
+                  </div>
+                  <span>Specialty & Credentials</span>
+                </div>
               </button>
+              
               <button
                 onClick={() => validateStep() && setCurrentStep(3)}
-                className={`w-full text-left p-2 rounded-md ${
+                className={`w-full text-left p-3 rounded-md transition-colors duration-200 ${
                   currentStep === 3 ? 'bg-primary text-white' : 'hover:bg-gray-200'
                 }`}
               >
-                3. Availability & Settings
+                <div className="flex items-center">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-3 ${
+                    currentStep === 3 ? 'bg-white text-primary' : 'bg-gray-300 text-medium-grey'
+                  }`}>
+                    3
+                  </div>
+                  <span>Availability & Settings</span>
+                </div>
               </button>
             </div>
             
-            <div className="pt-4 border-t mt-auto">
-              <div className="text-sm text-medium-grey">
-                <div><strong>ID:</strong> {doctor.id}</div>
+            {/* Doctor meta info */}
+            <div className="mt-8 text-sm text-medium-grey">
+              <div className="mb-1"><strong>ID:</strong> {doctor.id}</div>
+              {doctor.createdAt && (
                 <div><strong>Created:</strong> {new Date(doctor.createdAt).toLocaleDateString()}</div>
-              </div>
+              )}
             </div>
           </div>
           
@@ -592,7 +412,7 @@ const DoctorEditModal: React.FC<DoctorEditModalProps> = ({
                   <button
                     type="button"
                     onClick={handlePrevStep}
-                    className="px-4 py-2 border border-gray-300 text-medium-grey rounded-md hover:bg-gray-50"
+                    className="px-4 py-2 border border-gray-300 text-medium-grey rounded-md hover:bg-gray-50 transition-colors duration-200"
                     disabled={isLoading}
                   >
                     Previous
@@ -600,11 +420,11 @@ const DoctorEditModal: React.FC<DoctorEditModalProps> = ({
                 )}
               </div>
               
-              <div className="flex space-x-2">
+              <div className="flex space-x-3">
                 <button
                   type="button"
-                  onClick={onClose}
-                  className="px-4 py-2 border border-gray-300 text-medium-grey rounded-md hover:bg-gray-50"
+                  onClick={handleCancel}
+                  className="px-4 py-2 border border-gray-300 text-medium-grey rounded-md hover:bg-gray-50 transition-colors duration-200"
                   disabled={isLoading}
                 >
                   Cancel
@@ -614,16 +434,19 @@ const DoctorEditModal: React.FC<DoctorEditModalProps> = ({
                   <button
                     type="button"
                     onClick={handleNextStep}
-                    className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90"
+                    className="px-6 py-2 bg-primary text-white rounded-md hover:bg-blue-600 transition-colors duration-200 flex items-center"
                     disabled={isLoading}
                   >
                     Next
+                    <svg className="ml-2 w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
                   </button>
                 ) : (
                   <button
                     type="button"
                     onClick={handleSave}
-                    className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 flex items-center"
+                    className="px-6 py-2 bg-primary text-white rounded-md hover:bg-blue-600 transition-colors duration-200 flex items-center"
                     disabled={isLoading}
                   >
                     {isLoading ? (
@@ -635,7 +458,12 @@ const DoctorEditModal: React.FC<DoctorEditModalProps> = ({
                         Saving...
                       </>
                     ) : (
-                      'Save Doctor'
+                      <>
+                        Save
+                        <svg className="ml-2 w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M5 13L9 17L19 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </>
                     )}
                   </button>
                 )}
@@ -643,6 +471,32 @@ const DoctorEditModal: React.FC<DoctorEditModalProps> = ({
             </div>
           </div>
         </div>
+        
+        {/* Confirmation Dialog for unsaved changes */}
+        {showConfirmDialog && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+            <div className="bg-white rounded-lg p-6 max-w-md">
+              <h3 className="text-lg font-semibold mb-4 text-dark-grey">Discard changes?</h3>
+              <p className="text-medium-grey mb-6">
+                You have unsaved changes that will be lost if you close this editor.
+              </p>
+              <div className="flex justify-end space-x-3">
+                <button
+                  onClick={cancelDiscard}
+                  className="px-4 py-2 border border-gray-300 text-medium-grey rounded-md hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmDiscard}
+                  className="px-4 py-2 bg-accent-orange text-white rounded-md hover:bg-orange-600"
+                >
+                  Discard
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
