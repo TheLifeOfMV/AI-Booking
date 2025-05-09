@@ -30,7 +30,14 @@ export default function UserFilters({ onFilterChange, initialFilters = {} }: Use
   
   // Sync with initial filters when they change (e.g., from URL params)
   useEffect(() => {
-    setFilters(initialFilters);
+    // Use JSON stringification to do a deep comparison to avoid unnecessary updates
+    const currentFiltersStr = JSON.stringify(filters);
+    const initialFiltersStr = JSON.stringify(initialFilters);
+    
+    // Only update if the filters are actually different to prevent infinite loops
+    if (currentFiltersStr !== initialFiltersStr) {
+      setFilters(initialFilters);
+    }
   }, [initialFilters]);
   
   return (
