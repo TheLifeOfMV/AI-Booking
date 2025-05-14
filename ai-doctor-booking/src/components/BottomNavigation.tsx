@@ -2,10 +2,13 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { useAuthStore } from '@/store/authStore';
 
 export default function BottomNavigation() {
   const pathname = usePathname();
+  const router = useRouter();
+  const { user, isAuthenticated } = useAuthStore();
   
   // Check if the current path is one of the pre-app pages where navigation should be hidden
   const shouldHideNavigation = 
@@ -29,6 +32,9 @@ export default function BottomNavigation() {
   // Determine if we're in the doctor section
   const isDoctorSection = pathname?.startsWith('/doctor');
   
+  // Determine if we're in the patient profile section
+  const isPatientProfileSection = pathname?.startsWith('/patient/profile');
+  
   // Determine if we're in the booking section to decide where Home button should lead
   const isInBookingSection = pathname?.startsWith('/booking');
   
@@ -40,6 +46,19 @@ export default function BottomNavigation() {
   } else if (isInBookingSection) {
     homeHref = '/booking/unified';
   }
+  
+  // Handle profile navigation directly to prevent routing issues
+  const handleProfileClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    
+    if (isDoctorSection || user?.role === 'doctor') {
+      router.push('/doctor/profile');
+    } else {
+      // For client role or any other role, direct to patient profile
+      // This ensures the client always goes to the correct profile page
+      router.push('/patient/profile');
+    }
+  };
   
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-light-grey py-2 px-4 flex justify-around z-20">
@@ -98,11 +117,13 @@ export default function BottomNavigation() {
         <span className="text-xs mt-1">Citas</span>
       </Link>
       
-      <Link 
-        href={isDoctorSection ? "/doctor/profile" : "/profile"}
+      <a 
+        href="#"
+        onClick={handleProfileClick}
         className={`flex flex-col items-center ${
           (isDoctorSection && (isActive('/doctor/profile') || pathname?.includes('/doctor/profile/'))) || 
-          (isActive('/profile') && !isDoctorSection) 
+          (isPatientProfileSection) ||
+          (isActive('/profile') && !isDoctorSection && !isPatientProfileSection) 
             ? 'text-primary' 
             : 'text-medium-grey'
         }`}
@@ -115,7 +136,7 @@ export default function BottomNavigation() {
             stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
         <span className="text-xs mt-1">Perfil</span>
-      </Link>
+      </a>
     </div>
   );
 } 
