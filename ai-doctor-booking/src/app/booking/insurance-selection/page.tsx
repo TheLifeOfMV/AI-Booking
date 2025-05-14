@@ -86,26 +86,6 @@ const InsuranceSelectionPage = () => {
               <span className="text-primary font-medium">Seleccionar &rarr;</span>
             </div>
           </div>
-          
-          {/* Ilustración o gráfico informativo */}
-          <div className="bg-white rounded-xl p-3 shadow-sm mt-8">
-            <div className="flex items-start">
-              <div className="w-8 h-8 bg-blue-50 rounded-full flex items-center justify-center mr-3 flex-shrink-0 mt-0.5">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M12 16V12" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M12 8H12.01" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </div>
-              <div>
-                <h3 className="font-medium text-dark-grey text-sm">Información importante</h3>
-                <p className="text-xs text-medium-grey mt-1">
-                  Tenemos convenios con las principales aseguradoras del país. Seleccionar la opción correcta
-                  te permitirá acceder a beneficios específicos de tu plan.
-                </p>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>

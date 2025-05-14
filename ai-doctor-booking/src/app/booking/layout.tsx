@@ -30,7 +30,7 @@ export default function BookingLayout({
     } else if (pathname === '/booking/unified') {
       router.push('/booking/insurance');
     } else if (pathname === '/booking/insurance') {
-      router.push('/channel');
+      router.push('/booking/insurance-selection');
     } else {
       router.back();
     }
@@ -53,7 +53,7 @@ export default function BookingLayout({
               <path d="M12 19L5 12L12 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </button>
-          <h1 className="text-lg font-semibold">Agendar Cita</h1>
+          <h1 className="text-lg font-semibold mt-1">Canal de reserva</h1>
         </header>
       )}
       
