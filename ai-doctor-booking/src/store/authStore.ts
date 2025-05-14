@@ -33,7 +33,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         id: '1',
         email: credentials.identifier.includes('@') ? credentials.identifier : 'user@example.com',
         phone: !credentials.identifier.includes('@') ? credentials.identifier : undefined,
-        role: isAdminLogin ? 'admin' : 'client',
+        // Usar el rol proporcionado en las credenciales o determinarlo por el identificador
+        role: credentials.role || (isAdminLogin ? 'admin' : 'client'),
       };
       
       set({ 

@@ -9,6 +9,7 @@ export interface User {
 export interface LoginCredentials {
   identifier: string; // Can be email or phone
   password: string;
+  role?: 'client' | 'doctor' | 'admin'; // Campo opcional para especificar el rol
 }
 
 export interface SignupCredentials {

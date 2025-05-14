@@ -8,7 +8,8 @@ const nextConfig: NextConfig = {
     formats: ['image/webp', 'image/avif'],
     minimumCacheTTL: 60,
     dangerouslyAllowSVG: true,
-    contentDispositionType: 'attachment'
+    contentDispositionType: 'attachment',
+    domains: ['via.placeholder.com']
   }
 };
 

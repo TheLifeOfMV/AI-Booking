@@ -96,17 +96,24 @@ export default function LoginPage() {
     try {
       await login({
         identifier: loginIdentifier,
-        password
+        password,
+        role: userRole // Añadimos el rol para saber a dónde redirigir
       });
       
-      // Redirect based on role
+      // Redirigir basado en el rol seleccionado
       if (userRole === 'admin') {
         router.push('/admin');
+      } else if (userRole === 'doctor') {
+        // Comprobación para determinar si el doctor necesita registrarse
+        // En un caso real, esto debería venir del backend
+        // Para propósitos de la demo, siempre lo enviamos a registrarse primero
+        router.push('/doctor/register');
       } else {
         router.push('/channel');
       }
     } catch (err) {
       // Error handling is managed by the store
+      console.error('Error durante el login:', err);
     }
   };
   
@@ -199,6 +206,7 @@ export default function LoginPage() {
                 onChange={(e) => setIdentifier(e.target.value)}
                 required
                 placeholder={userRole === 'admin' ? "admin@example.com" : "email@ejemplo.com"}
+                error={identifierError}
               />
               
               <Input
@@ -208,6 +216,7 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 placeholder="••••••••"
+                error={passwordError}
               />
               
               {error && (
@@ -226,6 +235,17 @@ export default function LoginPage() {
               </Button>
             </div>
           </form>
+          
+          {userRole === 'doctor' && (
+            <div className="mt-4 text-center">
+              <Link 
+                href="/doctor/register" 
+                className="text-primary hover:underline"
+              >
+                ¿Eres especialista? Regístrate aquí
+              </Link>
+            </div>
+          )}
           
           <div className="mt-6 text-center">
             <p className="text-medium-grey text-sm">
