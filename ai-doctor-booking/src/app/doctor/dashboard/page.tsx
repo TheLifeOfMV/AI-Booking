@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { FiCalendar, FiClock, FiUsers, FiDollarSign, FiTrendingUp, FiBarChart, FiMessageCircle, FiChevronRight, FiBell } from 'react-icons/fi';
+import { FiCalendar, FiClock, FiUsers, FiDollarSign, FiTrendingUp, FiBarChart, FiMessageCircle, FiChevronRight, FiBell, FiUser } from 'react-icons/fi';
 
 // Datos de muestra para el dashboard
 const MOCK_APPOINTMENTS = [
@@ -91,8 +91,11 @@ const DoctorDashboardPage = () => {
             </button>
           </div>
           
-          <Link href="/doctor/profile" className="text-primary hover:text-primary/80 font-medium">
-            Ver Perfil
+          <Link 
+            href="/doctor/profile" 
+            className="flex items-center text-primary hover:text-primary/80 font-medium bg-primary/10 px-3 py-1.5 rounded-full transition-colors"
+          >
+            <FiUser className="mr-1.5" /> Ver Perfil
           </Link>
         </div>
       </div>
