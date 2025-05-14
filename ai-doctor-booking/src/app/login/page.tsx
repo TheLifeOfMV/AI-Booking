@@ -7,7 +7,6 @@ import Input from '@/components/Input';
 import Button from '@/components/Button';
 import { useAuthStore } from '@/store/authStore';
 import { validateEmail, validatePhone, validateRequired, validatePassword } from '@/utils/validation';
-import Image from 'next/image';
 
 type AuthMode = 'login' | 'signup';
 type IdentifierType = 'email' | 'phone';
@@ -143,19 +142,6 @@ export default function LoginPage() {
   
   return (
     <div className="min-h-screen flex flex-col bg-white">
-      {/* Header with logo */}
-      <header className="p-4 flex items-center justify-center border-b border-light-grey">
-        <div className="w-40">
-          <Image 
-            src="/logo.png" 
-            alt="AI Doctor Booking Logo" 
-            width={160} 
-            height={40} 
-            priority
-          />
-        </div>
-      </header>
-      
       {/* Main content */}
       <main className="flex-1 flex flex-col items-center justify-center p-6">
         <div className="w-full max-w-sm">
@@ -249,11 +235,18 @@ export default function LoginPage() {
           
           <div className="mt-6 text-center">
             <p className="text-medium-grey text-sm">
-              Para propósitos de demo, puedes usar cualquier email y contraseña
+              ¿Necesitas ayuda? <a href="#" className="text-primary hover:underline">Contáctanos</a>
             </p>
           </div>
         </div>
       </main>
+      
+      {/* Footer */}
+      <footer className="p-4 border-t border-light-grey text-center">
+        <p className="text-xs text-medium-grey">
+          &copy; {new Date().getFullYear()} MedAI. Todos los derechos reservados.
+        </p>
+      </footer>
     </div>
   );
 } 
