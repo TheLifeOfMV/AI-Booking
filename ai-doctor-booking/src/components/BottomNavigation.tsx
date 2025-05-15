@@ -18,7 +18,9 @@ export default function BottomNavigation() {
     pathname.startsWith('/channel') || 
     pathname.startsWith('/login') ||
     pathname.startsWith('/splash') ||
-    pathname.startsWith('/auth');
+    pathname.startsWith('/auth') ||
+    pathname === '/booking/insurance-selection' ||
+    pathname === '/booking/insurance';
   
   // If we're on a pre-app page, don't render the navigation bar
   if (shouldHideNavigation) {

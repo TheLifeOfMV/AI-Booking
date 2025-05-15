@@ -27,7 +27,7 @@ const InsuranceProvidersPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 pb-0">
       {/* Main Content */}
       <div className="px-4 pt-8 pb-4 flex flex-col h-screen">
         {/* Title Section */}
