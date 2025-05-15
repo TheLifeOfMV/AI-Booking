@@ -74,7 +74,7 @@ const UnifiedBookingView = () => {
       specialtyId: '1',
       avatarUrl: '/doctors/doctor1.jpg',
       rating: 4.8,
-      experience: '10+ years experienced',
+      experience: '10+ años de experiencia',
       availableSlots: [
         { id: '101', time: '8:00', isAvailable: true },
         { id: '102', time: '9:00', isAvailable: true },
@@ -87,7 +87,7 @@ const UnifiedBookingView = () => {
       specialtyId: '2',
       avatarUrl: '/doctors/doctor2.jpg',
       rating: 4.9,
-      experience: '15+ years experienced',
+      experience: '15+ años de experiencia',
       availableSlots: [
         { id: '201', time: '11:00', isAvailable: true },
         { id: '202', time: '13:00', isAvailable: true },
@@ -277,7 +277,7 @@ const UnifiedBookingView = () => {
   };
 
   const formatDay = (date: Date) => {
-    return date.toLocaleDateString('en-US', { weekday: 'short' }).charAt(0);
+    return date.toLocaleDateString('es-ES', { weekday: 'short' }).charAt(0);
   };
 
   const isSameDay = (date1: Date | null, date2: Date) => {
@@ -379,7 +379,7 @@ const UnifiedBookingView = () => {
             <div className="search-input flex items-center flex-1 pl-2 pr-3">
               <input 
                 type="text" 
-                placeholder="Search"
+                placeholder="Buscar"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyPress={handleKeyPress}
@@ -418,8 +418,8 @@ const UnifiedBookingView = () => {
         {/* Specialty Selection Card */}
         <div className="mb-3">
           <div className="flex justify-between items-center mb-2">
-            <h2 className="font-semibold text-base">Specialty</h2>
-            <span className="text-primary text-sm font-medium">See all</span>
+            <h2 className="font-semibold text-base">Especialidad</h2>
+            <span className="text-primary text-sm font-medium">Ver todas</span>
           </div>
           
           {/* Paso 4 y 5: Modificar el componente de tarjeta de especialidad y ajustar los estilos específicos */}
@@ -451,7 +451,7 @@ const UnifiedBookingView = () => {
 
         {/* Date Selection Card */}
         <div className="mb-3">
-          <h2 className="font-semibold text-base mb-2">Date</h2>
+          <h2 className="font-semibold text-base mb-2">Fecha</h2>
           
           <div className={`${scrollbarHideStyle} gap-3 pb-2 -mx-4 px-4`}>
             {dates.map((date, index) => (
@@ -480,8 +480,8 @@ const UnifiedBookingView = () => {
         {/* Doctor Selection Card with Time Slots */}
         <div className="mb-3">
           <div className="flex justify-between items-center mb-2">
-            <h2 className="font-semibold text-base">Doctors</h2>
-            <span className="text-primary text-sm font-medium">See all</span>
+            <h2 className="font-semibold text-base">Doctores</h2>
+            <span className="text-primary text-sm font-medium">Ver todos</span>
           </div>
 
           {isLoading ? (
@@ -495,7 +495,7 @@ const UnifiedBookingView = () => {
                 className="ml-2 underline"
                 onClick={clearError}
               >
-                Try Again
+                Intentar de nuevo
               </button>
             </div>
           ) : (
@@ -567,7 +567,7 @@ const UnifiedBookingView = () => {
           onClick={handleBookAppointment}
           disabled={!selectedSpecialty || !selectedDate || !selectedDoctor || !selectedSlot}
         >
-          Book Appointment <span className="ml-2">›</span>
+          Reservar Cita <span className="ml-2">›</span>
         </button>
       </div>
     </div>
