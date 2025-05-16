@@ -3,16 +3,16 @@
 import React from 'react';
 import dynamic from 'next/dynamic';
 
-// Use dynamic import to improve initial page load
+// Usar importación dinámica para mejorar la carga inicial de la página
 const DoctorsTable = dynamic(
   () => import('@/components/admin/Doctors/DoctorsTable'),
   { 
     loading: () => (
       <div className="w-full h-64 flex items-center justify-center">
-        <div className="animate-pulse text-medium-grey">Loading doctors table...</div>
+        <div className="animate-pulse text-medium-grey">Cargando tabla de doctores...</div>
       </div>
     ),
-    ssr: false // Disable SSR to prevent hydration issues with complex table state
+    ssr: false // Deshabilitar SSR para evitar problemas de hidratación con el estado complejo de la tabla
   }
 );
 

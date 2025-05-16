@@ -10,9 +10,9 @@ interface DoctorFiltersProps {
 }
 
 /**
- * DoctorFilters component
+ * Componente DoctorFilters
  * 
- * Provides search and filter controls for the doctors table
+ * Proporciona controles de búsqueda y filtrado para la tabla de doctores
  */
 const DoctorFilters: React.FC<DoctorFiltersProps> = ({ filters, onFilterChange }) => {
   // Local state for filter inputs
@@ -35,14 +35,14 @@ const DoctorFilters: React.FC<DoctorFiltersProps> = ({ filters, onFilterChange }
       const response = await fetch('/api/admin/doctors/specialties');
       
       if (!response.ok) {
-        throw new Error('Failed to load specialties');
+        throw new Error('Error al cargar especialidades');
       }
       
       const data = await response.json();
       setSpecialties(data.specialties);
       
     } catch (error) {
-      console.error('Error loading specialties:', error);
+      console.error('Error al cargar especialidades:', error);
       // Fall back to mock data in case of error
     } finally {
       setLoadingSpecialties(false);
@@ -100,13 +100,13 @@ const DoctorFilters: React.FC<DoctorFiltersProps> = ({ filters, onFilterChange }
         {/* Search input */}
         <div>
           <label htmlFor="search" className="block text-sm font-medium text-dark-grey mb-1">
-            Search
+            Buscar
           </label>
           <input
             id="search"
             type="text"
             className="w-full p-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary"
-            placeholder="Name, email, or specialty"
+            placeholder="Nombre, email o especialidad"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             onKeyDown={handleSearchKeyDown}
@@ -116,7 +116,7 @@ const DoctorFilters: React.FC<DoctorFiltersProps> = ({ filters, onFilterChange }
         {/* Specialty filter */}
         <div>
           <label htmlFor="specialty" className="block text-sm font-medium text-dark-grey mb-1">
-            Specialty
+            Especialidad
           </label>
           <select
             id="specialty"
@@ -125,7 +125,7 @@ const DoctorFilters: React.FC<DoctorFiltersProps> = ({ filters, onFilterChange }
             onChange={(e) => setSpecialtyId(e.target.value)}
             disabled={loadingSpecialties}
           >
-            <option value="">All Specialties</option>
+            <option value="">Todas las Especialidades</option>
             {specialties.map((specialty) => (
               <option key={specialty.id} value={specialty.id}>
                 {specialty.name}
@@ -137,7 +137,7 @@ const DoctorFilters: React.FC<DoctorFiltersProps> = ({ filters, onFilterChange }
         {/* Credential status filter */}
         <div>
           <label htmlFor="credentialStatus" className="block text-sm font-medium text-dark-grey mb-1">
-            Credential Status
+            Estado Credencial
           </label>
           <select
             id="credentialStatus"
@@ -145,17 +145,17 @@ const DoctorFilters: React.FC<DoctorFiltersProps> = ({ filters, onFilterChange }
             value={credentialStatus}
             onChange={(e) => setCredentialStatus(e.target.value as CredentialStatus | '')}
           >
-            <option value="">All Statuses</option>
-            <option value="verified">Verified</option>
-            <option value="pending">Pending Review</option>
-            <option value="rejected">Rejected</option>
+            <option value="">Todos los Estados</option>
+            <option value="verified">Verificado</option>
+            <option value="pending">Pendiente de Revisión</option>
+            <option value="rejected">Rechazado</option>
           </select>
         </div>
         
         {/* Approval status filter */}
         <div>
           <label htmlFor="approvalStatus" className="block text-sm font-medium text-dark-grey mb-1">
-            Approval Status
+            Estado de Aprobación
           </label>
           <select
             id="approvalStatus"
@@ -170,26 +170,26 @@ const DoctorFilters: React.FC<DoctorFiltersProps> = ({ filters, onFilterChange }
               }
             }}
           >
-            <option value="">All</option>
-            <option value="true">Approved</option>
-            <option value="false">Not Approved</option>
+            <option value="">Todos</option>
+            <option value="true">Aprobado</option>
+            <option value="false">No Aprobado</option>
           </select>
         </div>
       </div>
       
       {/* Filter actions */}
-      <div className="flex justify-end mt-4 space-x-2">
+      <div className="mt-4 flex justify-end space-x-2">
         <button
           onClick={handleResetFilters}
           className="px-4 py-2 border border-gray-300 rounded-md text-medium-grey hover:bg-gray-50"
         >
-          Reset
+          Restablecer
         </button>
         <button
           onClick={handleApplyFilters}
           className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90"
         >
-          Apply Filters
+          Aplicar Filtros
         </button>
       </div>
     </div>

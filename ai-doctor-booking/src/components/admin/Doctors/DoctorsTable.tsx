@@ -12,9 +12,9 @@ import { useToast } from '@/hooks/useToast';
 type SortableFields = keyof Doctor | 'credentials.status' | 'actions';
 
 /**
- * DoctorsTable component
+ * Componente DoctorsTable
  * 
- * Displays a searchable and filterable table of doctors with edit functionality
+ * Muestra una tabla de doctores con filtrado y búsqueda
  */
 const DoctorsTable: React.FC = () => {
   // State
@@ -36,13 +36,13 @@ const DoctorsTable: React.FC = () => {
   
   // Table column definitions
   const columns: DoctorTableColumn[] = [
-    { key: 'name', title: 'Name', sortable: true },
-    { key: 'specialtyName', title: 'Specialty', sortable: true },
-    { key: 'credentials.status', title: 'Credential Status' },
-    { key: 'approvalStatus', title: 'Approved' },
-    { key: 'experience', title: 'Experience' },
-    { key: 'consultationFee', title: 'Fee', sortable: true },
-    { key: 'actions', title: 'Actions', width: '100px' },
+    { key: 'name', title: 'Nombre', sortable: true },
+    { key: 'specialtyName', title: 'Especialidad', sortable: true },
+    { key: 'credentials.status', title: 'Estado Credencial' },
+    { key: 'approvalStatus', title: 'Aprobado' },
+    { key: 'experience', title: 'Experiencia' },
+    { key: 'consultationFee', title: 'Tarifa', sortable: true },
+    { key: 'actions', title: 'Acciones', width: '100px' },
   ];
   
   // Fetch doctors data
@@ -76,7 +76,7 @@ const DoctorsTable: React.FC = () => {
       const response = await fetch(`/api/admin/doctors?${queryParams.toString()}`);
       
       if (!response.ok) {
-        throw new Error('Failed to fetch doctors');
+        throw new Error('Error al obtener doctores');
       }
       
       const data = await response.json();
@@ -86,8 +86,8 @@ const DoctorsTable: React.FC = () => {
       setLoadTime(data.metadata?.loadTime || null);
       
     } catch (err: any) {
-      setError(err.message || 'An error occurred while fetching doctors');
-      showToast('error', 'Failed to load doctors. Please try again.');
+      setError(err.message || 'Ocurrió un error al cargar doctores');
+      showToast('error', 'Error al cargar doctores. Por favor, inténtalo de nuevo.');
     } finally {
       setLoading(false);
     }
@@ -98,54 +98,14 @@ const DoctorsTable: React.FC = () => {
     fetchDoctors();
   }, [fetchDoctors]);
   
-  // Sort doctors client-side
-  const sortedDoctors = React.useMemo(() => {
-    if (!sortField || sortField === 'actions') return doctors;
-    
-    return [...doctors].sort((a, b) => {
-      // Handle credential status sorting
-      if (sortField === 'credentials.status') {
-        const aValue = a.credentials.status;
-        const bValue = b.credentials.status;
-        
-        // Custom sort order for credential status
-        const statusOrder: Record<CredentialStatus, number> = {
-          'verified': 1,
-          'pending': 2,
-          'rejected': 3
-        };
-        
-        return sortDirection === 'asc' 
-          ? statusOrder[aValue] - statusOrder[bValue]
-          : statusOrder[bValue] - statusOrder[aValue];
-      }
-      
-      // Regular sort for other fields
-      const aValue = a[sortField as keyof Doctor];
-      const bValue = b[sortField as keyof Doctor];
-      
-      if (typeof aValue === 'string' && typeof bValue === 'string') {
-        return sortDirection === 'asc'
-          ? aValue.localeCompare(bValue)
-          : bValue.localeCompare(aValue);
-      }
-      
-      return sortDirection === 'asc'
-        ? (aValue as number || 0) - (bValue as number || 0)
-        : (bValue as number || 0) - (aValue as number || 0);
-    });
-  }, [doctors, sortField, sortDirection]);
-  
-  // Handle sort column click
-  const handleSort = (key: SortableFields) => {
-    if (key === 'actions') return;
-    
-    if (key === sortField) {
-      // Toggle direction if same field
+  // Handle sort
+  const handleSort = (field: SortableFields) => {
+    // If clicking the same field, toggle sort direction
+    if (field === sortField) {
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
     } else {
-      // Set new field and reset direction to asc
-      setSortField(key);
+      // Otherwise, sort ascending by the new field
+      setSortField(field);
       setSortDirection('asc');
     }
   };
@@ -155,6 +115,37 @@ const DoctorsTable: React.FC = () => {
     setSelectedDoctor(doctor);
     setIsEditModalOpen(true);
   };
+  
+  // Sort doctors based on current sort field and direction
+  const sortedDoctors = [...doctors].sort((a, b) => {
+    if (!sortField) return 0;
+    
+    let aValue, bValue;
+    
+    // Handle nested field (credentials.status)
+    if (sortField === 'credentials.status') {
+      aValue = a.credentials.status;
+      bValue = b.credentials.status;
+    } else if (sortField !== 'actions') {
+      aValue = a[sortField as keyof Doctor];
+      bValue = b[sortField as keyof Doctor];
+    } else {
+      return 0;
+    }
+    
+    // Convert to strings for comparison (except for numeric values)
+    if (typeof aValue === 'number' && typeof bValue === 'number') {
+      return sortDirection === 'asc' ? aValue - bValue : bValue - aValue;
+    }
+    
+    // String comparison
+    const aString = String(aValue).toLowerCase();
+    const bString = String(bValue).toLowerCase();
+    
+    return sortDirection === 'asc'
+      ? aString.localeCompare(bString)
+      : bString.localeCompare(aString);
+  });
   
   // Handle approval toggle
   const handleApprovalToggle = async (doctor: Doctor, newStatus: boolean) => {
@@ -168,7 +159,7 @@ const DoctorsTable: React.FC = () => {
       });
       
       if (!response.ok) {
-        throw new Error('Failed to update approval status');
+        throw new Error('Error al actualizar estado de aprobación');
       }
       
       // Update local state optimistically
@@ -176,7 +167,7 @@ const DoctorsTable: React.FC = () => {
         prev.map(d => d.id === doctor.id ? { ...d, approvalStatus: newStatus } : d)
       );
       
-      showToast('success', `Doctor ${newStatus ? 'approved' : 'unapproved'} successfully`);
+      showToast('success', `Doctor ${newStatus ? 'aprobado' : 'desaprobado'} exitosamente`);
       
     } catch (err: any) {
       // Revert optimistic update on error
@@ -184,7 +175,7 @@ const DoctorsTable: React.FC = () => {
         prev.map(d => d.id === doctor.id ? { ...d, approvalStatus: doctor.approvalStatus } : d)
       );
       
-      showToast('error', err.message || 'Failed to update approval status');
+      showToast('error', err.message || 'Error al actualizar estado de aprobación');
     }
   };
   
@@ -207,14 +198,14 @@ const DoctorsTable: React.FC = () => {
     );
     setIsEditModalOpen(false);
     setSelectedDoctor(null);
-    showToast('success', 'Doctor updated successfully');
+    showToast('success', 'Doctor actualizado exitosamente');
   };
   
   // Render loading state
   if (loading && !doctors.length) {
     return (
       <div className="w-full min-h-[400px] flex items-center justify-center">
-        <div className="animate-pulse text-medium-grey">Loading doctors...</div>
+        <div className="animate-pulse text-medium-grey">Cargando doctores...</div>
       </div>
     );
   }
@@ -228,7 +219,7 @@ const DoctorsTable: React.FC = () => {
           className="mt-4 px-4 py-2 bg-primary text-white rounded-md"
           onClick={() => fetchDoctors()}
         >
-          Try Again
+          Intentar de nuevo
         </button>
       </div>
     );
@@ -244,7 +235,7 @@ const DoctorsTable: React.FC = () => {
       {/* Performance metrics */}
       {loadTime && (
         <div className="mb-2 text-xs text-medium-grey text-right">
-          Load time: {loadTime}
+          Tiempo de carga: {loadTime}
         </div>
       )}
       
@@ -337,7 +328,7 @@ const DoctorsTable: React.FC = () => {
                         }}
                         className="text-primary hover:underline"
                       >
-                        Edit
+                        Editar
                       </button>
                     </td>
                   </tr>
@@ -345,7 +336,7 @@ const DoctorsTable: React.FC = () => {
               ) : (
                 <tr>
                   <td colSpan={columns.length} className="px-6 py-4 text-center text-medium-grey">
-                    No doctors found matching your criteria.
+                    No se encontraron doctores que cumplan con los criterios.
                   </td>
                 </tr>
               )}
@@ -356,8 +347,8 @@ const DoctorsTable: React.FC = () => {
         {/* Pagination */}
         <div className="px-6 py-3 flex items-center justify-between border-t border-gray-200">
           <div className="text-sm text-medium-grey">
-            Showing {doctors.length > 0 ? (page - 1) * limit + 1 : 0} to{' '}
-            {Math.min(page * limit, total)} of {total} results
+            Mostrando {doctors.length > 0 ? (page - 1) * limit + 1 : 0} a{' '}
+            {Math.min(page * limit, total)} de {total} resultados
           </div>
           <div className="flex space-x-2">
             <button
@@ -369,7 +360,7 @@ const DoctorsTable: React.FC = () => {
               onClick={() => page > 1 && setPage(page - 1)}
               disabled={page <= 1}
             >
-              Previous
+              Anterior
             </button>
             <button
               className={`px-3 py-1 rounded ${
@@ -380,7 +371,7 @@ const DoctorsTable: React.FC = () => {
               onClick={() => page < Math.ceil(total / limit) && setPage(page + 1)}
               disabled={page >= Math.ceil(total / limit)}
             >
-              Next
+              Siguiente
             </button>
           </div>
         </div>

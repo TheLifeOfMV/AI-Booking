@@ -9,26 +9,26 @@ interface ApprovalToggleProps {
 }
 
 /**
- * Toggle switch component for doctor approval status
- * with loading and error states
+ * Componente de interruptor para el estado de aprobación del doctor
+ * con estados de carga y error
  */
 const ApprovalToggle: React.FC<ApprovalToggleProps> = ({ doctor, onToggle }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   
-  // Local state to track the visual state of the toggle
+  // Estado local para seguir el estado visual del interruptor
   const [isApproved, setIsApproved] = useState(doctor.approvalStatus);
   
   const handleToggleClick = () => {
-    // If already loading, do nothing
+    // Si ya está cargando, no hacer nada
     if (isLoading) return;
     
-    // If this is turning off approval, show confirmation dialog
+    // Si esto está desactivando la aprobación, mostrar diálogo de confirmación
     if (isApproved) {
       setShowConfirm(true);
     } else {
-      // Otherwise proceed directly
+      // De lo contrario, proceder directamente
       handleConfirmedToggle();
     }
   };
@@ -41,18 +41,18 @@ const ApprovalToggle: React.FC<ApprovalToggleProps> = ({ doctor, onToggle }) => 
     const newStatus = !isApproved;
     
     try {
-      // Update the local state optimistically
+      // Actualizar el estado local de forma optimista
       setIsApproved(newStatus);
       
-      // Call the actual toggle function
+      // Llamar a la función real de cambio
       await onToggle(doctor, newStatus);
       
     } catch (error) {
-      // Revert on error
+      // Revertir en caso de error
       setIsApproved(isApproved);
       setHasError(true);
       
-      // Auto-clear error state after 3 seconds
+      // Auto-borrar estado de error después de 3 segundos
       setTimeout(() => {
         setHasError(false);
       }, 3000);
@@ -67,7 +67,7 @@ const ApprovalToggle: React.FC<ApprovalToggleProps> = ({ doctor, onToggle }) => 
   
   return (
     <div className="flex items-center">
-      {/* Toggle switch */}
+      {/* Interruptor de cambio */}
       <button
         onClick={handleToggleClick}
         className={`
@@ -87,39 +87,39 @@ const ApprovalToggle: React.FC<ApprovalToggleProps> = ({ doctor, onToggle }) => 
         />
       </button>
       
-      {/* Status text */}
+      {/* Texto de estado */}
       <span className={`ml-2 text-sm ${isApproved ? 'text-green-600' : 'text-medium-grey'}`}>
-        {isLoading ? 'Updating...' : isApproved ? 'Approved' : 'Not Approved'}
+        {isLoading ? 'Actualizando...' : isApproved ? 'Aprobado' : 'No Aprobado'}
       </span>
       
-      {/* Error message */}
+      {/* Mensaje de error */}
       {hasError && (
         <div className="ml-2 text-xs text-red-500">
-          Failed to update
+          Error al actualizar
         </div>
       )}
       
-      {/* Confirmation dialog */}
+      {/* Diálogo de confirmación */}
       {showConfirm && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-md">
-            <h3 className="text-lg font-medium text-dark-grey mb-4">Confirm Unapproval</h3>
+            <h3 className="text-lg font-medium text-dark-grey mb-4">Confirmar Desaprobación</h3>
             <p className="text-medium-grey mb-6">
-              Are you sure you want to unapprove {doctor.name}? 
-              This will remove them from the booking system and patients won't be able to book appointments.
+              ¿Estás seguro de que quieres desaprobar a {doctor.name}? 
+              Esto lo eliminará del sistema de reservas y los pacientes no podrán reservar citas.
             </p>
             <div className="flex justify-end space-x-4">
               <button
                 onClick={handleCancelToggle}
                 className="px-4 py-2 bg-gray-200 text-dark-grey rounded-md hover:bg-gray-300"
               >
-                Cancel
+                Cancelar
               </button>
               <button
                 onClick={handleConfirmedToggle}
                 className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
               >
-                Unapprove
+                Desaprobar
               </button>
             </div>
           </div>

@@ -8,7 +8,7 @@ interface CredentialStatusBadgeProps {
 }
 
 /**
- * Badge component to display credential status with different styles
+ * Componente Badge para mostrar el estado de credenciales con diferentes estilos
  */
 const CredentialStatusBadge: React.FC<CredentialStatusBadgeProps> = ({ status }) => {
   // Define styles based on status
@@ -29,13 +29,13 @@ const CredentialStatusBadge: React.FC<CredentialStatusBadgeProps> = ({ status })
   const getStatusText = () => {
     switch (status) {
       case 'verified':
-        return 'Verified';
+        return 'Verificado';
       case 'pending':
-        return 'Pending Review';
+        return 'Pendiente de Revisión';
       case 'rejected':
-        return 'Rejected';
+        return 'Rechazado';
       default:
-        return 'Unknown';
+        return 'Desconocido';
     }
   };
   

@@ -9,8 +9,8 @@ const MOCK_DOCTORS: Doctor[] = [
     phone: '+1 555-123-4567',
     status: 'active',
     specialtyId: '1',
-    specialtyName: 'Cardiology',
-    experience: '10+ years',
+    specialtyName: 'Cardiología',
+    experience: '10+ años',
     rating: 4.8,
     credentials: {
       licenseNumber: 'MC12345',
@@ -55,8 +55,8 @@ const MOCK_DOCTORS: Doctor[] = [
     phone: '+1 555-987-6543',
     status: 'active',
     specialtyId: '2',
-    specialtyName: 'Neurology',
-    experience: '15+ years',
+    specialtyName: 'Neurología',
+    experience: '15+ años',
     rating: 4.9,
     credentials: {
       licenseNumber: 'MC67890',
@@ -106,8 +106,8 @@ const MOCK_DOCTORS: Doctor[] = [
     phone: '+1 555-456-7890',
     status: 'active',
     specialtyId: '3',
-    specialtyName: 'Dermatology',
-    experience: '8+ years',
+    specialtyName: 'Dermatología',
+    experience: '8+ años',
     rating: 4.7,
     credentials: {
       licenseNumber: 'MC54321',
@@ -151,8 +151,8 @@ const MOCK_DOCTORS: Doctor[] = [
     phone: '+1 555-789-0123',
     status: 'inactive',
     specialtyId: '4',
-    specialtyName: 'Ophthalmology',
-    experience: '12+ years',
+    specialtyName: 'Oftalmología',
+    experience: '12+ años',
     rating: 4.6,
     credentials: {
       licenseNumber: 'MC98765',
@@ -196,8 +196,8 @@ const MOCK_DOCTORS: Doctor[] = [
     phone: '+1 555-234-5678',
     status: 'active',
     specialtyId: '5',
-    specialtyName: 'Pediatrics',
-    experience: '7+ years',
+    specialtyName: 'Pediatría',
+    experience: '7+ años',
     rating: 4.9,
     credentials: {
       licenseNumber: 'MC24680',
@@ -238,14 +238,14 @@ const MOCK_DOCTORS: Doctor[] = [
 
 // Mock specialties data
 export const SPECIALTIES = [
-  { id: '1', name: 'Cardiology' },
-  { id: '2', name: 'Neurology' },
-  { id: '3', name: 'Dermatology' },
-  { id: '4', name: 'Ophthalmology' },
-  { id: '5', name: 'Pediatrics' },
-  { id: '6', name: 'Orthopedics' },
-  { id: '7', name: 'ENT' },
-  { id: '8', name: 'Psychiatry' },
+  { id: '1', name: 'Cardiología' },
+  { id: '2', name: 'Neurología' },
+  { id: '3', name: 'Dermatología' },
+  { id: '4', name: 'Oftalmología' },
+  { id: '5', name: 'Pediatría' },
+  { id: '6', name: 'Ortopedia' },
+  { id: '7', name: 'Otorrinolaringología' },
+  { id: '8', name: 'Psiquiatría' },
 ];
 
 /**
