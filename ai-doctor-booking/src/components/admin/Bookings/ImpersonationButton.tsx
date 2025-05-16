@@ -26,8 +26,8 @@ export default function ImpersonationButton({ userId, userName }: ImpersonationB
         alert(result.message);
       }
     } catch (error) {
-      console.error('Error impersonating user:', error);
-      alert('Failed to impersonate user. Please try again.');
+      console.error('Error al suplantar usuario:', error);
+      alert('No se pudo suplantar al usuario. Por favor, inténtalo de nuevo.');
     } finally {
       setIsLoading(false);
     }
@@ -37,7 +37,7 @@ export default function ImpersonationButton({ userId, userName }: ImpersonationB
     <div className="relative">
       <button
         className="text-medium-grey hover:text-primary transition-colors"
-        aria-label={`Impersonate ${userName}`}
+        aria-label={`Suplantar a ${userName}`}
         onClick={handleImpersonate}
         onMouseEnter={() => setShowTooltip(true)}
         onMouseLeave={() => setShowTooltip(false)}
@@ -54,7 +54,7 @@ export default function ImpersonationButton({ userId, userName }: ImpersonationB
       
       {showTooltip && (
         <div className="absolute right-0 bottom-full mb-2 px-2 py-1 text-xs font-medium text-white bg-dark-grey rounded shadow-lg whitespace-nowrap z-10">
-          Impersonate {userName}
+          Suplantar a {userName}
           <div className="absolute bottom-0 right-[9px] transform translate-y-1/2 rotate-45 w-2 h-2 bg-dark-grey"></div>
         </div>
       )}

@@ -23,7 +23,7 @@ export default function BulkActionButtons() {
   const handleBulkCancel = async () => {
     if (selectedBookingIds.length === 0) {
       setActionResult({
-        message: 'Please select at least one booking to cancel',
+        message: 'Por favor, selecciona al menos una reserva para cancelar',
         type: 'warning'
       });
       clearActionResult();
@@ -31,7 +31,7 @@ export default function BulkActionButtons() {
     }
     
     const confirmCancel = window.confirm(
-      `Are you sure you want to cancel ${selectedBookingIds.length} booking(s)? This action cannot be undone.`
+      `¿Estás seguro de que deseas cancelar ${selectedBookingIds.length} reserva(s)? Esta acción no se puede deshacer.`
     );
     
     if (!confirmCancel) return;
@@ -53,7 +53,7 @@ export default function BulkActionButtons() {
       }
     } catch (error) {
       setActionResult({
-        message: 'An error occurred while cancelling bookings',
+        message: 'Ocurrió un error al cancelar las reservas',
         type: 'error'
       });
     } finally {
@@ -66,7 +66,7 @@ export default function BulkActionButtons() {
   const handleBulkRefund = async () => {
     if (selectedBookingIds.length === 0) {
       setActionResult({
-        message: 'Please select at least one booking to refund',
+        message: 'Por favor, selecciona al menos una reserva para reembolsar',
         type: 'warning'
       });
       clearActionResult();
@@ -74,7 +74,7 @@ export default function BulkActionButtons() {
     }
     
     const confirmRefund = window.confirm(
-      `Are you sure you want to refund ${selectedBookingIds.length} booking(s)? This action cannot be undone.`
+      `¿Estás seguro de que deseas reembolsar ${selectedBookingIds.length} reserva(s)? Esta acción no se puede deshacer.`
     );
     
     if (!confirmRefund) return;
@@ -96,7 +96,7 @@ export default function BulkActionButtons() {
       }
     } catch (error) {
       setActionResult({
-        message: 'An error occurred while refunding bookings',
+        message: 'Ocurrió un error al reembolsar las reservas',
         type: 'error'
       });
     } finally {
@@ -121,7 +121,7 @@ export default function BulkActionButtons() {
               <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
             </svg>
           )}
-          Bulk Cancel
+          Cancelar
         </button>
         
         <button
@@ -137,7 +137,7 @@ export default function BulkActionButtons() {
               <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
             </svg>
           )}
-          Bulk Refund
+          Reembolsar
         </button>
       </div>
       
@@ -176,7 +176,7 @@ export default function BulkActionButtons() {
             className="absolute top-2 right-2 text-gray-400 hover:text-gray-700"
             onClick={() => setActionResult(null)}
           >
-            <span className="sr-only">Close</span>
+            <span className="sr-only">Cerrar</span>
             <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
             </svg>
@@ -186,9 +186,9 @@ export default function BulkActionButtons() {
       
       <div className="mt-2 text-xs text-medium-grey">
         {selectedBookingIds.length > 0 ? (
-          <span>Selected: {selectedBookingIds.length} booking(s)</span>
+          <span>Seleccionados: {selectedBookingIds.length} reserva(s)</span>
         ) : (
-          <span>Select bookings to perform bulk actions</span>
+          <span>Selecciona reservas para realizar acciones masivas</span>
         )}
       </div>
     </div>

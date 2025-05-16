@@ -77,6 +77,52 @@ export default function BookingsTable() {
     }
   };
   
+  // Función para traducir los status de reserva
+  const translateBookingStatus = (status: BookingStatus): string => {
+    switch (status) {
+      case 'scheduled':
+        return 'Programada';
+      case 'completed':
+        return 'Completada';
+      case 'cancelled':
+        return 'Cancelada';
+      case 'no-show':
+        return 'No asistió';
+      default:
+        return status;
+    }
+  };
+  
+  // Función para traducir los status de pago
+  const translatePaymentStatus = (status: PaymentStatus): string => {
+    switch (status) {
+      case 'paid':
+        return 'Pagado';
+      case 'refunded':
+        return 'Reembolsado';
+      case 'pending':
+        return 'Pendiente';
+      default:
+        return status;
+    }
+  };
+  
+  // Función para traducir especialidades médicas
+  const translateSpecialty = (specialty: string): string => {
+    const specialtiesMap: Record<string, string> = {
+      'Cardiology': 'Cardiología',
+      'Dermatology': 'Dermatología',
+      'Oculist': 'Oftalmología',
+      'Neurology': 'Neurología',
+      'Pediatrics': 'Pediatría',
+      'Orthopedics': 'Ortopedia',
+      'Psychiatry': 'Psiquiatría',
+      'Gynecology': 'Ginecología'
+    };
+    
+    return specialtiesMap[specialty] || specialty;
+  };
+  
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -89,7 +135,7 @@ export default function BookingsTable() {
     return (
       <div className="p-4 bg-red-50 text-red-800 rounded-lg">
         <p>{error}</p>
-        <button className="mt-2 text-primary underline">Retry</button>
+        <button className="mt-2 text-primary underline">Reintentar</button>
       </div>
     );
   }
@@ -97,8 +143,8 @@ export default function BookingsTable() {
   if (bookings.length === 0) {
     return (
       <div className="p-8 text-center border rounded-lg">
-        <p className="text-medium-grey mb-4">No bookings found.</p>
-        <p className="text-sm">Try changing your filters or creating new bookings.</p>
+        <p className="text-medium-grey mb-4">No se encontraron reservas.</p>
+        <p className="text-sm">Intenta cambiar tus filtros o crear nuevas reservas.</p>
       </div>
     );
   }
@@ -124,7 +170,7 @@ export default function BookingsTable() {
                 className="px-4 py-3 text-xs font-medium text-dark-grey uppercase tracking-wider text-left cursor-pointer"
                 onClick={() => handleSort('id')}
               >
-                Booking ID
+                ID Reserva
                 {sortField === 'id' && (
                   <span className="ml-1">{sortDirection === 'asc' ? '↑' : '↓'}</span>
                 )}
@@ -134,7 +180,7 @@ export default function BookingsTable() {
                 className="px-4 py-3 text-xs font-medium text-dark-grey uppercase tracking-wider text-left cursor-pointer"
                 onClick={() => handleSort('patientName')}
               >
-                Patient
+                Paciente
                 {sortField === 'patientName' && (
                   <span className="ml-1">{sortDirection === 'asc' ? '↑' : '↓'}</span>
                 )}
@@ -154,7 +200,7 @@ export default function BookingsTable() {
                 className="px-4 py-3 text-xs font-medium text-dark-grey uppercase tracking-wider text-left cursor-pointer"
                 onClick={() => handleSort('specialty')}
               >
-                Specialty
+                Especialidad
                 {sortField === 'specialty' && (
                   <span className="ml-1">{sortDirection === 'asc' ? '↑' : '↓'}</span>
                 )}
@@ -164,7 +210,7 @@ export default function BookingsTable() {
                 className="px-4 py-3 text-xs font-medium text-dark-grey uppercase tracking-wider text-left cursor-pointer"
                 onClick={() => handleSort('date')}
               >
-                Date & Time
+                Fecha y Hora
                 {sortField === 'date' && (
                   <span className="ml-1">{sortDirection === 'asc' ? '↑' : '↓'}</span>
                 )}
@@ -174,7 +220,7 @@ export default function BookingsTable() {
                 className="px-4 py-3 text-xs font-medium text-dark-grey uppercase tracking-wider text-left cursor-pointer"
                 onClick={() => handleSort('status')}
               >
-                Status
+                Estado
                 {sortField === 'status' && (
                   <span className="ml-1">{sortDirection === 'asc' ? '↑' : '↓'}</span>
                 )}
@@ -184,7 +230,7 @@ export default function BookingsTable() {
                 className="px-4 py-3 text-xs font-medium text-dark-grey uppercase tracking-wider text-left cursor-pointer"
                 onClick={() => handleSort('amount')}
               >
-                Amount
+                Importe
                 {sortField === 'amount' && (
                   <span className="ml-1">{sortDirection === 'asc' ? '↑' : '↓'}</span>
                 )}
@@ -194,13 +240,13 @@ export default function BookingsTable() {
                 className="px-4 py-3 text-xs font-medium text-dark-grey uppercase tracking-wider text-left cursor-pointer"
                 onClick={() => handleSort('paymentStatus')}
               >
-                Payment
+                Pago
                 {sortField === 'paymentStatus' && (
                   <span className="ml-1">{sortDirection === 'asc' ? '↑' : '↓'}</span>
                 )}
               </th>
               <th scope="col" className="px-4 py-3 text-xs font-medium text-dark-grey uppercase tracking-wider text-left">
-                Actions
+                Acciones
               </th>
             </tr>
           </thead>
@@ -227,7 +273,7 @@ export default function BookingsTable() {
                   {booking.doctorName}
                 </td>
                 <td className="px-4 py-3 text-sm text-dark-grey">
-                  {booking.specialty}
+                  {translateSpecialty(booking.specialty)}
                 </td>
                 <td className="px-4 py-3 text-sm text-dark-grey">
                   <div>{booking.date}</div>
@@ -235,7 +281,7 @@ export default function BookingsTable() {
                 </td>
                 <td className="px-4 py-3 text-sm">
                   <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeClass(booking.status)}`}>
-                    {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
+                    {translateBookingStatus(booking.status)}
                   </span>
                 </td>
                 <td className="px-4 py-3 text-sm text-dark-grey">
@@ -243,14 +289,14 @@ export default function BookingsTable() {
                 </td>
                 <td className="px-4 py-3 text-sm">
                   <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getPaymentBadgeClass(booking.paymentStatus)}`}>
-                    {booking.paymentStatus.charAt(0).toUpperCase() + booking.paymentStatus.slice(1)}
+                    {translatePaymentStatus(booking.paymentStatus)}
                   </span>
                 </td>
                 <td className="px-4 py-3 text-sm text-right">
                   <div className="flex items-center space-x-2">
                     <button 
                       className="text-medium-grey hover:text-primary transition-colors"
-                      aria-label="View details"
+                      aria-label="Ver detalles"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                         <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
@@ -271,17 +317,17 @@ export default function BookingsTable() {
         <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
           <div>
             <p className="text-sm text-medium-grey">
-              Showing <span className="font-medium">{bookings.length}</span> results
+              Mostrando <span className="font-medium">{bookings.length}</span> resultados
             </p>
           </div>
           <div>
-            <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+            <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Paginación">
               <a
                 href="#"
                 className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-light-grey bg-white text-sm font-medium text-medium-grey hover:bg-light-grey"
                 onClick={(e) => e.preventDefault()}
               >
-                <span className="sr-only">Previous</span>
+                <span className="sr-only">Anterior</span>
                 <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                   <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>
@@ -316,7 +362,7 @@ export default function BookingsTable() {
                 className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-light-grey bg-white text-sm font-medium text-medium-grey hover:bg-light-grey"
                 onClick={(e) => e.preventDefault()}
               >
-                <span className="sr-only">Next</span>
+                <span className="sr-only">Siguiente</span>
                 <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                   <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
                 </svg>

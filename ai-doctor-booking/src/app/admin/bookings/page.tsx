@@ -7,8 +7,8 @@ import BulkActionButtons from '@/components/admin/Bookings/BulkActionButtons';
 
 // SEO metadata
 export const metadata: Metadata = {
-  title: 'Booking Management | Admin Panel',
-  description: 'Manage all bookings, with filtering, bulk operations, and impersonation capabilities'
+  title: 'Gestión de Reservas | Panel de Administración',
+  description: 'Gestiona todas las reservas, con filtrado, operaciones masivas y capacidades de suplantación'
 };
 
 /**
@@ -24,7 +24,7 @@ export default function AdminBookingsPage() {
     <div className="p-6 lg:p-8 min-h-screen">
       <AdminBookingsProvider>
         <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold">Booking Management</h1>
+          <h1 className="text-2xl font-bold">Gestión de Reservas</h1>
           
           <div className="mt-4 lg:mt-0">
             <Suspense fallback={<div className="h-12 w-72 bg-light-grey animate-pulse rounded-lg"></div>}>
@@ -49,7 +49,7 @@ export default function AdminBookingsPage() {
 
         {/* Response time indicator */}
         <div className="text-xs text-medium-grey text-right mt-10">
-          Load time: &lt;2s
+          Tiempo de carga: &lt;2s
         </div>
       </AdminBookingsProvider>
     </div>
