@@ -5,13 +5,12 @@ import { User, UserStatus, UserRole } from '@/types/user';
 import { updateUser } from '@/services/userService';
 
 interface UserEditModalProps {
-  isOpen: boolean;
-  onClose: () => void;
   user: User;
-  onUserUpdate: (user: User) => void;
+  onClose: () => void;
+  onSave: (user: User) => void;
 }
 
-export default function UserEditModal({ isOpen, onClose, user, onUserUpdate }: UserEditModalProps) {
+export default function UserEditModal({ user, onClose, onSave }: UserEditModalProps) {
   const [formData, setFormData] = useState<Partial<User>>({
     name: user.name,
     email: user.email,
@@ -40,16 +39,14 @@ export default function UserEditModal({ isOpen, onClose, user, onUserUpdate }: U
     
     try {
       const updatedUser = await updateUser(user.id, formData);
-      onUserUpdate(updatedUser);
+      onSave(updatedUser);
     } catch (err) {
       console.error('Error updating user:', err);
-      setError('Failed to update user. Please try again.');
+      setError('Error al actualizar usuario. Por favor, inténtalo de nuevo.');
     } finally {
       setIsSubmitting(false);
     }
   };
-  
-  if (!isOpen) return null;
   
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
@@ -65,7 +62,7 @@ export default function UserEditModal({ isOpen, onClose, user, onUserUpdate }: U
             <div className="sm:flex sm:items-start">
               <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
                 <h3 className="text-lg leading-6 font-medium text-dark-grey">
-                  Edit User
+                  Editar Usuario
                 </h3>
                 
                 {error && (
@@ -79,7 +76,7 @@ export default function UserEditModal({ isOpen, onClose, user, onUserUpdate }: U
                     {/* Name input */}
                     <div>
                       <label htmlFor="name" className="block text-sm font-medium text-medium-grey mb-1">
-                        Name
+                        Nombre
                       </label>
                       <input
                         type="text"
@@ -111,7 +108,7 @@ export default function UserEditModal({ isOpen, onClose, user, onUserUpdate }: U
                     {/* Phone input */}
                     <div>
                       <label htmlFor="phone" className="block text-sm font-medium text-medium-grey mb-1">
-                        Phone
+                        Teléfono
                       </label>
                       <input
                         type="tel"
@@ -127,7 +124,7 @@ export default function UserEditModal({ isOpen, onClose, user, onUserUpdate }: U
                     {/* Status select */}
                     <div>
                       <label htmlFor="status" className="block text-sm font-medium text-medium-grey mb-1">
-                        Status
+                        Estado
                       </label>
                       <select
                         name="status"
@@ -137,16 +134,16 @@ export default function UserEditModal({ isOpen, onClose, user, onUserUpdate }: U
                         value={formData.status || ''}
                         onChange={handleChange}
                       >
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
-                        <option value="pending">Pending</option>
+                        <option value="active">Activo</option>
+                        <option value="inactive">Inactivo</option>
+                        <option value="pending">Pendiente</option>
                       </select>
                     </div>
                     
                     {/* Role select */}
                     <div>
                       <label htmlFor="role" className="block text-sm font-medium text-medium-grey mb-1">
-                        Role
+                        Rol
                       </label>
                       <select
                         name="role"
@@ -156,9 +153,9 @@ export default function UserEditModal({ isOpen, onClose, user, onUserUpdate }: U
                         value={formData.role || ''}
                         onChange={handleChange}
                       >
-                        <option value="patient">Patient</option>
+                        <option value="patient">Paciente</option>
                         <option value="doctor">Doctor</option>
-                        <option value="admin">Admin</option>
+                        <option value="admin">Administrador</option>
                       </select>
                     </div>
                   </div>
@@ -169,7 +166,7 @@ export default function UserEditModal({ isOpen, onClose, user, onUserUpdate }: U
                       disabled={isSubmitting}
                       className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary text-white font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:col-start-2 sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      {isSubmitting ? 'Saving...' : 'Save Changes'}
+                      {isSubmitting ? 'Guardando...' : 'Guardar Cambios'}
                     </button>
                     <button
                       type="button"
@@ -177,7 +174,7 @@ export default function UserEditModal({ isOpen, onClose, user, onUserUpdate }: U
                       disabled={isSubmitting}
                       className="mt-3 w-full inline-flex justify-center rounded-md border border-light-grey shadow-sm px-4 py-2 bg-white text-dark-grey font-medium hover:bg-light-grey focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:mt-0 sm:col-start-1 sm:text-sm"
                     >
-                      Cancel
+                      Cancelar
                     </button>
                   </div>
                 </form>

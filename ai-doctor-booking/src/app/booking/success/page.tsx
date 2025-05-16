@@ -20,7 +20,7 @@ const BookingSuccessView = () => {
 
   const handleAddToCalendar = () => {
     // In a real app, this would integrate with the device calendar
-    alert('Calendar integration would happen here');
+    alert('La integración con el calendario ocurriría aquí');
   };
 
   const handleBookAnother = () => {
@@ -31,13 +31,13 @@ const BookingSuccessView = () => {
   if (!selectedDoctor || !selectedSpecialty || !selectedDate || !selectedSlot) {
     return (
       <div className="p-6 text-center bg-gray-50">
-        <h1 className="text-xl font-semibold text-dark-grey mb-4">Booking Confirmed</h1>
-        <p className="text-medium-grey mb-6">Your booking has been confirmed successfully!</p>
+        <h1 className="text-xl font-semibold text-dark-grey mb-4">Reserva Confirmada</h1>
+        <p className="text-medium-grey mb-6">¡Tu reserva ha sido confirmada con éxito!</p>
         <button
           className="w-full py-3 px-4 bg-primary text-white rounded-lg font-medium flex items-center justify-center mb-4"
           onClick={handleViewBookings}
         >
-          View My Bookings <span className="ml-2">›</span>
+          Ver Mis Reservas <span className="ml-2">›</span>
         </button>
       </div>
     );
@@ -51,8 +51,8 @@ const BookingSuccessView = () => {
             <path d="M5 12L10 17L20 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </div>
-        <h1 className="text-xl font-semibold text-dark-grey mb-2">Booking Confirmed</h1>
-        <p className="text-medium-grey">Your appointment has been booked successfully</p>
+        <h1 className="text-xl font-semibold text-dark-grey mb-2">Reserva Confirmada</h1>
+        <p className="text-medium-grey">Tu cita ha sido reservada con éxito</p>
       </div>
       
       <div className="bg-dark-grey text-white p-6 rounded-xl mb-6 relative overflow-hidden">
@@ -63,7 +63,7 @@ const BookingSuccessView = () => {
         </div>
         
         <div className="text-xl font-semibold mb-4">
-          {selectedDate.toLocaleDateString('en-US', { 
+          {selectedDate.toLocaleDateString('es-ES', { 
             month: 'long', 
             day: 'numeric' 
           })}, {selectedSlot.time}
@@ -79,7 +79,7 @@ const BookingSuccessView = () => {
           </div>
         </div>
         
-        <div className="text-sm opacity-80">California Medical Center, Room 234</div>
+        <div className="text-sm opacity-80">Centro Médico California, Sala 234</div>
       </div>
       
       <div className="flex flex-col gap-4 mb-6">
@@ -87,14 +87,14 @@ const BookingSuccessView = () => {
           className="w-full py-3 px-4 bg-primary text-white rounded-lg font-medium flex items-center justify-center"
           onClick={handleAddToCalendar}
         >
-          Add to Calendar
+          Añadir al Calendario
         </button>
         
         <button
           className="w-full py-3 px-4 bg-primary text-white rounded-lg font-medium flex items-center justify-center"
           onClick={handleViewBookings}
         >
-          View My Bookings <span className="ml-2">›</span>
+          Ver Mis Reservas <span className="ml-2">›</span>
         </button>
       </div>
       
@@ -102,7 +102,7 @@ const BookingSuccessView = () => {
         className="w-full py-3 px-4 bg-light-grey text-dark-grey rounded-lg font-medium"
         onClick={handleBookAnother}
       >
-        Book Another Appointment
+        Reservar Otra Cita
       </button>
     </div>
   );

@@ -38,13 +38,13 @@ export const useUserBookingsStore = create<UserBookingsState>((set, get) => ({
           doctorId: '1',
           date: new Date(Date.now() + 86400000 * 2), // 2 days from now
           slotId: '101',
-          status: 'confirmed',
+          status: 'confirmed' as const,
           createdAt: new Date(),
           doctorName: 'Dr. Vinny Vang',
           doctorAvatar: '/doctors/doctor1.jpg',
-          specialtyName: 'Oculist',
+          specialtyName: 'Oftalmólogo',
           slotTime: '8:00',
-          location: 'California Medical Center, Room 234',
+          location: 'Centro Médico California, Sala 234',
           price: 35
         },
         {
@@ -54,13 +54,13 @@ export const useUserBookingsStore = create<UserBookingsState>((set, get) => ({
           doctorId: '2',
           date: new Date(Date.now() + 86400000 * 7), // 7 days from now
           slotId: '202',
-          status: 'confirmed',
+          status: 'confirmed' as const,
           createdAt: new Date(),
           doctorName: 'Dr. Eleanor Padilla',
           doctorAvatar: '/doctors/doctor2.jpg',
-          specialtyName: 'Dentist',
+          specialtyName: 'Dentista',
           slotTime: '13:00',
-          location: 'Downtown Clinic, Room 101',
+          location: 'Clínica Downtown, Sala 101',
           price: 45
         },
         {
@@ -70,20 +70,20 @@ export const useUserBookingsStore = create<UserBookingsState>((set, get) => ({
           doctorId: '3',
           date: new Date(Date.now() - 86400000 * 5), // 5 days ago
           slotId: '303',
-          status: 'completed',
+          status: 'completed' as const,
           createdAt: new Date(Date.now() - 86400000 * 10),
           doctorName: 'Dr. James Rodriguez',
           doctorAvatar: '/doctors/doctor3.jpg',
-          specialtyName: 'Cardiologist',
+          specialtyName: 'Cardiólogo',
           slotTime: '17:00',
-          location: 'Heart Center, Floor 3',
+          location: 'Centro Cardiológico, Piso 3',
           price: 55
         }
       ];
       
       set({ bookings, isLoading: false });
     } catch (error) {
-      set({ error: 'Failed to fetch bookings', isLoading: false });
+      set({ error: 'Error al cargar las citas', isLoading: false });
     }
   },
   
@@ -106,20 +106,20 @@ export const useUserBookingsStore = create<UserBookingsState>((set, get) => ({
           doctorId: '1',
           date: new Date(Date.now() + 86400000 * 2), // 2 days from now
           slotId: '101',
-          status: 'confirmed',
+          status: 'confirmed' as const,
           createdAt: new Date(),
           doctorName: 'Dr. Vinny Vang',
           doctorAvatar: '/doctors/doctor1.jpg',
-          specialtyName: 'Oculist',
+          specialtyName: 'Oftalmólogo',
           slotTime: '8:00',
-          location: 'California Medical Center, Room 234',
+          location: 'Centro Médico California, Sala 234',
           price: 35
         };
       }
       
       set({ selectedBooking: booking, isLoading: false });
     } catch (error) {
-      set({ error: `Failed to fetch booking with ID: ${id}`, isLoading: false });
+      set({ error: `Error al cargar la cita con ID: ${id}`, isLoading: false });
     }
   },
   
@@ -131,7 +131,7 @@ export const useUserBookingsStore = create<UserBookingsState>((set, get) => ({
       
       const { bookings } = get();
       const updatedBookings = bookings.map(booking => 
-        booking.id === id ? { ...booking, status: 'cancelled' } : booking
+        booking.id === id ? { ...booking, status: 'cancelled' as const } : booking
       );
       
       const updatedSelectedBooking = get().selectedBooking?.id === id
@@ -144,7 +144,7 @@ export const useUserBookingsStore = create<UserBookingsState>((set, get) => ({
         isLoading: false 
       });
     } catch (error) {
-      set({ error: 'Failed to cancel booking', isLoading: false });
+      set({ error: 'Error al cancelar la cita', isLoading: false });
     }
   },
   
@@ -169,7 +169,7 @@ export const useUserBookingsStore = create<UserBookingsState>((set, get) => ({
         isLoading: false 
       });
     } catch (error) {
-      set({ error: 'Failed to reschedule booking', isLoading: false });
+      set({ error: 'Error al reprogramar la cita', isLoading: false });
     }
   },
   

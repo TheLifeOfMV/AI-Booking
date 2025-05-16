@@ -49,7 +49,7 @@ export default function BookingsPage() {
   if (error) {
     return (
       <div className="p-4 text-center min-h-screen">
-        <p className="text-accent-orange">{error}</p>
+        <p className="text-accent-orange">Error al cargar las citas. Por favor intenta de nuevo.</p>
         <button 
           className="mt-4 text-primary font-medium"
           onClick={() => fetchUserBookings()}
@@ -117,7 +117,7 @@ export default function BookingsPage() {
                   </div>
                   <div className="text-sm opacity-80 mb-4">{booking.location}</div>
                   <div className="bg-primary text-white py-2 px-4 rounded-lg inline-flex items-center font-medium text-sm">
-                    Pagar ahora • {booking.price}$ <span className="ml-2">›</span>
+                    Pagar ahora • {booking.price}€ <span className="ml-2">›</span>
                   </div>
                 </div>
               </div>

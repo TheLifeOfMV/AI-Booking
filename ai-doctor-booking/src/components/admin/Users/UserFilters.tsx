@@ -4,8 +4,31 @@ import { useState, useCallback, useEffect } from 'react';
 import { UserFilter, UserRole, UserStatus } from '@/types/user';
 import { debounce } from '@/utils/helpers';
 
+// Crear un objeto global para compartir el estado de los filtros entre componentes
+// Esta es una solución simple que evita pasar funciones desde Server Components
+export const userFiltersState = {
+  filters: {} as UserFilter,
+  listeners: new Set<(filters: UserFilter) => void>(),
+  
+  setFilters(newFilters: UserFilter) {
+    this.filters = newFilters;
+    this.notifyListeners();
+  },
+  
+  subscribe(listener: (filters: UserFilter) => void) {
+    this.listeners.add(listener);
+    return () => {
+      this.listeners.delete(listener);
+    };
+  },
+  
+  notifyListeners() {
+    this.listeners.forEach(listener => listener(this.filters));
+  }
+};
+
 interface UserFiltersProps {
-  onFilterChange: (filters: UserFilter) => void;
+  onFilterChange?: (filters: UserFilter) => void;
   initialFilters?: UserFilter;
 }
 
@@ -16,7 +39,13 @@ export default function UserFilters({ onFilterChange, initialFilters = {} }: Use
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedFilterChange = useCallback(
     debounce((newFilters: UserFilter) => {
-      onFilterChange(newFilters);
+      // Si se proporciona onFilterChange, úsalo
+      if (onFilterChange) {
+        onFilterChange(newFilters);
+      }
+      
+      // Actualizar estado global
+      userFiltersState.setFilters(newFilters);
     }, 300),
     [onFilterChange]
   );
@@ -53,7 +82,7 @@ export default function UserFilters({ onFilterChange, initialFilters = {} }: Use
             </div>
             <input
               type="text"
-              placeholder="Search users..."
+              placeholder="Buscar usuarios..."
               className="block w-full pl-10 pr-3 py-2 border border-light-grey rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
               value={filters.search || ''}
               onChange={(e) => handleFilterChange({ search: e.target.value })}
@@ -71,10 +100,10 @@ export default function UserFilters({ onFilterChange, initialFilters = {} }: Use
               handleFilterChange({ status: value || undefined });
             }}
           >
-            <option value="">All Statuses</option>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-            <option value="pending">Pending</option>
+            <option value="">Todos los Estados</option>
+            <option value="active">Activo</option>
+            <option value="inactive">Inactivo</option>
+            <option value="pending">Pendiente</option>
           </select>
         </div>
         
@@ -88,10 +117,10 @@ export default function UserFilters({ onFilterChange, initialFilters = {} }: Use
               handleFilterChange({ role: value || undefined });
             }}
           >
-            <option value="">All Roles</option>
-            <option value="patient">Patient</option>
+            <option value="">Todos los Roles</option>
+            <option value="patient">Paciente</option>
             <option value="doctor">Doctor</option>
-            <option value="admin">Admin</option>
+            <option value="admin">Administrador</option>
           </select>
         </div>
       </div>

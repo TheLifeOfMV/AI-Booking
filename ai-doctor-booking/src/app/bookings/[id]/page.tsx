@@ -219,7 +219,7 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
             
             <div className="flex justify-between py-2 border-b border-light-grey">
               <span className="text-medium-grey">Precio</span>
-              <span className="font-medium">${selectedBooking.price}</span>
+              <span className="font-medium">{selectedBooking.price}€</span>
             </div>
             
             <div className="flex justify-between py-2">
@@ -332,7 +332,7 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
             className="bg-primary text-white w-full py-3 rounded-lg font-medium flex items-center justify-center"
             onClick={() => {
               // In a real app, this would generate a calendar event file
-              alert('This would add the appointment to your calendar');
+              alert('Esto añadiría la cita a tu calendario');
             }}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2">

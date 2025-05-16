@@ -49,7 +49,7 @@ const BookingConfirmationView = () => {
       // In a real app, we'd reset the store after a successful navigation
       // setTimeout(() => reset(), 1000);
     } catch (err) {
-      setError('There was an error confirming your booking. Please try again.');
+      setError('Hubo un error al confirmar tu reserva. Por favor, inténtalo de nuevo.');
       setIsSubmitting(false);
     }
   };
@@ -57,7 +57,7 @@ const BookingConfirmationView = () => {
   // Format date to display
   const formatDate = (date: Date | null) => {
     if (!date) return '';
-    return date.toLocaleDateString('en-US', { 
+    return date.toLocaleDateString('es-ES', { 
       weekday: 'long', 
       month: 'long', 
       day: 'numeric' 
@@ -70,7 +70,7 @@ const BookingConfirmationView = () => {
 
   return (
     <div className="px-4 py-6 bg-gray-50">
-      <h1 className="text-xl font-semibold text-dark-grey mb-6">Confirm Booking</h1>
+      <h1 className="text-xl font-semibold text-dark-grey mb-6">Confirmar Reserva</h1>
       
       {/* Summary Card with Dark Background */}
       <div className="bg-dark-grey text-white rounded-xl overflow-hidden mb-8">
@@ -102,7 +102,7 @@ const BookingConfirmationView = () => {
             </div>
           </div>
           
-          <p className="text-sm opacity-80 mb-6">California Medical Center, Room 234</p>
+          <p className="text-sm opacity-80 mb-6">Centro Médico California, Sala 234</p>
           
           <button 
             className={`w-full bg-primary text-white py-3 px-4 rounded-lg font-medium flex items-center justify-center ${
@@ -114,10 +114,10 @@ const BookingConfirmationView = () => {
             {isSubmitting ? (
               <div className="flex items-center">
                 <div className="w-5 h-5 border-t-2 border-b-2 border-white rounded-full animate-spin mr-2"></div>
-                Processing...
+                Procesando...
               </div>
             ) : (
-              <>Confirm Booking<span className="ml-2">›</span></>
+              <>Confirmar Reserva<span className="ml-2">›</span></>
             )}
           </button>
         </div>
@@ -130,24 +130,24 @@ const BookingConfirmationView = () => {
       )}
       
       <div className="border border-light-grey rounded-lg p-4 mb-4">
-        <h3 className="font-medium mb-2">Booking Details</h3>
+        <h3 className="font-medium mb-2">Detalles de la Reserva</h3>
         <div className="text-sm text-medium-grey mb-1">
-          <span className="font-medium text-dark-grey">Date:</span> {formatDate(selectedDate)}
+          <span className="font-medium text-dark-grey">Fecha:</span> {formatDate(selectedDate)}
         </div>
         <div className="text-sm text-medium-grey mb-1">
-          <span className="font-medium text-dark-grey">Time:</span> {selectedSlot.time}
+          <span className="font-medium text-dark-grey">Hora:</span> {selectedSlot.time}
         </div>
         <div className="text-sm text-medium-grey mb-1">
           <span className="font-medium text-dark-grey">Doctor:</span> {selectedDoctor.name}
         </div>
         <div className="text-sm text-medium-grey">
-          <span className="font-medium text-dark-grey">Specialty:</span> {selectedSpecialty.name}
+          <span className="font-medium text-dark-grey">Especialidad:</span> {selectedSpecialty.name}
         </div>
       </div>
       
       <div className="text-sm text-medium-grey">
-        <p className="mb-2">By confirming this booking, you agree to our Terms of Service and Cancellation Policy.</p>
-        <p>You can cancel or reschedule this appointment up to 24 hours before the scheduled time without any penalty.</p>
+        <p className="mb-2">Al confirmar esta reserva, aceptas nuestros Términos de Servicio y Política de Cancelación.</p>
+        <p>Puedes cancelar o reprogramar esta cita hasta 24 horas antes de la hora programada sin ninguna penalización.</p>
       </div>
     </div>
   );
