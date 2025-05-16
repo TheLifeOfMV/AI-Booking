@@ -41,12 +41,18 @@ export default function BottomNavigation() {
   // Determine if we're in the booking section to decide where Home button should lead
   const isInBookingSection = pathname?.startsWith('/booking');
   
+  // Determine if we're in the patient section (any patient pages)
+  const isPatientSection = pathname?.startsWith('/patient');
+  
   // Set the home href based on which section we're in
   let homeHref = '/';
   
   if (isDoctorSection) {
     homeHref = '/doctor/dashboard';
   } else if (isInBookingSection) {
+    homeHref = '/booking/unified';
+  } else if (isPatientSection) {
+    // En la vista del paciente, queremos que el botón inicio lleve a la vista unificada
     homeHref = '/booking/unified';
   }
   
@@ -68,9 +74,9 @@ export default function BottomNavigation() {
       <Link 
         href={homeHref}
         className={`flex flex-col items-center ${
-          (isActive('/') && !isDoctorSection && !isInBookingSection) || 
+          (isActive('/') && !isDoctorSection && !isInBookingSection && !isPatientSection) || 
           (isDoctorSection && isActive('/doctor/dashboard')) || 
-          (isInBookingSection && pathname === '/booking/unified') 
+          pathname === '/booking/unified'
             ? 'text-primary' 
             : 'text-medium-grey'
         }`}
