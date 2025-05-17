@@ -20,6 +20,29 @@ const hideScrollbarCSS = `
   }
 `;
 
+// Función auxiliar para convertir un color hex a rgba con transparencia
+const hexToRgba = (hex: string, alpha: number = 0.1) => {
+  let r = 0, g = 0, b = 0;
+  
+  // Eliminar el # si existe
+  if (hex.startsWith('#')) {
+    hex = hex.slice(1);
+  }
+  
+  // Convertir hex a rgb
+  if (hex.length === 3) {
+    r = parseInt(hex[0] + hex[0], 16);
+    g = parseInt(hex[1] + hex[1], 16);
+    b = parseInt(hex[2] + hex[2], 16);
+  } else if (hex.length === 6) {
+    r = parseInt(hex.slice(0, 2), 16);
+    g = parseInt(hex.slice(2, 4), 16);
+    b = parseInt(hex.slice(4, 6), 16);
+  }
+  
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+};
+
 const UnifiedBookingView = () => {
   const router = useRouter();
   const { 
@@ -55,15 +78,15 @@ const UnifiedBookingView = () => {
   
   // Paso 1: Modificar el estado inicial de las especialidades
   const [specialties, setSpecialties] = useState<Specialty[]>([
-    { id: '1', name: 'Neurología', imageUrl: '/specialties/neurologist.jpg', icon: 'brain', color: '#E53E3E' },
-    { id: '2', name: 'Cardiología', imageUrl: '/specialties/cardiology.jpg', icon: 'heart', color: '#DD6B20' },
-    { id: '3', name: 'Ortopedia', imageUrl: '/specialties/orthopedist.jpg', icon: 'bone', color: '#38A169' },
-    { id: '4', name: 'Neumología', imageUrl: '/specialties/pulmonologist.jpg', icon: 'lungs', color: '#3182CE' },
-    { id: '5', name: 'Odontología', imageUrl: '/specialties/dentist.jpg', icon: 'tooth', color: '#00B5D8' },
-    { id: '6', name: 'Dermatología', imageUrl: '/specialties/dermatologist.jpg', icon: 'skin', color: '#D53F8C' },
-    { id: '7', name: 'Oftalmología', imageUrl: '/specialties/ophthalmologist.jpg', icon: 'eye', color: '#805AD5' },
-    { id: '8', name: 'Pediatría', imageUrl: '/specialties/pediatrician.jpg', icon: 'baby', color: '#4FD1C5' },
-    { id: '9', name: 'Psiquiatría', imageUrl: '/specialties/psychiatrist.jpg', icon: 'mind', color: '#F6AD55' },
+    { id: '1', name: 'Neurología', imageUrl: '/doctors/neurologist.jpg', icon: 'brain', color: '#E53E3E' },
+    { id: '2', name: 'Cardiología', imageUrl: '/doctors/cardiologist.jpg', icon: 'heart', color: '#DD6B20' },
+    { id: '3', name: 'Ortopedia', imageUrl: '/doctors/orthopedist.jpg', icon: 'bone', color: '#38A169' },
+    { id: '4', name: 'Neumología', imageUrl: '/doctors/pulmonologist.jpg', icon: 'lungs', color: '#3182CE' },
+    { id: '5', name: 'Odontología', imageUrl: '/doctors/dentist.jpg', icon: 'tooth', color: '#00B5D8' },
+    { id: '6', name: 'Dermatología', imageUrl: '/doctors/dermatologist.jpg', icon: 'skin', color: '#D53F8C' },
+    { id: '7', name: 'Oftalmología', imageUrl: '/doctors/ophthalmologist.jpg', icon: 'eye', color: '#805AD5' },
+    { id: '8', name: 'Pediatría', imageUrl: '/doctors/pediatrician.jpg', icon: 'baby', color: '#4FD1C5' },
+    { id: '9', name: 'Psiquiatría', imageUrl: '/doctors/psychiatrist.jpg', icon: 'mind', color: '#F6AD55' },
   ]);
   
   const [dates, setDates] = useState<Date[]>([]);
@@ -427,21 +450,54 @@ const UnifiedBookingView = () => {
             {specialties.map((specialty) => (
               <div 
                 key={specialty.id} 
-                className="flex-shrink-0 flex flex-col items-center justify-center w-28 h-28 bg-white rounded-2xl shadow-md p-3 transition-all duration-200"
+                className={`flex-shrink-0 flex flex-col items-center w-28 h-28 rounded-xl p-3 transition-all duration-200 cursor-pointer`}
                 style={{
-                  backgroundColor: selectedSpecialty?.id === specialty.id 
-                    ? `${specialty.color}10` 
+                  backgroundColor: selectedSpecialty?.id === specialty.id && specialty.color
+                    ? hexToRgba(specialty.color, 0.05)
                     : 'white',
-                  border: selectedSpecialty?.id === specialty.id 
-                    ? `2px solid ${specialty.color}` 
-                    : '1px solid #f3f4f6',
+                  borderColor: selectedSpecialty?.id === specialty.id && specialty.color 
+                    ? specialty.color 
+                    : 'transparent',
+                  borderWidth: selectedSpecialty?.id === specialty.id ? '2px' : '1px',
+                  borderStyle: 'solid',
+                  boxShadow: selectedSpecialty?.id === specialty.id 
+                    ? 'none' 
+                    : '0 1px 2px rgba(0, 0, 0, 0.05)'
                 }}
                 onClick={() => handleSpecialtySelect(specialty)}
               >
-                <div className="flex items-center justify-center mb-2">
-                  {renderSpecialtyIcon(specialty.icon, selectedSpecialty?.id === specialty.id, 40)}
+                <div 
+                  className="flex items-center justify-center mb-2 w-14 h-14 rounded-full overflow-hidden"
+                  style={{
+                    backgroundColor: specialty.id === '1' 
+                      ? '#ffedee' // Fondo rosa claro para neurología
+                      : '#f9fafb'  // bg-gray-50 para los demás
+                  }}
+                >
+                  {specialty.id === '1' ? (
+                    // Para Neurología (ID 1), usar la imagen específica de cerebro
+                    <div className="scale-125">
+                      <Image 
+                        src="/specialties/cerebro.png"
+                        alt="Neurología"
+                        width={56}
+                        height={56}
+                        className="object-contain"
+                      />
+                    </div>
+                  ) : specialty.imageUrl ? (
+                    <Image 
+                      src={specialty.imageUrl}
+                      alt={specialty.name}
+                      width={56}
+                      height={56}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    renderSpecialtyIcon(specialty.icon, selectedSpecialty?.id === specialty.id, 36)
+                  )}
                 </div>
-                <div className="text-sm text-dark-grey font-semibold text-center leading-tight max-w-[90%] truncate break-words">
+                <div className="text-sm text-dark-grey font-medium text-center leading-tight">
                   {specialty.name}
                 </div>
               </div>
