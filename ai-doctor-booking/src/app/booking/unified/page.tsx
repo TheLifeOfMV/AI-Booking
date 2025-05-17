@@ -469,9 +469,9 @@ const UnifiedBookingView = () => {
                 <div 
                   className="flex items-center justify-center mb-2 w-14 h-14 rounded-full overflow-hidden"
                   style={{
-                    backgroundColor: specialty.id === '1' 
-                      ? '#ffedee' // Fondo rosa claro para neurología
-                      : '#f9fafb'  // bg-gray-50 para los demás
+                    backgroundColor: selectedSpecialty?.id === specialty.id
+                      ? 'white' // Fondo blanco cuando está seleccionado
+                      : '#f1f5f9' // Fondo gris claro por defecto (gray-100)
                   }}
                 >
                   {specialty.id === '1' ? (
@@ -483,6 +483,83 @@ const UnifiedBookingView = () => {
                         width={56}
                         height={56}
                         className="object-contain"
+                      />
+                    </div>
+                  ) : specialty.id === '2' ? (
+                    // Para Cardiología (ID 2), usar la imagen específica de corazón
+                    <div className="scale-125">
+                      <Image 
+                        src="/specialties/corazon.png"
+                        alt="Cardiología"
+                        width={56}
+                        height={56}
+                        className="object-contain"
+                      />
+                    </div>
+                  ) : specialty.id === '3' ? (
+                    // Para Ortopedia (ID 3), usar la imagen específica de hueso
+                    <div className="scale-125">
+                      <Image 
+                        src="/specialties/ortopedia.png"
+                        alt="Ortopedia"
+                        width={56}
+                        height={56}
+                        className="object-contain"
+                      />
+                    </div>
+                  ) : specialty.id === '4' ? (
+                    // Para Neumología (ID 4), usar la imagen específica de pulmón
+                    <div className="scale-125">
+                      <Image 
+                        src="/specialties/pulmon.png"
+                        alt="Neumología"
+                        width={56}
+                        height={56}
+                        className="object-contain"
+                      />
+                    </div>
+                  ) : specialty.id === '5' ? (
+                    // Para Odontología (ID 5), usar la imagen específica de diente
+                    <div className="scale-125">
+                      <Image 
+                        src="/specialties/diente.png"
+                        alt="Odontología"
+                        width={56}
+                        height={56}
+                        className="object-contain"
+                      />
+                    </div>
+                  ) : specialty.id === '6' ? (
+                    // Para Dermatología (ID 6), usar la imagen específica de piel
+                    <div className="scale-125">
+                      <Image 
+                        src="/specialties/piel.png"
+                        alt="Dermatología"
+                        width={56}
+                        height={56}
+                        className="object-contain"
+                      />
+                    </div>
+                  ) : specialty.id === '7' ? (
+                    // Para Oftalmología (ID 7), usar la imagen específica de ojo
+                    <div className="scale-125">
+                      <Image 
+                        src="/specialties/ojo.png"
+                        alt="Oftalmología"
+                        width={56}
+                        height={56}
+                        className="object-contain"
+                      />
+                    </div>
+                  ) : specialty.id === '8' ? (
+                    // Para Pediatría (ID 8), usar la imagen específica de osito
+                    <div className="scale-110">
+                      <Image 
+                        src="/specialties/osito.png"
+                        alt="Pediatría"
+                        width={52}
+                        height={52}
+                        className="object-contain p-0.5"
                       />
                     </div>
                   ) : specialty.imageUrl ? (
