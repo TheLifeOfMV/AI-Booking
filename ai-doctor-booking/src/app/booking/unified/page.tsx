@@ -310,6 +310,30 @@ const UnifiedBookingView = () => {
       date1.getFullYear() === date2.getFullYear();
   };
 
+  // Add this near other useState declarations
+  const [showAllSpecialties, setShowAllSpecialties] = useState(false);
+
+  // Add this near other useEffect declarations
+  useEffect(() => {
+    const handleEscapeKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && showAllSpecialties) {
+        setShowAllSpecialties(false);
+      }
+    };
+
+    if (showAllSpecialties) {
+      document.body.classList.add('modal-open');
+      document.addEventListener('keydown', handleEscapeKey);
+    } else {
+      document.body.classList.remove('modal-open');
+    }
+
+    return () => {
+      document.body.classList.remove('modal-open');
+      document.removeEventListener('keydown', handleEscapeKey);
+    };
+  }, [showAllSpecialties]);
+
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#F0F4F9' }}>
       {/* Aplicar estilos CSS para ocultar barras de desplazamiento */}
@@ -442,7 +466,12 @@ const UnifiedBookingView = () => {
         <div className="mb-3">
           <div className="flex justify-between items-center mb-2">
             <h2 className="font-semibold text-base">Especialidad</h2>
-            <span className="text-primary text-sm font-medium">Ver todas</span>
+            <span 
+              className="text-primary text-sm font-medium cursor-pointer hover:text-primary/80 transition-colors" 
+              onClick={() => setShowAllSpecialties(true)}
+            >
+              Ver todas
+            </span>
           </div>
           
           {/* Paso 4 y 5: Modificar el componente de tarjeta de especialidad y ajustar los estilos específicos */}
@@ -717,6 +746,185 @@ const UnifiedBookingView = () => {
           Reservar Cita <span className="ml-2">›</span>
         </button>
       </div>
+
+      {/* Add this before the closing div of the main component */}
+      {showAllSpecialties && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowAllSpecialties(false);
+            }
+          }}
+        >
+          <div className="bg-white rounded-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto modal-content">
+            {/* Modal Header */}
+            <div className="p-4 border-b border-[#F2F2F2] flex justify-between items-center sticky top-0 bg-white z-10">
+              <h2 className="font-semibold text-xl text-[#333333]">Todas las Especialidades</h2>
+              <button 
+                onClick={() => setShowAllSpecialties(false)}
+                className="p-2 hover:bg-[#F2F2F2] rounded-full transition-colors"
+                aria-label="Cerrar modal"
+              >
+                <svg 
+                  width="24" 
+                  height="24" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M18 6L6 18M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            {/* Modal Content */}
+            <div className="p-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {specialties.map((specialty) => (
+                  <div 
+                    key={specialty.id} 
+                    className={`flex flex-col items-center p-4 rounded-xl cursor-pointer transition-all duration-200 hover:shadow-md`}
+                    style={{
+                      backgroundColor: selectedSpecialty?.id === specialty.id && specialty.color
+                        ? hexToRgba(specialty.color, 0.05)
+                        : 'white',
+                      borderColor: selectedSpecialty?.id === specialty.id && specialty.color 
+                        ? specialty.color 
+                        : 'transparent',
+                      borderWidth: selectedSpecialty?.id === specialty.id ? '2px' : '1px',
+                      borderStyle: 'solid',
+                      boxShadow: selectedSpecialty?.id === specialty.id 
+                        ? 'none' 
+                        : '0 1px 2px rgba(0, 0, 0, 0.05)'
+                    }}
+                    onClick={() => {
+                      handleSpecialtySelect(specialty);
+                      setShowAllSpecialties(false);
+                    }}
+                  >
+                    <div 
+                      className="flex items-center justify-center mb-3 w-16 h-16 rounded-full overflow-hidden"
+                      style={{
+                        backgroundColor: 'white',
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+                      }}
+                    >
+                      {specialty.id === '1' ? (
+                        <div className="scale-125">
+                          <Image 
+                            src="/specialties/cerebro.png"
+                            alt="Neurología"
+                            width={64}
+                            height={64}
+                            className="object-contain"
+                          />
+                        </div>
+                      ) : specialty.id === '2' ? (
+                        <div className="scale-125">
+                          <Image 
+                            src="/specialties/corazon.png"
+                            alt="Cardiología"
+                            width={64}
+                            height={64}
+                            className="object-contain"
+                          />
+                        </div>
+                      ) : specialty.id === '3' ? (
+                        <div className="scale-125">
+                          <Image 
+                            src="/specialties/ortopedia.png"
+                            alt="Ortopedia"
+                            width={64}
+                            height={64}
+                            className="object-contain"
+                          />
+                        </div>
+                      ) : specialty.id === '4' ? (
+                        <div className="scale-125">
+                          <Image 
+                            src="/specialties/pulmon.png"
+                            alt="Neumología"
+                            width={64}
+                            height={64}
+                            className="object-contain"
+                          />
+                        </div>
+                      ) : specialty.id === '5' ? (
+                        <div className="scale-125">
+                          <Image 
+                            src="/specialties/diente.png"
+                            alt="Odontología"
+                            width={64}
+                            height={64}
+                            className="object-contain"
+                          />
+                        </div>
+                      ) : specialty.id === '6' ? (
+                        <div className="scale-125">
+                          <Image 
+                            src="/specialties/piel.png"
+                            alt="Dermatología"
+                            width={64}
+                            height={64}
+                            className="object-contain"
+                          />
+                        </div>
+                      ) : specialty.id === '7' ? (
+                        <div className="scale-125">
+                          <Image 
+                            src="/specialties/ojo.png"
+                            alt="Oftalmología"
+                            width={64}
+                            height={64}
+                            className="object-contain"
+                          />
+                        </div>
+                      ) : specialty.id === '8' ? (
+                        <div className="scale-110">
+                          <Image 
+                            src="/specialties/osito.png"
+                            alt="Pediatría"
+                            width={60}
+                            height={60}
+                            className="object-contain p-0.5"
+                          />
+                        </div>
+                      ) : specialty.id === '9' ? (
+                        <div className="scale-110">
+                          <Image 
+                            src="/specialties/psiquiatria.png"
+                            alt="Psiquiatría"
+                            width={58}
+                            height={58}
+                            className="object-contain p-1"
+                          />
+                        </div>
+                      ) : specialty.imageUrl ? (
+                        <Image 
+                          src={specialty.imageUrl}
+                          alt={specialty.name}
+                          width={64}
+                          height={64}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        renderSpecialtyIcon(specialty.icon, selectedSpecialty?.id === specialty.id, 40)
+                      )}
+                    </div>
+                    <div className="text-base text-[#333333] font-medium text-center leading-tight">
+                      {specialty.name}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
