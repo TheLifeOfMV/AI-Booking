@@ -87,6 +87,15 @@ const UnifiedBookingView = () => {
     { id: '7', name: 'Oftalmología', imageUrl: '/doctors/ophthalmologist.jpg', icon: 'eye', color: '#805AD5' },
     { id: '8', name: 'Pediatría', imageUrl: '/doctors/pediatrician.jpg', icon: 'baby', color: '#4FD1C5' },
     { id: '9', name: 'Psiquiatría', imageUrl: '/doctors/psychiatrist.jpg', icon: 'mind', color: '#F6AD55' },
+    // Nuevas especialidades
+    { id: '10', name: 'Urología', imageUrl: '/doctors/urologist.jpg', icon: 'kidney', color: '#4299E1' },
+    { id: '11', name: 'Psicología', imageUrl: '/doctors/psychologist.jpg', icon: 'psychology', color: '#9F7AEA' },
+    { id: '12', name: 'Hematología', imageUrl: '/doctors/hematologist.jpg', icon: 'blood', color: '#E53E3E' },
+    { id: '13', name: 'Ginecología', imageUrl: '/doctors/gynecologist.jpg', icon: 'female', color: '#ED64A6' },
+    { id: '14', name: 'Cirugía Plástica', imageUrl: '/doctors/plastic-surgeon.jpg', icon: 'scalpel', color: '#667EEA' },
+    { id: '15', name: 'Cirugía General', imageUrl: '/doctors/surgeon.jpg', icon: 'surgery', color: '#48BB78' },
+    { id: '16', name: 'Fisioterapia', imageUrl: '/doctors/physiotherapist.jpg', icon: 'physio', color: '#38B2AC' },
+    { id: '17', name: 'Oncología', imageUrl: '/doctors/oncologist.jpg', icon: 'cell', color: '#9B2C2C' },
   ]);
   
   const [dates, setDates] = useState<Date[]>([]);
@@ -121,9 +130,7 @@ const UnifiedBookingView = () => {
 
   // Paso 3: Crear componente de icono médico
   const renderSpecialtyIcon = (icon: string | undefined, isSelected: boolean = false, size: number = 36) => {
-    // Obtenemos el color correspondiente a la especialidad o usamos un color por defecto
     const specialty = specialties.find(s => s.icon === icon);
-    // El color del borde siempre será el de la especialidad
     const color = specialty?.color || '#777777';
     const strokeWidth = isSelected ? "2" : "1.5";
     
@@ -215,6 +222,74 @@ const UnifiedBookingView = () => {
             <circle cx="16" cy="12" r="1"></circle>
             <path d="M16 7h3a2 2 0 0 1 2 2v1.5"></path>
             <path d="M3 11v-1a2 2 0 0 1 2-2h3"></path>
+          </svg>
+        );
+      case 'kidney':
+        return (
+          <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 12c-2-3-3-4.5-3-6.5a3 3 0 0 1 6 0c0 2-1 3.5-3 6.5z"/>
+            <path d="M12 12c2-3 3-4.5 3-6.5a3 3 0 0 0-6 0c0 2 1 3.5 3 6.5z"/>
+          </svg>
+        );
+      case 'psychology':
+        return (
+          <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 2a5 5 0 0 1 5 5v2a5 5 0 0 1-10 0V7a5 5 0 0 1 5-5z"/>
+            <path d="M8 14h8"/>
+            <path d="M8 17h8"/>
+            <path d="M12 14v7"/>
+          </svg>
+        );
+      case 'blood':
+        return (
+          <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+            <path d="M12 8v8"/>
+            <path d="M8 12h8"/>
+          </svg>
+        );
+      case 'female':
+        return (
+          <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="8" r="6"/>
+            <path d="M12 14v7"/>
+            <path d="M9 18h6"/>
+          </svg>
+        );
+      case 'scalpel':
+        return (
+          <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+            <path d="M20 4L8.5 15.5"/>
+            <path d="M4 20l3.5-3.5"/>
+            <path d="M8.5 15.5L4 20"/>
+            <path d="M16 8l-4 4"/>
+          </svg>
+        );
+      case 'surgery':
+        return (
+          <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="4" width="18" height="16" rx="2"/>
+            <path d="M9 8h6"/>
+            <path d="M12 8v6"/>
+            <path d="M8 16h8"/>
+          </svg>
+        );
+      case 'physio':
+        return (
+          <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+            <path d="M14 6a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2a2 2 0 0 1 2 2z"/>
+            <path d="M12 8v8"/>
+            <path d="M8 12l4 4 4-4"/>
+          </svg>
+        );
+      case 'cell':
+        return (
+          <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="8"/>
+            <path d="M12 4v16"/>
+            <path d="M4 12h16"/>
+            <path d="M7 7l10 10"/>
+            <path d="M7 17L17 7"/>
           </svg>
         );
       default:
@@ -783,23 +858,23 @@ const UnifiedBookingView = () => {
             
             {/* Modal Content */}
             <div className="p-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 gap-6">
                 {specialties.map((specialty) => (
                   <div 
                     key={specialty.id} 
-                    className={`flex flex-col items-center p-4 rounded-xl cursor-pointer transition-all duration-200 hover:shadow-md`}
+                    className={`flex flex-col items-center p-6 rounded-xl cursor-pointer transition-all duration-200 hover:shadow-md bg-white`}
                     style={{
                       backgroundColor: selectedSpecialty?.id === specialty.id && specialty.color
                         ? hexToRgba(specialty.color, 0.05)
                         : 'white',
                       borderColor: selectedSpecialty?.id === specialty.id && specialty.color 
                         ? specialty.color 
-                        : 'transparent',
-                      borderWidth: selectedSpecialty?.id === specialty.id ? '2px' : '1px',
+                        : '#F2F2F2',
+                      borderWidth: '1px',
                       borderStyle: 'solid',
                       boxShadow: selectedSpecialty?.id === specialty.id 
                         ? 'none' 
-                        : '0 1px 2px rgba(0, 0, 0, 0.05)'
+                        : '0 1px 3px rgba(0, 0, 0, 0.05)'
                     }}
                     onClick={() => {
                       handleSpecialtySelect(specialty);
@@ -807,7 +882,7 @@ const UnifiedBookingView = () => {
                     }}
                   >
                     <div 
-                      className="flex items-center justify-center mb-3 w-16 h-16 rounded-full overflow-hidden"
+                      className="flex items-center justify-center mb-4 w-20 h-20 rounded-full overflow-hidden"
                       style={{
                         backgroundColor: 'white',
                         boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
@@ -818,8 +893,8 @@ const UnifiedBookingView = () => {
                           <Image 
                             src="/specialties/cerebro.png"
                             alt="Neurología"
-                            width={64}
-                            height={64}
+                            width={80}
+                            height={80}
                             className="object-contain"
                           />
                         </div>
@@ -828,8 +903,8 @@ const UnifiedBookingView = () => {
                           <Image 
                             src="/specialties/corazon.png"
                             alt="Cardiología"
-                            width={64}
-                            height={64}
+                            width={80}
+                            height={80}
                             className="object-contain"
                           />
                         </div>
@@ -838,8 +913,8 @@ const UnifiedBookingView = () => {
                           <Image 
                             src="/specialties/ortopedia.png"
                             alt="Ortopedia"
-                            width={64}
-                            height={64}
+                            width={80}
+                            height={80}
                             className="object-contain"
                           />
                         </div>
@@ -848,8 +923,8 @@ const UnifiedBookingView = () => {
                           <Image 
                             src="/specialties/pulmon.png"
                             alt="Neumología"
-                            width={64}
-                            height={64}
+                            width={80}
+                            height={80}
                             className="object-contain"
                           />
                         </div>
@@ -858,8 +933,8 @@ const UnifiedBookingView = () => {
                           <Image 
                             src="/specialties/diente.png"
                             alt="Odontología"
-                            width={64}
-                            height={64}
+                            width={80}
+                            height={80}
                             className="object-contain"
                           />
                         </div>
@@ -868,8 +943,8 @@ const UnifiedBookingView = () => {
                           <Image 
                             src="/specialties/piel.png"
                             alt="Dermatología"
-                            width={64}
-                            height={64}
+                            width={80}
+                            height={80}
                             className="object-contain"
                           />
                         </div>
@@ -878,8 +953,8 @@ const UnifiedBookingView = () => {
                           <Image 
                             src="/specialties/ojo.png"
                             alt="Oftalmología"
-                            width={64}
-                            height={64}
+                            width={80}
+                            height={80}
                             className="object-contain"
                           />
                         </div>
@@ -888,8 +963,8 @@ const UnifiedBookingView = () => {
                           <Image 
                             src="/specialties/osito.png"
                             alt="Pediatría"
-                            width={60}
-                            height={60}
+                            width={74}
+                            height={74}
                             className="object-contain p-0.5"
                           />
                         </div>
@@ -898,8 +973,8 @@ const UnifiedBookingView = () => {
                           <Image 
                             src="/specialties/psiquiatria.png"
                             alt="Psiquiatría"
-                            width={58}
-                            height={58}
+                            width={72}
+                            height={72}
                             className="object-contain p-1"
                           />
                         </div>
@@ -907,15 +982,15 @@ const UnifiedBookingView = () => {
                         <Image 
                           src={specialty.imageUrl}
                           alt={specialty.name}
-                          width={64}
-                          height={64}
+                          width={80}
+                          height={80}
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        renderSpecialtyIcon(specialty.icon, selectedSpecialty?.id === specialty.id, 40)
+                        renderSpecialtyIcon(specialty.icon, selectedSpecialty?.id === specialty.id, 48)
                       )}
                     </div>
-                    <div className="text-base text-[#333333] font-medium text-center leading-tight">
+                    <div className="text-lg text-[#333333] font-medium text-center leading-tight">
                       {specialty.name}
                     </div>
                   </div>
