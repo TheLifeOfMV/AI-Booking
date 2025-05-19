@@ -594,28 +594,33 @@ const UnifiedBookingView = () => {
         {/* Date Selection Card */}
         <div className="mb-3">
           <h2 className="font-semibold text-base mb-2">Fecha</h2>
-          
           <div className={`${scrollbarHideStyle} gap-3 pb-2 -mx-4 px-4`}>
-            {dates.map((date, index) => (
-              <div 
-                key={index} 
-                className="flex flex-col items-center gap-1 cursor-pointer"
-                onClick={() => handleDateSelect(date)}
-              >
-                <div className="text-xs text-medium-grey">
-                  {formatDay(date)}
-                </div>
-                <div 
-                  className={`w-10 h-10 rounded-full flex items-center justify-center font-medium ${
-                    isSameDay(selectedDate, date) 
-                      ? 'bg-primary text-white' 
-                      : 'bg-light-grey text-dark-grey'
-                  }`}
+            {dates.map((date, index) => {
+              const selected = isSameDay(selectedDate, date);
+              return (
+                <div
+                  key={index}
+                  className="flex flex-col items-center gap-1 cursor-pointer"
+                  onClick={() => handleDateSelect(date)}
                 >
-                  {date.getDate()}
+                  <div className="text-xs font-medium" style={{ color: '#777777' }}>
+                    {date.toLocaleDateString('es-ES', { weekday: 'short' }).toUpperCase().charAt(0)}
+                  </div>
+                  <div
+                    className={`w-12 h-16 flex flex-col items-center justify-center rounded-2xl font-semibold transition-all
+                      ${selected
+                        ? 'bg-[#007AFF] text-white'
+                        : 'bg-white text-[#333333] border border-[#F2F2F2]'}
+                      shadow-sm`}
+                    style={{
+                      boxShadow: selected ? '0 2px 8px rgba(0,122,255,0.10)' : '0 1px 2px rgba(0,0,0,0.05)'
+                    }}
+                  >
+                    <span className="text-base" style={{fontWeight: 600, fontSize: '1.0625rem'}}>{date.getDate()}</span>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
