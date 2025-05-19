@@ -52,7 +52,7 @@ const DoctorListView = () => {
   }
 
   return (
-    <div className="px-4 py-6">
+    <div className="px-4 py-6" style={{ backgroundColor: '#F0F4F9' }}>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-xl font-semibold text-dark-grey">Select Doctor</h1>
         {selectedSpecialty && (

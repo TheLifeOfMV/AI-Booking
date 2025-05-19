@@ -158,10 +158,8 @@ export default function PatientProfilePage() {
     );
   }
 
-  return (
-    <div className="pb-20">
-      {/* Cabecera del perfil */}
-      <div className="bg-primary/10 p-6">
+    return (    <div className="pb-20" style={{ backgroundColor: '#F0F4F9' }}>
+            {/* Cabecera del perfil */}      <div className="p-6" style={{ backgroundColor: '#F0F4F9' }}>
         <div className="flex items-center mb-4">
           <div className="relative mr-4">
             <div className="w-20 h-20 rounded-full bg-light-grey overflow-hidden border-2 border-white">
@@ -226,8 +224,7 @@ export default function PatientProfilePage() {
         )}
       </div>
 
-      {/* Navegación por pestañas */}
-      <div className="sticky top-0 z-10 bg-white border-b border-light-grey">
+            {/* Navegación por pestañas */}      <div className="sticky top-0 z-10 border-b border-light-grey" style={{ backgroundColor: '#F0F4F9' }}>
         <div className="flex overflow-x-auto no-scrollbar">
           <button
             className={`px-5 py-4 font-medium whitespace-nowrap ${
@@ -272,8 +269,7 @@ export default function PatientProfilePage() {
         </div>
       </div>
 
-      {/* Contenido principal */}
-      <div className="p-4">
+            {/* Contenido principal */}      <div className="p-4" style={{ backgroundColor: '#F0F4F9' }}>
         {activeTab === 'personal' && (
           <>
             {isEditing ? (

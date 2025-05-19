@@ -19,7 +19,7 @@ export default function ChannelSelectionPage() {
   };
   
   return (
-    <div className="h-[100dvh] flex flex-col bg-gray-50 py-4 px-4 overflow-hidden">
+    <div className="h-[100dvh] flex flex-col py-4 px-4 overflow-hidden" style={{ backgroundColor: '#F0F4F9' }}>
       {/* Header - Reduced bottom margin */}
       <div className="w-full max-w-md text-center mx-auto mb-3 mt-2">
         <h1 className="text-2xl font-bold text-dark-grey mb-1">

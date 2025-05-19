@@ -30,7 +30,7 @@ const BookingSuccessView = () => {
 
   if (!selectedDoctor || !selectedSpecialty || !selectedDate || !selectedSlot) {
     return (
-      <div className="p-6 text-center bg-gray-50">
+      <div className="p-6 text-center" style={{ backgroundColor: '#F0F4F9' }}>
         <h1 className="text-xl font-semibold text-dark-grey mb-4">Reserva Confirmada</h1>
         <p className="text-medium-grey mb-6">¡Tu reserva ha sido confirmada con éxito!</p>
         <button
@@ -44,7 +44,7 @@ const BookingSuccessView = () => {
   }
 
   return (
-    <div className="px-4 py-6 bg-gray-50">
+    <div className="px-4 py-6" style={{ backgroundColor: '#F0F4F9' }}>
       <div className="text-center mb-8">
         <div className="w-16 h-16 bg-primary text-white rounded-full flex items-center justify-center mx-auto mb-4">
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

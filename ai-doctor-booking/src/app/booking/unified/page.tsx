@@ -311,12 +311,12 @@ const UnifiedBookingView = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen" style={{ backgroundColor: '#F0F4F9' }}>
       {/* Aplicar estilos CSS para ocultar barras de desplazamiento */}
       <style jsx global>{hideScrollbarCSS}</style>
       
       {/* Conversational Header */}
-      <header className="p-5 bg-white shadow-sm">
+      <header className="p-5 shadow-sm" style={{ backgroundColor: '#F0F4F9' }}>
         <div className="flex items-center justify-between">
           <div>
             <h3 className="font-medium text-gray-400 text-base mb-1">Hola, {user.name} 👋</h3>
@@ -347,7 +347,7 @@ const UnifiedBookingView = () => {
       </header>
 
       {/* Main Content */}
-      <div className="px-4 py-4 pb-16 bg-gray-50">
+      <div className="px-4 py-4 pb-16" style={{ backgroundColor: '#F0F4F9' }}>
         {/* Paso 2 y 6: Crear el componente de barra de búsqueda y ajustar el estilo del contenedor */}
         <div className="search-bar-container mb-4 mt-1">
           <div className="flex items-center bg-light-grey rounded-full p-1 shadow-sm">
@@ -469,9 +469,7 @@ const UnifiedBookingView = () => {
                 <div 
                   className="flex items-center justify-center mb-2 w-14 h-14 rounded-full overflow-hidden"
                   style={{
-                    backgroundColor: selectedSpecialty?.id === specialty.id
-                      ? 'white' // Fondo blanco cuando está seleccionado
-                      : '#f1f5f9' // Fondo gris claro por defecto (gray-100)
+                    backgroundColor: 'white' // Fondo siempre blanco para todas las tarjetas
                   }}
                 >
                   {specialty.id === '1' ? (
@@ -560,6 +558,17 @@ const UnifiedBookingView = () => {
                         width={52}
                         height={52}
                         className="object-contain p-0.5"
+                      />
+                    </div>
+                  ) : specialty.id === '9' ? (
+                    // Para Psiquiatría (ID 9), usar la imagen específica de cerebro con cruz
+                    <div className="scale-110">
+                      <Image 
+                        src="/specialties/psiquiatria.png"
+                        alt="Psiquiatría"
+                        width={50}
+                        height={50}
+                        className="object-contain p-1"
                       />
                     </div>
                   ) : specialty.imageUrl ? (

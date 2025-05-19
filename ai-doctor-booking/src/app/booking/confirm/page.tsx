@@ -69,7 +69,7 @@ const BookingConfirmationView = () => {
   }
 
   return (
-    <div className="px-4 py-6 bg-gray-50">
+    <div className="px-4 py-6" style={{ backgroundColor: '#F0F4F9' }}>
       <h1 className="text-xl font-semibold text-dark-grey mb-6">Confirmar Reserva</h1>
       
       {/* Summary Card with Dark Background */}

@@ -141,7 +141,7 @@ export default function LoginPage() {
   };
   
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#F0F4F9' }}>
       {/* Main content */}
       <main className="flex-1 flex flex-col items-center justify-center p-6">
         <div className="w-full max-w-sm">

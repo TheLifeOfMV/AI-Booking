@@ -17,7 +17,7 @@ export default function SplashPage() {
   
   // This will never be shown due to the redirect, but included for completeness
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-white">
+    <div className="flex flex-col items-center justify-center h-screen" style={{ backgroundColor: '#F0F4F9' }}>
       <div className="w-32 h-32 relative mb-8">
         <Image
           src="/images/logo.png"
