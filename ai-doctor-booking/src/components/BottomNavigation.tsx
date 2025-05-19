@@ -91,24 +91,6 @@ export default function BottomNavigation() {
       </Link>
       
       <Link 
-        href={isDoctorSection ? "/doctor/categories" : "/booking/specialty"}
-        className={`flex flex-col items-center ${
-          (isDoctorSection && isActive('/doctor/categories')) || 
-          (isActive('/booking') && pathname !== '/booking/unified' && !isDoctorSection) 
-            ? 'text-primary' 
-            : 'text-medium-grey'
-        }`}
-      >
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="3" y="3" width="7" height="7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          <rect x="14" y="3" width="7" height="7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          <rect x="3" y="14" width="7" height="7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          <rect x="14" y="14" width="7" height="7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-        <span className="text-xs mt-1">Categorías</span>
-      </Link>
-      
-      <Link 
         href={isDoctorSection ? "/doctor/availability" : "/bookings"}
         className={`flex flex-col items-center ${
           (isDoctorSection && (isActive('/doctor/appointments') || isActive('/doctor/availability'))) || 

@@ -319,7 +319,7 @@ const UnifiedBookingView = () => {
       <header className="p-5 shadow-sm" style={{ backgroundColor: '#F0F4F9' }}>
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="font-medium text-gray-400 text-base mb-1">Hola, {user.name} 👋</h3>
+            <h3 className="font-medium text-black text-base mb-1">Hola, {user.name} 👋</h3>
             <p className="text-xl font-semibold text-gray-800">¿Cómo te sientes hoy?</p>
           </div>
           <div className="relative">
@@ -350,7 +350,7 @@ const UnifiedBookingView = () => {
       <div className="px-4 py-4 pb-16" style={{ backgroundColor: '#F0F4F9' }}>
         {/* Paso 2 y 6: Crear el componente de barra de búsqueda y ajustar el estilo del contenedor */}
         <div className="search-bar-container mb-4 mt-1">
-          <div className="flex items-center bg-light-grey rounded-full p-1 shadow-sm">
+          <div className="flex items-center bg-white rounded-full p-1 shadow-sm">
             <div className="location-selector flex items-center pl-3 pr-2 relative">
               <svg 
                 width="20" 
@@ -709,7 +709,7 @@ const UnifiedBookingView = () => {
           className={`w-full py-3 px-4 rounded-lg font-medium flex items-center justify-center mt-2 ${
             selectedSpecialty && selectedDate && selectedDoctor && selectedSlot
               ? 'bg-primary text-white' 
-              : 'bg-light-grey text-medium-grey cursor-not-allowed'
+              : 'bg-white text-medium-grey border border-[#F2F2F2] cursor-not-allowed'
           }`}
           onClick={handleBookAppointment}
           disabled={!selectedSpecialty || !selectedDate || !selectedDoctor || !selectedSlot}
