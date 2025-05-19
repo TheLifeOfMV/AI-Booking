@@ -298,18 +298,19 @@ const UnifiedBookingView = () => {
   };
 
   useEffect(() => {
-    // Generate the next 14 days for the date picker
+    // Generate dates for the calendar view
     const generateDates = () => {
-      const dateList: Date[] = [];
       const today = new Date();
-      
-      for (let i = 0; i < 14; i++) {
-        const date = new Date();
+      const nextTwoWeeks = Array.from({ length: 14 }, (_, i) => {
+        const date = new Date(today);
         date.setDate(today.getDate() + i);
-        dateList.push(date);
-      }
+        return date;
+      });
+      setDates(nextTwoWeeks);
       
-      setDates(dateList);
+      // Generate all dates for the year for the modal
+      const allYearDates = generateDatesForYear();
+      setYearDates(allYearDates);
     };
 
     generateDates();
@@ -408,6 +409,109 @@ const UnifiedBookingView = () => {
       document.removeEventListener('keydown', handleEscapeKey);
     };
   }, [showAllSpecialties]);
+
+  // Add these states near other useState declarations
+  const [showAllDates, setShowAllDates] = useState(false);
+  const [yearDates, setYearDates] = useState<Date[]>([]);
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+
+  // Add these helper functions
+  const generateDatesForYear = () => {
+    const dateList: Date[] = [];
+    const today = new Date();
+    const endOfYear = new Date(today.getFullYear(), 11, 31); // December 31st
+
+    for (let d = new Date(today); d <= endOfYear; d.setDate(d.getDate() + 1)) {
+      dateList.push(new Date(d));
+    }
+    
+    return dateList;
+  };
+
+  const getMonthName = (date: Date) => {
+    return date.toLocaleString('es-ES', { month: 'long' });
+  };
+
+  const groupDatesByMonth = (dates: Date[]) => {
+    const groups: { [key: string]: Date[] } = {};
+    
+    dates.forEach(date => {
+      const monthKey = `${date.getFullYear()}-${date.getMonth()}`;
+      if (!groups[monthKey]) {
+        groups[monthKey] = [];
+      }
+      groups[monthKey].push(date);
+    });
+    
+    return groups;
+  };
+
+  // Add this useEffect for handling escape key
+  useEffect(() => {
+    const handleEscapeKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && showAllDates) {
+        setShowAllDates(false);
+      }
+    };
+
+    if (showAllDates) {
+      document.body.classList.add('modal-open');
+      document.addEventListener('keydown', handleEscapeKey);
+    } else {
+      document.body.classList.remove('modal-open');
+    }
+
+    return () => {
+      document.body.classList.remove('modal-open');
+      document.removeEventListener('keydown', handleEscapeKey);
+    };
+  }, [showAllDates]);
+
+  const getDaysInMonth = (date: Date) => {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    const startingDay = firstDay.getDay();
+    
+    const days: Date[] = [];
+    
+    // Add days from previous month
+    for (let i = startingDay - 1; i >= 0; i--) {
+      const prevDate = new Date(year, month, -i);
+      days.push(prevDate);
+    }
+    
+    // Add days of current month
+    for (let i = 1; i <= daysInMonth; i++) {
+      days.push(new Date(year, month, i));
+    }
+    
+    // Add days from next month
+    const remainingDays = 42 - days.length; // 6 rows * 7 days = 42
+    for (let i = 1; i <= remainingDays; i++) {
+      days.push(new Date(year, month + 1, i));
+    }
+    
+    return days;
+  };
+
+  const handlePrevMonth = () => {
+    setCurrentMonth(prev => {
+      const prevMonth = new Date(prev);
+      prevMonth.setMonth(prev.getMonth() - 1);
+      return prevMonth;
+    });
+  };
+
+  const handleNextMonth = () => {
+    setCurrentMonth(prev => {
+      const nextMonth = new Date(prev);
+      nextMonth.setMonth(prev.getMonth() + 1);
+      return nextMonth;
+    });
+  };
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#F0F4F9' }}>
@@ -696,31 +800,42 @@ const UnifiedBookingView = () => {
         </div>
 
         {/* Date Selection Card */}
-        <div className="mb-3">
-          <h2 className="font-semibold text-base mb-2">Fecha</h2>
-          <div className={`${scrollbarHideStyle} gap-3 pb-2 -mx-4 px-4`}>
+        <div className="bg-white rounded-2xl p-4 shadow-sm mb-6">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="font-semibold text-base">Fecha</h2>
+            <span 
+              className="text-primary text-sm font-medium cursor-pointer hover:text-primary/80 transition-colors"
+              onClick={() => setShowAllDates(true)}
+            >
+              Ver todas
+            </span>
+          </div>
+          <div className={`${scrollbarHideStyle} gap-4 pb-2 -mx-4 px-4`}>
             {dates.map((date, index) => {
               const selected = isSameDay(selectedDate, date);
               return (
                 <div
                   key={index}
-                  className="flex flex-col items-center gap-1 cursor-pointer"
+                  className="flex flex-col items-center gap-1.5 cursor-pointer min-w-[52px]"
                   onClick={() => handleDateSelect(date)}
                 >
                   <div className="text-xs font-medium" style={{ color: '#777777' }}>
                     {date.toLocaleDateString('es-ES', { weekday: 'short' }).toUpperCase().charAt(0)}
                   </div>
                   <div
-                    className={`w-12 h-16 flex flex-col items-center justify-center rounded-2xl font-semibold transition-all
+                    className={`w-12 h-[58px] flex flex-col items-center justify-center rounded-xl font-semibold transition-all
                       ${selected
                         ? 'bg-[#007AFF] text-white'
-                        : 'bg-white text-[#333333] border border-[#F2F2F2]'}
+                        : 'bg-white text-[#333333] border border-[#F2F2F2] hover:border-[#007AFF]/20'}
                       shadow-sm`}
                     style={{
-                      boxShadow: selected ? '0 2px 8px rgba(0,122,255,0.10)' : '0 1px 2px rgba(0,0,0,0.05)'
+                      boxShadow: selected ? '0 2px 8px rgba(0,122,255,0.15)' : '0 1px 2px rgba(0,0,0,0.05)'
                     }}
                   >
-                    <span className="text-base" style={{fontWeight: 600, fontSize: '1.0625rem'}}>{date.getDate()}</span>
+                    <span className="text-base mb-0.5" style={{fontWeight: 600}}>{date.getDate()}</span>
+                    <span className="text-[10px] opacity-80">
+                      {date.toLocaleDateString('es-ES', { month: 'short' })}
+                    </span>
                   </div>
                 </div>
               );
@@ -995,6 +1110,145 @@ const UnifiedBookingView = () => {
                     </div>
                   </div>
                 ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Date Modal */}
+      {showAllDates && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowAllDates(false);
+            }
+          }}
+        >
+          <div className="bg-white rounded-2xl w-full max-w-md overflow-visible shadow-xl">
+            {/* Modal Header */}
+            <div className="p-4 flex flex-col">
+              <div className="flex items-center justify-between mb-4">
+                <button 
+                  className="text-lg font-semibold text-[#333333] flex items-center gap-2"
+                >
+                  {selectedDate ? (
+                    selectedDate.toLocaleDateString('es-ES', { 
+                      weekday: 'long',
+                      day: 'numeric',
+                      month: 'long'
+                    }).charAt(0).toUpperCase() + 
+                    selectedDate.toLocaleDateString('es-ES', { 
+                      weekday: 'long',
+                      day: 'numeric',
+                      month: 'long'
+                    }).slice(1)
+                  ) : (
+                    new Date().toLocaleDateString('es-ES', { 
+                      weekday: 'long',
+                      day: 'numeric',
+                      month: 'long'
+                    }).charAt(0).toUpperCase() + 
+                    new Date().toLocaleDateString('es-ES', { 
+                      weekday: 'long',
+                      day: 'numeric',
+                      month: 'long'
+                    }).slice(1)
+                  )}
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M4 6L8 10L12 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+                <button 
+                  onClick={() => setShowAllDates(false)}
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                >
+                  <svg 
+                    width="20" 
+                    height="20" 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    strokeWidth="2"
+                    strokeLinecap="round" 
+                    strokeLinejoin="round"
+                  >
+                    <path d="M18 6L6 18M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-base font-medium text-[#333333]">
+                  {currentMonth.toLocaleDateString('es-ES', { 
+                    month: 'long',
+                    year: 'numeric'
+                  }).charAt(0).toUpperCase() + 
+                  currentMonth.toLocaleDateString('es-ES', { 
+                    month: 'long',
+                    year: 'numeric'
+                  }).slice(1)}
+                </h3>
+                <div className="flex gap-1">
+                  <button 
+                    onClick={handlePrevMonth}
+                    className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M15 18l-6-6 6-6" />
+                    </svg>
+                  </button>
+                  <button 
+                    onClick={handleNextMonth}
+                    className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M9 18l6-6-6-6" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Calendar Grid */}
+            <div className="px-4 pb-4">
+              {/* Weekday Headers */}
+              <div className="grid grid-cols-7 mb-2">
+                {['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'].map((day) => (
+                  <div key={day} className="text-center text-sm font-medium text-gray-500">
+                    {day}
+                  </div>
+                ))}
+              </div>
+
+              {/* Calendar Days */}
+              <div className="grid grid-cols-7 gap-1">
+                {getDaysInMonth(currentMonth).map((date, i) => {
+                  const isCurrentMonth = date.getMonth() === currentMonth.getMonth();
+                  const isSelected = selectedDate && isSameDay(date, selectedDate);
+                  const isToday = isSameDay(date, new Date());
+                  
+                  return (
+                    <button
+                      key={i}
+                      onClick={() => {
+                        handleDateSelect(date);
+                        setShowAllDates(false);
+                      }}
+                      disabled={!isCurrentMonth}
+                      className={`
+                        aspect-square p-1 rounded-full flex items-center justify-center text-sm
+                        transition-all duration-200
+                        ${!isCurrentMonth ? 'text-gray-300' : 'hover:bg-gray-100'}
+                        ${isSelected ? 'bg-[#007AFF] text-white hover:bg-[#007AFF]' : ''}
+                        ${isToday && !isSelected ? 'border-2 border-[#007AFF] text-[#007AFF]' : ''}
+                      `}
+                    >
+                      {date.getDate()}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           </div>
