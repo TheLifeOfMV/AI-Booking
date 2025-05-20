@@ -800,8 +800,8 @@ const UnifiedBookingView = () => {
         </div>
 
         {/* Date Selection Card */}
-        <div className="bg-white rounded-2xl p-4 shadow-sm mb-6">
-          <div className="flex justify-between items-center mb-4">
+        <div className="bg-white rounded-2xl p-3 shadow-sm mb-6">
+          <div className="flex justify-between items-center mb-2">
             <h2 className="font-semibold text-base">Fecha</h2>
             <span 
               className="text-primary text-sm font-medium cursor-pointer hover:text-primary/80 transition-colors"
@@ -810,36 +810,41 @@ const UnifiedBookingView = () => {
               Ver todas
             </span>
           </div>
-          <div className={`${scrollbarHideStyle} gap-4 pb-2 -mx-4 px-4`}>
-            {dates.map((date, index) => {
-              const selected = isSameDay(selectedDate, date);
-              return (
-                <div
-                  key={index}
-                  className="flex flex-col items-center gap-1.5 cursor-pointer min-w-[52px]"
-                  onClick={() => handleDateSelect(date)}
-                >
-                  <div className="text-xs font-medium" style={{ color: '#777777' }}>
-                    {date.toLocaleDateString('es-ES', { weekday: 'short' }).toUpperCase().charAt(0)}
-                  </div>
+          <div className="relative w-full overflow-hidden">
+            <div 
+              className={`${scrollbarHideStyle} flex gap-3 pb-2 -mx-4 px-4 snap-x snap-mandatory w-[calc(100%+32px)]`} 
+              style={{ scrollPaddingLeft: '16px' }}
+            >
+              {dates.slice(0, 5).map((date, index) => {
+                const selected = isSameDay(selectedDate, date);
+                return (
                   <div
-                    className={`w-12 h-[58px] flex flex-col items-center justify-center rounded-xl font-semibold transition-all
-                      ${selected
-                        ? 'bg-[#007AFF] text-white'
-                        : 'bg-white text-[#333333] border border-[#F2F2F2] hover:border-[#007AFF]/20'}
-                      shadow-sm`}
-                    style={{
-                      boxShadow: selected ? '0 2px 8px rgba(0,122,255,0.15)' : '0 1px 2px rgba(0,0,0,0.05)'
-                    }}
+                    key={index}
+                    className="flex flex-col items-center gap-1 cursor-pointer min-w-[52px] flex-shrink-0 snap-start"
+                    onClick={() => handleDateSelect(date)}
                   >
-                    <span className="text-base mb-0.5" style={{fontWeight: 600}}>{date.getDate()}</span>
-                    <span className="text-[10px] opacity-80">
-                      {date.toLocaleDateString('es-ES', { month: 'short' })}
-                    </span>
+                    <div className="text-xs font-medium leading-none" style={{ color: '#777777' }}>
+                      {date.toLocaleDateString('es-ES', { weekday: 'short' }).toUpperCase().charAt(0)}
+                    </div>
+                    <div
+                      className={`w-12 h-[50px] flex flex-col items-center justify-center rounded-xl font-semibold transition-all
+                        ${selected
+                          ? 'bg-[#007AFF] text-white'
+                          : 'bg-white text-[#333333] border border-[#F2F2F2] hover:border-[#007AFF]/20'}
+                        shadow-sm`}
+                      style={{
+                        boxShadow: selected ? '0 2px 8px rgba(0,122,255,0.15)' : '0 1px 2px rgba(0,0,0,0.05)'
+                      }}
+                    >
+                      <span className="text-base leading-none mb-1" style={{fontWeight: 600}}>{date.getDate()}</span>
+                      <span className="text-[10px] leading-none opacity-80">
+                        {date.toLocaleDateString('es-ES', { month: 'short' })}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         </div>
 
