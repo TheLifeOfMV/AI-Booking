@@ -18,6 +18,29 @@ const hideScrollbarCSS = `
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;  /* Firefox */
   }
+  
+  /* Ocultar líneas divisorias y bordes en los carousels */
+  .carousel-container {
+    -webkit-overflow-scrolling: touch;
+    overflow-x: auto;
+    scrollbar-width: none;
+    scroll-behavior: smooth;
+    border: none;
+    outline: none;
+  }
+  .carousel-container::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+  .carousel-container * {
+    -webkit-tap-highlight-color: transparent;
+  }
+  .no-scrollbar-line {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+  }
 `;
 
 // Función auxiliar para convertir un color hex a rgba con transparencia
@@ -76,6 +99,12 @@ const UnifiedBookingView = () => {
     'Bogotá', 'Cali', 'Medellín', 'Pereira', 'Ibagué'
   ]);
   
+  // Estado para el modal de todos los doctores
+  const [showAllDoctors, setShowAllDoctors] = useState(false);
+  const [doctorSearchQuery, setDoctorSearchQuery] = useState('');
+  const [filteredDoctors, setFilteredDoctors] = useState<Doctor[]>([]);
+  const [allDoctors, setAllDoctors] = useState<Doctor[]>([]);
+  
   // Paso 1: Modificar el estado inicial de las especialidades
   const [specialties, setSpecialties] = useState<Specialty[]>([
     { id: '1', name: 'Neurología', imageUrl: '/doctors/neurologist.jpg', icon: 'brain', color: '#E53E3E' },
@@ -124,6 +153,79 @@ const UnifiedBookingView = () => {
         { id: '201', time: '11:00', isAvailable: true },
         { id: '202', time: '13:00', isAvailable: true },
         { id: '203', time: '14:00', isAvailable: true },
+      ]
+    },
+    {
+      id: '3',
+      name: 'Dr. James Rodriguez',
+      specialtyId: '1',
+      avatarUrl: '/doctors/doctor3.jpg',
+      rating: 4.7,
+      experience: '8+ años de experiencia',
+      availableSlots: [
+        { id: '301', time: '9:00', isAvailable: true },
+        { id: '302', time: '10:00', isAvailable: true },
+        { id: '303', time: '15:00', isAvailable: true },
+      ]
+    },
+    {
+      id: '4',
+      name: 'Dra. Sofia Chen',
+      specialtyId: '3',
+      avatarUrl: '/doctors/doctor4.jpg',
+      rating: 4.9,
+      experience: '12+ años de experiencia',
+      availableSlots: [
+        { id: '401', time: '8:30', isAvailable: true },
+        { id: '402', time: '14:30', isAvailable: true },
+      ]
+    },
+    {
+      id: '5',
+      name: 'Dr. Michael Patel',
+      specialtyId: '4',
+      avatarUrl: '/doctors/doctor5.jpg',
+      rating: 4.6,
+      experience: '7+ años de experiencia',
+      availableSlots: [
+        { id: '501', time: '11:30', isAvailable: true },
+        { id: '502', time: '16:00', isAvailable: true },
+      ]
+    },
+    {
+      id: '6',
+      name: 'Dra. Camila Rojas',
+      specialtyId: '5',
+      avatarUrl: '/doctors/doctor6.jpg',
+      rating: 4.8,
+      experience: '9+ años de experiencia',
+      availableSlots: [
+        { id: '601', time: '10:30', isAvailable: true },
+        { id: '602', time: '15:30', isAvailable: true },
+      ]
+    },
+    {
+      id: '7',
+      name: 'Dr. David Kim',
+      specialtyId: '6',
+      avatarUrl: '/doctors/doctor7.jpg',
+      rating: 4.7,
+      experience: '11+ años de experiencia',
+      availableSlots: [
+        { id: '701', time: '9:30', isAvailable: true },
+        { id: '702', time: '13:30', isAvailable: true },
+      ]
+    },
+    {
+      id: '8',
+      name: 'Dra. Lucia Martinez',
+      specialtyId: '7',
+      avatarUrl: '/doctors/doctor8.jpg',
+      rating: 4.9,
+      experience: '14+ años de experiencia',
+      availableSlots: [
+        { id: '801', time: '8:15', isAvailable: true },
+        { id: '802', time: '12:00', isAvailable: true },
       ]
     }
   ]);
@@ -523,6 +625,67 @@ const UnifiedBookingView = () => {
     setShowDoctorDetails(true);
   };
 
+  // Inicializar doctores al cargar
+  useEffect(() => {
+    // Crear una lista completa de doctores de todas las especialidades
+    const completeList = [...defaultDoctors];
+    if (doctors.length > 0) {
+      // Agregar doctores que no estén en la lista por defecto
+      doctors.forEach(doctor => {
+        if (!completeList.some(d => d.id === doctor.id)) {
+          completeList.push(doctor);
+        }
+      });
+    }
+    setAllDoctors(completeList);
+  }, [doctors, defaultDoctors]);
+
+  // Función para filtrar doctores basado en la búsqueda
+  const filterDoctors = (query: string) => {
+    if (!query.trim()) {
+      setFilteredDoctors(allDoctors);
+      return;
+    }
+    
+    const lowerQuery = query.toLowerCase();
+    const filtered = allDoctors.filter(doctor => {
+      const matchesName = doctor.name.toLowerCase().includes(lowerQuery);
+      const specialty = specialties.find(s => s.id === doctor.specialtyId);
+      const matchesSpecialty = specialty ? specialty.name.toLowerCase().includes(lowerQuery) : false;
+      return matchesName || matchesSpecialty;
+    });
+    
+    setFilteredDoctors(filtered);
+  };
+
+  // Efectos para manejar el escape key y filtrar doctores
+  useEffect(() => {
+    const handleEscapeKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && showAllDoctors) {
+        setShowAllDoctors(false);
+      }
+    };
+
+    if (showAllDoctors) {
+      document.body.classList.add('modal-open');
+      document.addEventListener('keydown', handleEscapeKey);
+      // Inicializar la lista filtrada con todos los doctores
+      setFilteredDoctors(allDoctors);
+    } else {
+      document.body.classList.remove('modal-open');
+    }
+
+    return () => {
+      document.body.classList.remove('modal-open');
+      document.removeEventListener('keydown', handleEscapeKey);
+    };
+  }, [showAllDoctors, allDoctors]);
+
+  // Efecto para filtrar doctores cuando cambia la búsqueda
+  useEffect(() => {
+    filterDoctors(doctorSearchQuery);
+  }, [doctorSearchQuery, allDoctors]);
+
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#F0F4F9' }}>
       {/* Aplicar estilos CSS para ocultar barras de desplazamiento */}
@@ -664,7 +827,7 @@ const UnifiedBookingView = () => {
           </div>
           
           {/* Specialty Cards */}
-          <div className={`${scrollbarHideStyle} gap-4 pb-3 -mx-4 px-4`}>
+          <div className={`${scrollbarHideStyle} gap-4 pb-3 -mx-4 px-4 carousel-container no-scrollbar-line`}>
             {specialties.map((specialty) => (
               <div 
                 key={specialty.id} 
@@ -822,7 +985,7 @@ const UnifiedBookingView = () => {
           </div>
           <div className="relative w-full overflow-hidden">
             <div 
-              className={`${scrollbarHideStyle} flex gap-3 pb-2 -mx-4 px-4 snap-x snap-mandatory w-[calc(100%+32px)]`} 
+              className={`${scrollbarHideStyle} flex gap-3 pb-2 -mx-4 px-4 snap-x snap-mandatory w-[calc(100%+32px)] carousel-container no-scrollbar-line`} 
               style={{ scrollPaddingLeft: '16px' }}
             >
               {dates.slice(0, 5).map((date, index) => {
@@ -858,11 +1021,16 @@ const UnifiedBookingView = () => {
           </div>
         </div>
 
-        {/* Doctor Selection Card - Redesigned - Moved up with reduced margin */}
-        <div className="mb-2">
-          <div className="flex justify-between items-center mb-2">
+        {/* Doctor Selection Card */}
+        <div>
+          <div className="flex justify-between items-center mb-1">
             <h2 className="font-semibold text-base">Mejores Doctores</h2>
-            <span className="text-primary text-sm font-medium cursor-pointer">Ver todos</span>
+            <span 
+              className="text-primary text-sm font-medium cursor-pointer" 
+              onClick={() => setShowAllDoctors(true)}
+            >
+              Ver todos
+            </span>
           </div>
 
           {isLoading ? (
@@ -870,57 +1038,53 @@ const UnifiedBookingView = () => {
               <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
             </div>
           ) : error ? (
-            <div className="p-4 bg-red-50 text-red-500 rounded-lg mb-4">
+            <div className="p-4 bg-red-50 text-red-500 rounded-lg">
               {error}
-              <button 
-                className="ml-2 underline"
-                onClick={clearError}
-              >
+              <button className="ml-2 underline" onClick={clearError}>
                 Intentar de nuevo
               </button>
             </div>
           ) : (
-            <div className={`${scrollbarHideStyle} gap-3 pb-2 -mx-4 px-4 grid grid-flow-col auto-cols-[130px]`}>
-              {(doctors.length > 0 ? doctors : defaultDoctors).map((doctor) => (
-                <div 
-                  key={doctor.id} 
-                  className="flex-shrink-0 bg-white rounded-xl shadow-sm overflow-hidden cursor-pointer transition-all hover:shadow-md"
-                  onClick={() => handleDoctorCardClick(doctor)}
-                >
-                  {/* Doctor Image - Ensuring it updates from profile photo */}
-                  <div className="w-full h-[120px] relative overflow-hidden">
-                    {doctor.avatarUrl ? (
-                      <Image 
-                        src={doctor.avatarUrl} 
-                        alt={doctor.name}
-                        fill
-                        className="object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-light-grey flex items-center justify-center text-medium-grey text-2xl font-semibold">
-                        {doctor.name.charAt(0)}
+            <div className="overflow-x-auto -mx-4 carousel-container no-scrollbar-line">
+              <div className="flex gap-3 px-4 min-w-max">
+                {(doctors.length > 0 ? doctors : defaultDoctors).map((doctor) => (
+                  <div 
+                    key={doctor.id} 
+                    className="w-[130px] bg-white rounded-xl shadow-sm overflow-hidden cursor-pointer transition-all hover:shadow-md"
+                    onClick={() => handleDoctorCardClick(doctor)}
+                  >
+                    {/* Doctor Image */}
+                    <div className="w-full h-[120px] relative overflow-hidden">
+                      {doctor.avatarUrl ? (
+                        <Image 
+                          src={doctor.avatarUrl} 
+                          alt={doctor.name}
+                          fill
+                          className="object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-light-grey flex items-center justify-center text-medium-grey text-2xl font-semibold">
+                          {doctor.name.charAt(0)}
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Doctor Info */}
+                    <div className="p-2 pb-1">
+                      <h3 className="font-semibold text-dark-grey text-sm truncate">{doctor.name}</h3>
+                      <div className="flex items-center justify-between mt-0.5">
+                        <span className="text-primary text-xs">
+                          {specialties.find(s => s.id === doctor.specialtyId)?.name || 'Especialista'}
+                        </span>
+                        <div className="flex items-center text-xs text-medium-grey">
+                          <span className="text-amber-400 mr-0.5">★</span>
+                          <span>{doctor.rating}</span>
+                        </div>
                       </div>
-                    )}
-                  </div>
-                  
-                  {/* Doctor Info */}
-                  <div className="p-2">
-                    {/* Doctor Name */}
-                    <h3 className="font-semibold text-dark-grey text-sm truncate">{doctor.name}</h3>
-                    
-                    {/* Doctor Specialty */}
-                    <p className="text-primary text-xs mb-1 truncate">
-                      {specialties.find(s => s.id === doctor.specialtyId)?.name || 'Especialista'}
-                    </p>
-                    
-                    {/* Doctor Rating */}
-                    <div className="flex items-center text-xs text-medium-grey">
-                      <span className="text-amber-400 mr-1">★</span>
-                      <span>{doctor.rating}</span>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           )}
         </div>
@@ -1304,14 +1468,16 @@ const UnifiedBookingView = () => {
             {/* Doctor Details Content */}
             <div className="p-6 pt-14">
               {/* Doctor Name and Rating */}
-              <div className="mb-6">
+              <div className="mb-4">
                 <h2 className="font-semibold text-xl text-dark-grey">{selectedDoctorDetails.name}</h2>
-                <p className="text-primary font-medium text-sm mb-1">
-                  {specialties.find(s => s.id === selectedDoctorDetails.specialtyId)?.name || 'Especialista'}
-                </p>
-                <div className="flex items-center text-sm text-medium-grey">
-                  <span className="text-amber-400 mr-1">★</span>
-                  <span>{selectedDoctorDetails.rating}</span>
+                <div className="flex items-center justify-between mt-1 mb-1">
+                  <span className="text-primary font-medium text-sm">
+                    {specialties.find(s => s.id === selectedDoctorDetails.specialtyId)?.name || 'Especialista'}
+                  </span>
+                  <div className="flex items-center text-sm text-medium-grey">
+                    <span className="text-amber-400 mr-0.5">★</span>
+                    <span>{selectedDoctorDetails.rating}</span>
+                  </div>
                 </div>
               </div>
               
@@ -1403,6 +1569,135 @@ const UnifiedBookingView = () => {
               >
                 Reservar Cita <span className="ml-2">›</span>
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal para Ver Todos los Doctores */}
+      {showAllDoctors && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowAllDoctors(false);
+            }
+          }}
+        >
+          <div className="bg-white rounded-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto modal-content">
+            {/* Modal Header with Search */}
+            <div className="p-4 border-b border-[#F2F2F2] sticky top-0 bg-white z-10">
+              <div className="flex justify-between items-center mb-3">
+                <h2 className="font-semibold text-xl text-[#333333]">Todos los Doctores</h2>
+                <button 
+                  onClick={() => setShowAllDoctors(false)}
+                  className="p-2 hover:bg-[#F2F2F2] rounded-full transition-colors"
+                  aria-label="Cerrar modal"
+                >
+                  <svg 
+                    width="24" 
+                    height="24" 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M18 6L6 18M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              
+              {/* Barra de búsqueda para doctores */}
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg 
+                    width="20" 
+                    height="20" 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="text-gray-400"
+                  >
+                    <circle 
+                      cx="11" 
+                      cy="11" 
+                      r="8" 
+                      stroke="currentColor" 
+                      strokeWidth="1.5" 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round"
+                    />
+                    <path 
+                      d="M21 21L16.65 16.65" 
+                      stroke="currentColor" 
+                      strokeWidth="1.5" 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </div>
+                <input
+                  type="text"
+                  placeholder="Buscar doctor o especialidad"
+                  value={doctorSearchQuery}
+                  onChange={(e) => setDoctorSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#007AFF] focus:border-transparent"
+                />
+              </div>
+            </div>
+            
+            {/* Modal Content - Grid de doctores */}
+            <div className="p-6">
+              {filteredDoctors.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  <p>No se encontraron doctores con ese criterio de búsqueda.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                  {filteredDoctors.map((doctor) => (
+                    <div 
+                      key={doctor.id} 
+                      className="bg-white rounded-xl shadow-sm overflow-hidden cursor-pointer transition-all hover:shadow-md border border-[#F2F2F2] flex flex-col"
+                      onClick={() => {
+                        handleDoctorCardClick(doctor);
+                        setShowAllDoctors(false);
+                      }}
+                    >
+                      {/* Doctor Image - Centered */}
+                      <div className="w-full h-[120px] relative overflow-hidden">
+                        {doctor.avatarUrl ? (
+                          <Image 
+                            src={doctor.avatarUrl} 
+                            alt={doctor.name}
+                            fill
+                            className="object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-light-grey flex items-center justify-center text-medium-grey text-2xl font-semibold">
+                            {doctor.name.charAt(0)}
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Doctor Info - Below image */}
+                      <div className="p-3 pt-2 pb-2 flex-1 flex flex-col">
+                        <h3 className="font-semibold text-dark-grey text-sm truncate w-full text-center mb-1">{doctor.name}</h3>
+                        <div className="flex items-center justify-between">
+                          <span className="text-primary text-xs">
+                            {specialties.find(s => s.id === doctor.specialtyId)?.name || 'Especialista'}
+                          </span>
+                          <div className="flex items-center text-xs text-medium-grey">
+                            <span className="text-amber-400 mr-0.5">★</span>
+                            <span>{doctor.rating}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
