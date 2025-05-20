@@ -513,6 +513,16 @@ const UnifiedBookingView = () => {
     });
   };
 
+  // Add this state for the doctor details modal
+  const [showDoctorDetails, setShowDoctorDetails] = useState(false);
+  const [selectedDoctorDetails, setSelectedDoctorDetails] = useState<Doctor | null>(null);
+
+  // Add this function to handle opening the doctor details modal
+  const handleDoctorCardClick = (doctor: Doctor) => {
+    setSelectedDoctorDetails(doctor);
+    setShowDoctorDetails(true);
+  };
+
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#F0F4F9' }}>
       {/* Aplicar estilos CSS para ocultar barras de desplazamiento */}
@@ -644,7 +654,7 @@ const UnifiedBookingView = () => {
         {/* Specialty Selection Card */}
         <div className="mb-3">
           <div className="flex justify-between items-center mb-2">
-            <h2 className="font-semibold text-base">Especialidad</h2>
+            <h2 className="font-semibold text-base">Categorías</h2>
             <span 
               className="text-primary text-sm font-medium cursor-pointer hover:text-primary/80 transition-colors" 
               onClick={() => setShowAllSpecialties(true)}
@@ -653,7 +663,7 @@ const UnifiedBookingView = () => {
             </span>
           </div>
           
-          {/* Paso 4 y 5: Modificar el componente de tarjeta de especialidad y ajustar los estilos específicos */}
+          {/* Specialty Cards */}
           <div className={`${scrollbarHideStyle} gap-4 pb-3 -mx-4 px-4`}>
             {specialties.map((specialty) => (
               <div 
@@ -848,11 +858,11 @@ const UnifiedBookingView = () => {
           </div>
         </div>
 
-        {/* Doctor Selection Card with Time Slots */}
-        <div className="mb-3">
+        {/* Doctor Selection Card - Redesigned - Moved up with reduced margin */}
+        <div className="mb-2">
           <div className="flex justify-between items-center mb-2">
-            <h2 className="font-semibold text-base">Doctores</h2>
-            <span className="text-primary text-sm font-medium">Ver todos</span>
+            <h2 className="font-semibold text-base">Mejores Doctores</h2>
+            <span className="text-primary text-sm font-medium cursor-pointer">Ver todos</span>
           </div>
 
           {isLoading ? (
@@ -870,76 +880,50 @@ const UnifiedBookingView = () => {
               </button>
             </div>
           ) : (
-            <div className={`${scrollbarHideStyle} gap-4 pb-2 -mx-4 px-4`}>
+            <div className={`${scrollbarHideStyle} gap-3 pb-2 -mx-4 px-4 grid grid-flow-col auto-cols-[130px]`}>
               {(doctors.length > 0 ? doctors : defaultDoctors).map((doctor) => (
                 <div 
                   key={doctor.id} 
-                  className={`flex-shrink-0 w-[280px] p-3 bg-white rounded-xl shadow-sm transition-transform ${
-                    selectedDoctor?.id === doctor.id ? 'border-2 border-primary ring-2 ring-primary/20' : ''
-                  }`}
-                  onClick={() => handleDoctorSelect(doctor)}
+                  className="flex-shrink-0 bg-white rounded-xl shadow-sm overflow-hidden cursor-pointer transition-all hover:shadow-md"
+                  onClick={() => handleDoctorCardClick(doctor)}
                 >
-                  <div className="flex items-center gap-2 mb-1">
-                    <div className="w-9 h-9 bg-light-grey rounded-full flex-shrink-0 overflow-hidden">
-                      {doctor.avatarUrl && (
-                        <Image 
-                          src={doctor.avatarUrl} 
-                          alt={doctor.name}
-                          width={36}
-                          height={36}
-                          className="object-cover w-full h-full"
-                        />
-                      )}
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-dark-grey text-sm">{doctor.name}</h3>
-                      <div className="flex items-center text-xs text-medium-grey">
-                        <span className="text-amber-400 mr-1">★</span>
-                        <span>{doctor.rating}</span>
+                  {/* Doctor Image - Ensuring it updates from profile photo */}
+                  <div className="w-full h-[120px] relative overflow-hidden">
+                    {doctor.avatarUrl ? (
+                      <Image 
+                        src={doctor.avatarUrl} 
+                        alt={doctor.name}
+                        fill
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-light-grey flex items-center justify-center text-medium-grey text-2xl font-semibold">
+                        {doctor.name.charAt(0)}
                       </div>
-                    </div>
+                    )}
                   </div>
                   
-                  <p className="text-xs text-medium-grey mb-1">{doctor.experience}</p>
-                  
-                  {/* Time Slots in the same card */}
-                  <div className="flex flex-wrap gap-1">
-                    {doctor.availableSlots.map((slot: TimeSlot) => (
-                      <button
-                        key={slot.id}
-                        className={`py-1 px-2 rounded-lg text-xs font-medium ${
-                          selectedDoctor?.id === doctor.id && selectedSlot?.id === slot.id 
-                            ? 'bg-primary text-white' 
-                            : 'bg-light-grey text-dark-grey'
-                        }`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDoctorSelect(doctor);
-                          handleSlotSelect(slot);
-                        }}
-                      >
-                        {slot.time}
-                      </button>
-                    ))}
+                  {/* Doctor Info */}
+                  <div className="p-2">
+                    {/* Doctor Name */}
+                    <h3 className="font-semibold text-dark-grey text-sm truncate">{doctor.name}</h3>
+                    
+                    {/* Doctor Specialty */}
+                    <p className="text-primary text-xs mb-1 truncate">
+                      {specialties.find(s => s.id === doctor.specialtyId)?.name || 'Especialista'}
+                    </p>
+                    
+                    {/* Doctor Rating */}
+                    <div className="flex items-center text-xs text-medium-grey">
+                      <span className="text-amber-400 mr-1">★</span>
+                      <span>{doctor.rating}</span>
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
           )}
         </div>
-
-        {/* Booking Confirmation Button */}
-        <button 
-          className={`w-full py-3 px-4 rounded-lg font-medium flex items-center justify-center mt-2 ${
-            selectedSpecialty && selectedDate && selectedDoctor && selectedSlot
-              ? 'bg-primary text-white' 
-              : 'bg-white text-medium-grey border border-[#F2F2F2] cursor-not-allowed'
-          }`}
-          onClick={handleBookAppointment}
-          disabled={!selectedSpecialty || !selectedDate || !selectedDoctor || !selectedSlot}
-        >
-          Reservar Cita <span className="ml-2">›</span>
-        </button>
       </div>
 
       {/* Add this before the closing div of the main component */}
@@ -1255,6 +1239,170 @@ const UnifiedBookingView = () => {
                   );
                 })}
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Doctor Details Modal */}
+      {showDoctorDetails && selectedDoctorDetails && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowDoctorDetails(false);
+            }
+          }}
+        >
+          <div className="bg-white rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto modal-content">
+            {/* Doctor Image Header */}
+            <div className="relative h-48 bg-primary">
+              {/* Background pattern */}
+              <div className="absolute inset-0 opacity-20">
+                <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
+                  <path fill="#FFFFFF" d="M0,100 C0,30 30,0 100,0 C170,0 200,30 200,100 C200,170 170,200 100,200 C30,200 0,170 0,100 Z" />
+                </svg>
+              </div>
+              
+              {/* Close button */}
+              <button 
+                onClick={() => setShowDoctorDetails(false)}
+                className="absolute top-4 right-4 p-1.5 bg-white/20 hover:bg-white/30 rounded-full transition-colors z-10"
+                aria-label="Cerrar modal"
+              >
+                <svg 
+                  width="20" 
+                  height="20" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="white" 
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M18 6L6 18M6 6l12 12" />
+                </svg>
+              </button>
+              
+              {/* Doctor Avatar */}
+              <div className="absolute -bottom-10 left-6 w-20 h-20 rounded-full border-4 border-white overflow-hidden bg-white shadow-md">
+                {selectedDoctorDetails.avatarUrl ? (
+                  <Image 
+                    src={selectedDoctorDetails.avatarUrl} 
+                    alt={selectedDoctorDetails.name} 
+                    fill
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-light-grey text-medium-grey text-3xl font-semibold">
+                    {selectedDoctorDetails.name.charAt(0)}
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            {/* Doctor Details Content */}
+            <div className="p-6 pt-14">
+              {/* Doctor Name and Rating */}
+              <div className="mb-6">
+                <h2 className="font-semibold text-xl text-dark-grey">{selectedDoctorDetails.name}</h2>
+                <p className="text-primary font-medium text-sm mb-1">
+                  {specialties.find(s => s.id === selectedDoctorDetails.specialtyId)?.name || 'Especialista'}
+                </p>
+                <div className="flex items-center text-sm text-medium-grey">
+                  <span className="text-amber-400 mr-1">★</span>
+                  <span>{selectedDoctorDetails.rating}</span>
+                </div>
+              </div>
+              
+              {/* Info Grid */}
+              <div className="grid grid-cols-2 gap-4 mb-5">
+                {/* Experience Section */}
+                <div className="bg-light-grey p-3 rounded-lg">
+                  <h4 className="font-semibold text-sm mb-1">Experiencia</h4>
+                  <p className="text-medium-grey text-sm">{selectedDoctorDetails.experience}</p>
+                </div>
+                
+                {/* Address Section */}
+                <div className="bg-light-grey p-3 rounded-lg">
+                  <h4 className="font-semibold text-sm mb-1">Dirección</h4>
+                  <p className="text-medium-grey text-sm">Centro Médico</p>
+                </div>
+              </div>
+              
+              {/* Available Times Section */}
+              <div className="mb-5">
+                <h4 className="font-semibold mb-2">Horarios Disponibles</h4>
+                <div className="flex flex-wrap gap-2">
+                  {selectedDoctorDetails.availableSlots.map((slot) => (
+                    <button
+                      key={slot.id}
+                      className={`py-2 px-3 rounded-lg text-sm font-medium ${
+                        selectedSlot?.id === slot.id 
+                          ? 'bg-primary text-white' 
+                          : 'bg-light-grey text-dark-grey'
+                      }`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDoctorSelect(selectedDoctorDetails);
+                        handleSlotSelect(slot);
+                      }}
+                    >
+                      {slot.time}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Biography Section */}
+              <div className="mb-5">
+                <h4 className="font-semibold mb-2">Sobre el Doctor</h4>
+                <p className="text-medium-grey text-sm">
+                  Médico especialista con amplia experiencia en el diagnóstico y tratamiento de diversas condiciones. 
+                  Enfocado en brindar atención de calidad y personalizada a cada paciente.
+                </p>
+              </div>
+              
+              {/* Testimonials Section */}
+              <div className="mb-6">
+                <h4 className="font-semibold mb-2">Testimonios</h4>
+                <div className="space-y-3">
+                  <div className="bg-light-grey p-3 rounded-lg">
+                    <div className="flex items-center mb-1">
+                      <span className="text-amber-400 mr-1 text-xs">★★★★★</span>
+                      <span className="text-sm font-medium ml-1">María G.</span>
+                    </div>
+                    <p className="text-sm text-medium-grey">
+                      Excelente profesional, muy atento y dedicado.
+                    </p>
+                  </div>
+                  <div className="bg-light-grey p-3 rounded-lg">
+                    <div className="flex items-center mb-1">
+                      <span className="text-amber-400 mr-1 text-xs">★★★★</span>
+                      <span className="text-sm font-medium ml-1">Carlos P.</span>
+                    </div>
+                    <p className="text-sm text-medium-grey">
+                      Muy buen trato y profesionalismo.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Booking Button */}
+              <button 
+                className={`w-full py-3 px-4 rounded-lg font-medium flex items-center justify-center ${
+                  selectedSlot
+                    ? 'bg-primary text-white' 
+                    : 'bg-white text-medium-grey border border-[#F2F2F2] cursor-not-allowed'
+                }`}
+                onClick={() => {
+                  handleBookAppointment();
+                  setShowDoctorDetails(false);
+                }}
+                disabled={!selectedSlot}
+              >
+                Reservar Cita <span className="ml-2">›</span>
+              </button>
             </div>
           </div>
         </div>
