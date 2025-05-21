@@ -9,6 +9,7 @@ const BookingConfirmationView = () => {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   
   const { 
     selectedSpecialty, 
@@ -43,8 +44,9 @@ const BookingConfirmationView = () => {
       // Simulate API call - in a real app this would be a fetch to the backend
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Redirect to success page
-      router.push('/booking/success');
+      // Show success modal instead of redirecting
+      setIsSubmitting(false);
+      setShowSuccessModal(true);
       
       // In a real app, we'd reset the store after a successful navigation
       // setTimeout(() => reset(), 1000);
@@ -52,6 +54,15 @@ const BookingConfirmationView = () => {
       setError('Hubo un error al confirmar tu reserva. Por favor, inténtalo de nuevo.');
       setIsSubmitting(false);
     }
+  };
+
+  const handleViewBookings = () => {
+    router.push('/bookings');
+  };
+
+  const handleBookAnother = () => {
+    reset();
+    router.push('/booking/specialty');
   };
 
   // Format date to display
@@ -68,9 +79,74 @@ const BookingConfirmationView = () => {
     return null; // Prevent rendering while redirecting
   }
 
+  // Success Modal Component
+  const SuccessModal = () => (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl w-full max-w-md overflow-hidden">
+        <div className="px-4 py-6" style={{ backgroundColor: '#F0F4F9' }}>
+          <div className="text-center mb-8">
+            <div className="w-16 h-16 bg-primary text-white rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M5 12L10 17L20 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+            <h1 className="text-xl font-semibold text-dark-grey mb-2">Reserva Confirmada</h1>
+            <p className="text-medium-grey">Tu cita ha sido reservada con éxito</p>
+          </div>
+          
+          <div className="bg-dark-grey text-white p-6 rounded-xl mb-6 relative overflow-hidden">
+            <div className="absolute top-0 right-0 left-0 h-8">
+              <svg viewBox="0 0 200 20" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
+                <path d="M0,10 Q20,20 40,10 T80,10 T120,10 T160,10 T200,10" stroke="rgba(255,255,255,0.2)" fill="none" strokeWidth="2"/>
+              </svg>
+            </div>
+            
+            <div className="text-xl font-semibold mb-4">
+              {selectedDate?.toLocaleDateString('es-ES', { 
+                month: 'long', 
+                day: 'numeric' 
+              })}, {selectedSlot.time}
+            </div>
+            
+            <div className="flex items-center gap-4 mb-4">
+              <div className="w-10 h-10 bg-light-grey rounded-full flex items-center justify-center text-dark-grey font-bold">
+                {selectedDoctor.name.charAt(0)}
+              </div>
+              <div>
+                <div className="font-medium">{selectedDoctor.name}</div>
+                <div className="text-sm opacity-80">{selectedSpecialty.name}</div>
+              </div>
+            </div>
+            
+            <div className="text-sm opacity-80">Centro Médico California, Sala 234</div>
+          </div>
+          
+          <div className="flex flex-col gap-4 mb-6">
+            <button
+              className="w-full py-3 px-4 bg-primary text-white rounded-lg font-medium flex items-center justify-center"
+              onClick={handleViewBookings}
+            >
+              Ver Mis Reservas <span className="ml-2">›</span>
+            </button>
+          </div>
+          
+          <button
+            className="w-full py-3 px-4 bg-light-grey text-dark-grey rounded-lg font-medium"
+            onClick={handleBookAnother}
+          >
+            Reservar Otra Cita
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div className="px-4 py-6" style={{ backgroundColor: '#F0F4F9' }}>
       {/* <h1 className="text-xl font-semibold text-dark-grey mb-6 text-center">Confirmar Reserva</h1> */}
+      
+      {/* Success Modal */}
+      {showSuccessModal && <SuccessModal />}
       
       {/* Summary Card with Dark Background */}
       <div className="bg-dark-grey text-white rounded-xl overflow-hidden mb-8">
@@ -145,6 +221,13 @@ const BookingConfirmationView = () => {
         <p className="mb-2">Al confirmar esta reserva, aceptas nuestros Términos de Servicio y Política de Cancelación.</p>
         <p>Puedes cancelar o reprogramar esta cita hasta 24 horas antes de la hora programada sin ninguna penalización.</p>
       </div>
+      
+      {/* Error message */}
+      {error && (
+        <div className="mt-4 p-3 bg-red-100 text-red-700 rounded-lg">
+          {error}
+        </div>
+      )}
     </div>
   );
 };

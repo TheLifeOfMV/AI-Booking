@@ -18,11 +18,6 @@ const BookingSuccessView = () => {
     router.push('/bookings');
   };
 
-  const handleAddToCalendar = () => {
-    // In a real app, this would integrate with the device calendar
-    alert('La integración con el calendario ocurriría aquí');
-  };
-
   const handleBookAnother = () => {
     reset();
     router.push('/booking/specialty');
@@ -83,13 +78,6 @@ const BookingSuccessView = () => {
       </div>
       
       <div className="flex flex-col gap-4 mb-6">
-        <button
-          className="w-full py-3 px-4 bg-primary text-white rounded-lg font-medium flex items-center justify-center"
-          onClick={handleAddToCalendar}
-        >
-          Añadir al Calendario
-        </button>
-        
         <button
           className="w-full py-3 px-4 bg-primary text-white rounded-lg font-medium flex items-center justify-center"
           onClick={handleViewBookings}
