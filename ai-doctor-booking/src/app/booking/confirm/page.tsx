@@ -70,41 +70,43 @@ const BookingConfirmationView = () => {
 
   return (
     <div className="px-4 py-6" style={{ backgroundColor: '#F0F4F9' }}>
-      <h1 className="text-xl font-semibold text-dark-grey mb-6">Confirmar Reserva</h1>
+      {/* <h1 className="text-xl font-semibold text-dark-grey mb-6 text-center">Confirmar Reserva</h1> */}
       
       {/* Summary Card with Dark Background */}
       <div className="bg-dark-grey text-white rounded-xl overflow-hidden mb-8">
-        <div className="p-5 relative">
-          {/* Decorative wavy line */}
-          <div className="absolute top-3 right-3 left-3 h-6 opacity-20">
-            <svg viewBox="0 0 200 20" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-              <path d="M0,10 Q20,20 40,10 T80,10 T120,10 T160,10 T200,10" stroke="currentColor" fill="none" strokeWidth="2"/>
-            </svg>
+        <div className="p-6 flex flex-col items-center text-center">
+          
+          {/* 1. Doctor Avatar (square, centered, larger) */}
+          <div className="w-28 h-28 bg-light-grey rounded-lg overflow-hidden mb-2">
+            {selectedDoctor.avatarUrl ? (
+              <Image 
+                src={selectedDoctor.avatarUrl} 
+                alt={selectedDoctor.name}
+                width={112}
+                height={112}
+                className="object-cover w-full h-full"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-dark-grey text-5xl font-semibold">
+                {selectedDoctor.name ? selectedDoctor.name.charAt(0).toUpperCase() : '?'}
+              </div>
+            )}
           </div>
           
-          <h2 className="text-xl font-semibold mb-4 mt-2">{formatDate(selectedDate)}, {selectedSlot.time}</h2>
+          {/* 2. Doctor Name (centered) */}
+          <h3 className="text-lg font-semibold mt-0">{selectedDoctor.name}</h3>
           
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-12 h-12 bg-light-grey rounded-full flex-shrink-0 overflow-hidden">
-              {selectedDoctor.avatarUrl && (
-                <Image 
-                  src={selectedDoctor.avatarUrl} 
-                  alt={selectedDoctor.name}
-                  width={48}
-                  height={48}
-                  className="object-cover w-full h-full"
-                />
-              )}
-            </div>
-            <div>
-              <h3 className="font-medium">{selectedDoctor.name}</h3>
-              <p className="text-sm opacity-80">{selectedSpecialty.name}</p>
-            </div>
-          </div>
+          {/* 3. Specialty (centered) */}
+          <p className="text-base opacity-80 mb-0">{selectedSpecialty.name}</p>
           
-          <p className="text-sm opacity-80 mb-6">Centro Médico California, Sala 234</p>
+          {/* 4. Location (centered) */}
+          <p className="text-sm opacity-80 mb-1">Centro Médico California, Sala 234</p>
           
-          <button 
+          {/* 5. Date, Time (centered) */}
+          <p className="text-lg font-medium mb-4">{formatDate(selectedDate)}, {selectedSlot.time}</p>
+          
+          {/* 6. Confirm Button */}
+          <button
             className={`w-full bg-primary text-white py-3 px-4 rounded-lg font-medium flex items-center justify-center ${
               isSubmitting ? 'opacity-70 cursor-not-allowed' : ''
             }`}
@@ -122,12 +124,6 @@ const BookingConfirmationView = () => {
           </button>
         </div>
       </div>
-      
-      {error && (
-        <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-4">
-          {error}
-        </div>
-      )}
       
       <div className="border border-light-grey rounded-lg p-4 mb-4">
         <h3 className="font-medium mb-2">Detalles de la Reserva</h3>
