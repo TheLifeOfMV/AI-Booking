@@ -95,11 +95,6 @@ const BookingConfirmationView = () => {
           </div>
           
           <div className="bg-dark-grey text-white p-6 rounded-xl mb-6 relative overflow-hidden">
-            <div className="absolute top-0 right-0 left-0 h-8">
-              <svg viewBox="0 0 200 20" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-                <path d="M0,10 Q20,20 40,10 T80,10 T120,10 T160,10 T200,10" stroke="rgba(255,255,255,0.2)" fill="none" strokeWidth="2"/>
-              </svg>
-            </div>
             
             <div className="text-xl font-semibold mb-4">
               {selectedDate?.toLocaleDateString('es-ES', { 
@@ -121,7 +116,7 @@ const BookingConfirmationView = () => {
             <div className="text-sm opacity-80">Centro Médico California, Sala 234</div>
           </div>
           
-          <div className="flex flex-col gap-4 mb-6">
+          <div className="flex flex-col gap-4">
             <button
               className="w-full py-3 px-4 bg-primary text-white rounded-lg font-medium flex items-center justify-center"
               onClick={handleViewBookings}
@@ -129,13 +124,6 @@ const BookingConfirmationView = () => {
               Ver Mis Reservas <span className="ml-2">›</span>
             </button>
           </div>
-          
-          <button
-            className="w-full py-3 px-4 bg-light-grey text-dark-grey rounded-lg font-medium"
-            onClick={handleBookAnother}
-          >
-            Reservar Otra Cita
-          </button>
         </div>
       </div>
     </div>
