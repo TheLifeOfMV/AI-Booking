@@ -1053,8 +1053,8 @@ const UnifiedBookingView = () => {
                     className="w-[130px] bg-white rounded-xl shadow-sm overflow-hidden cursor-pointer transition-all hover:shadow-md"
                     onClick={() => handleDoctorCardClick(doctor)}
                   >
-                    {/* Doctor Image */}
-                    <div className="w-full h-[120px] relative overflow-hidden">
+                    {/* Doctor Image - Square */}
+                    <div className="w-full aspect-square relative overflow-hidden">
                       {doctor.avatarUrl ? (
                         <Image 
                           src={doctor.avatarUrl} 
@@ -1419,15 +1419,8 @@ const UnifiedBookingView = () => {
           }}
         >
           <div className="bg-white rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto modal-content">
-            {/* Doctor Image Header */}
-            <div className="relative h-48 bg-primary">
-              {/* Background pattern */}
-              <div className="absolute inset-0 opacity-20">
-                <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-                  <path fill="#FFFFFF" d="M0,100 C0,30 30,0 100,0 C170,0 200,30 200,100 C200,170 170,200 100,200 C30,200 0,170 0,100 Z" />
-                </svg>
-              </div>
-              
+            {/* Doctor Image Header - Blue Background */}
+            <div className="relative h-48 bg-[#007AFF]">
               {/* Close button */}
               <button 
                 onClick={() => setShowDoctorDetails(false)}
@@ -1448,8 +1441,8 @@ const UnifiedBookingView = () => {
                 </svg>
               </button>
               
-              {/* Doctor Avatar */}
-              <div className="absolute -bottom-10 left-6 w-20 h-20 rounded-full border-4 border-white overflow-hidden bg-white shadow-md">
+              {/* Doctor Avatar - Centered Square */}
+              <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 w-32 h-32 rounded-full overflow-hidden bg-gray-100 border-4 border-white shadow-md">
                 {selectedDoctorDetails.avatarUrl ? (
                   <Image 
                     src={selectedDoctorDetails.avatarUrl} 
@@ -1458,7 +1451,7 @@ const UnifiedBookingView = () => {
                     className="object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-light-grey text-medium-grey text-3xl font-semibold">
+                  <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-500 text-4xl font-semibold">
                     {selectedDoctorDetails.name.charAt(0)}
                   </div>
                 )}
@@ -1466,11 +1459,11 @@ const UnifiedBookingView = () => {
             </div>
             
             {/* Doctor Details Content */}
-            <div className="p-6 pt-14">
+            <div className="p-6 pt-20">
               {/* Doctor Name and Rating */}
-              <div className="mb-4">
+              <div className="text-center mb-4">
                 <h2 className="font-semibold text-xl text-dark-grey">{selectedDoctorDetails.name}</h2>
-                <div className="flex items-center justify-between mt-1 mb-1">
+                <div className="flex items-center justify-center gap-2 mt-1">
                   <span className="text-primary font-medium text-sm">
                     {specialties.find(s => s.id === selectedDoctorDetails.specialtyId)?.name || 'Especialista'}
                   </span>
@@ -1522,7 +1515,7 @@ const UnifiedBookingView = () => {
               
               {/* Biography Section */}
               <div className="mb-5">
-                <h4 className="font-semibold mb-2">Sobre el Doctor</h4>
+                <h4 className="font-semibold mb-2">Acerca de</h4>
                 <p className="text-medium-grey text-sm">
                   Médico especialista con amplia experiencia en el diagnóstico y tratamiento de diversas condiciones. 
                   Enfocado en brindar atención de calidad y personalizada a cada paciente.
@@ -1665,8 +1658,8 @@ const UnifiedBookingView = () => {
                         setShowAllDoctors(false);
                       }}
                     >
-                      {/* Doctor Image - Centered */}
-                      <div className="w-full h-[120px] relative overflow-hidden">
+                      {/* Doctor Image - Square */}
+                      <div className="w-full aspect-square relative overflow-hidden">
                         {doctor.avatarUrl ? (
                           <Image 
                             src={doctor.avatarUrl} 
@@ -1681,7 +1674,7 @@ const UnifiedBookingView = () => {
                         )}
                       </div>
                       
-                      {/* Doctor Info - Below image */}
+                      {/* Doctor Info */}
                       <div className="p-3 pt-2 pb-2 flex-1 flex flex-col">
                         <h3 className="font-semibold text-dark-grey text-sm truncate w-full text-center mb-1">{doctor.name}</h3>
                         <div className="flex items-center justify-between">
