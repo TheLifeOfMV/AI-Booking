@@ -105,6 +105,29 @@ const UnifiedBookingView = () => {
   const [filteredDoctors, setFilteredDoctors] = useState<Doctor[]>([]);
   const [allDoctors, setAllDoctors] = useState<Doctor[]>([]);
   
+  // Add this state for the doctor details modal and check URL for showDoctorModal param
+  const [showDoctorDetails, setShowDoctorDetails] = useState(false);
+  const [selectedDoctorDetails, setSelectedDoctorDetails] = useState<Doctor | null>(null);
+  // Add state for appointment reason selection
+  const [appointmentReason, setAppointmentReason] = useState<string | null>(null);
+
+  // Check URL params when component mounts to see if we should show doctor modal
+  useEffect(() => {
+    // Check if the URL has a showDoctorModal query param
+    const urlParams = new URLSearchParams(window.location.search);
+    const shouldShowModal = urlParams.get('showDoctorModal') === 'true';
+    
+    // If we have the param and a selected doctor, show the modal
+    if (shouldShowModal && selectedDoctor) {
+      setSelectedDoctorDetails(selectedDoctor);
+      setShowDoctorDetails(true);
+      
+      // Clean up the URL by removing the query param
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, '', newUrl);
+    }
+  }, [selectedDoctor]);
+  
   // Paso 1: Modificar el estado inicial de las especialidades
   const [specialties, setSpecialties] = useState<Specialty[]>([
     { id: '1', name: 'Neurología', imageUrl: '/doctors/neurologist.jpg', icon: 'brain', color: '#E53E3E' },
@@ -615,14 +638,12 @@ const UnifiedBookingView = () => {
     });
   };
 
-  // Add this state for the doctor details modal
-  const [showDoctorDetails, setShowDoctorDetails] = useState(false);
-  const [selectedDoctorDetails, setSelectedDoctorDetails] = useState<Doctor | null>(null);
-
   // Add this function to handle opening the doctor details modal
   const handleDoctorCardClick = (doctor: Doctor) => {
     setSelectedDoctorDetails(doctor);
     setShowDoctorDetails(true);
+    // Reset appointment reason when opening a new doctor modal
+    setAppointmentReason(null);
   };
 
   // Inicializar doctores al cargar
@@ -1418,9 +1439,9 @@ const UnifiedBookingView = () => {
             }
           }}
         >
-          <div className="bg-white rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto modal-content">
-            {/* Doctor Image Header - Blue Background */}
-            <div className="relative h-48 bg-[#007AFF]">
+          <div className="rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto modal-content" style={{ backgroundColor: '#F0F4F9' }}>
+            {/* Doctor Image Header - Changed from Blue to Dark Grey Background */}
+            <div className="relative h-48 bg-dark-grey"> {/* Changed from bg-[#007AFF] to bg-dark-grey */}
               {/* Close button */}
               <button 
                 onClick={() => setShowDoctorDetails(false)}
@@ -1441,8 +1462,8 @@ const UnifiedBookingView = () => {
                 </svg>
               </button>
               
-              {/* Doctor Avatar - Centered Square */}
-              <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 w-32 h-32 rounded-full overflow-hidden bg-gray-100 border-4 border-white shadow-md">
+              {/* Doctor Avatar - Changed to match confirm page style */}
+              <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 w-28 h-28 rounded-lg overflow-hidden bg-light-grey border-4 border-white shadow-md"> {/* Changed w-32 h-32 rounded-full to w-28 h-28 rounded-lg, bg-white to bg-light-grey */}
                 {selectedDoctorDetails.avatarUrl ? (
                   <Image 
                     src={selectedDoctorDetails.avatarUrl} 
@@ -1451,7 +1472,7 @@ const UnifiedBookingView = () => {
                     className="object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-500 text-4xl font-semibold">
+                  <div className="w-full h-full flex items-center justify-center bg-light-grey text-dark-grey text-5xl font-semibold"> {/* Changed bg-white to bg-light-grey, text-gray-500 to text-dark-grey, text-4xl to text-5xl */}
                     {selectedDoctorDetails.name.charAt(0)}
                   </div>
                 )}
@@ -1477,13 +1498,13 @@ const UnifiedBookingView = () => {
               {/* Info Grid */}
               <div className="grid grid-cols-2 gap-4 mb-5">
                 {/* Experience Section */}
-                <div className="bg-light-grey p-3 rounded-lg">
+                <div className="bg-white p-3 rounded-lg shadow-sm"> {/* Changed bg-light-grey to bg-white, added shadow-sm */}
                   <h4 className="font-semibold text-sm mb-1">Experiencia</h4>
                   <p className="text-medium-grey text-sm">{selectedDoctorDetails.experience}</p>
                 </div>
                 
                 {/* Address Section */}
-                <div className="bg-light-grey p-3 rounded-lg">
+                <div className="bg-white p-3 rounded-lg shadow-sm"> {/* Changed bg-light-grey to bg-white, added shadow-sm */}
                   <h4 className="font-semibold text-sm mb-1">Dirección</h4>
                   <p className="text-medium-grey text-sm">Centro Médico</p>
                 </div>
@@ -1499,7 +1520,7 @@ const UnifiedBookingView = () => {
                       className={`py-2 px-3 rounded-lg text-sm font-medium ${
                         selectedSlot?.id === slot.id 
                           ? 'bg-primary text-white' 
-                          : 'bg-light-grey text-dark-grey'
+                          : 'bg-white text-dark-grey shadow-sm' /* Changed bg-light-grey to bg-white, added shadow-sm */
                       }`}
                       onClick={(e) => {
                         e.stopPropagation();
@@ -1526,7 +1547,7 @@ const UnifiedBookingView = () => {
               <div className="mb-6">
                 <h4 className="font-semibold mb-2">Testimonios</h4>
                 <div className="space-y-3">
-                  <div className="bg-light-grey p-3 rounded-lg">
+                  <div className="bg-white p-3 rounded-lg shadow-sm"> {/* Changed bg-light-grey to bg-white, added shadow-sm */}
                     <div className="flex items-center mb-1">
                       <span className="text-amber-400 mr-1 text-xs">★★★★★</span>
                       <span className="text-sm font-medium ml-1">María G.</span>
@@ -1535,7 +1556,7 @@ const UnifiedBookingView = () => {
                       Excelente profesional, muy atento y dedicado.
                     </p>
                   </div>
-                  <div className="bg-light-grey p-3 rounded-lg">
+                  <div className="bg-white p-3 rounded-lg shadow-sm"> {/* Changed bg-light-grey to bg-white, added shadow-sm */}
                     <div className="flex items-center mb-1">
                       <span className="text-amber-400 mr-1 text-xs">★★★★</span>
                       <span className="text-sm font-medium ml-1">Carlos P.</span>
@@ -1547,18 +1568,59 @@ const UnifiedBookingView = () => {
                 </div>
               </div>
               
+              {/* Appointment Reason Section */}
+              <div className="mb-6">
+                <h4 className="font-semibold mb-2">Motivo de la Cita</h4>
+                <div className="grid grid-cols-3 gap-2">
+                  <button
+                    className={`px-2 py-3 rounded-lg text-sm font-medium border flex items-center justify-center ${
+                      appointmentReason === 'primera' 
+                        ? 'bg-primary text-white border-primary' 
+                        : 'bg-white text-dark-grey border-[#F2F2F2] shadow-sm hover:border-primary/30'
+                    }`}
+                    onClick={() => setAppointmentReason('primera')}
+                  >
+                    Primera Cita
+                  </button>
+                  
+                  <button
+                    className={`px-2 py-3 rounded-lg text-sm font-medium border flex items-center justify-center ${
+                      appointmentReason === 'control' 
+                        ? 'bg-primary text-white border-primary' 
+                        : 'bg-white text-dark-grey border-[#F2F2F2] shadow-sm hover:border-primary/30'
+                    }`}
+                    onClick={() => setAppointmentReason('control')}
+                  >
+                    Control
+                  </button>
+                  
+                  <button
+                    className={`px-2 py-3 rounded-lg text-sm font-medium border flex items-center justify-center ${
+                      appointmentReason === 'urgente' 
+                        ? 'bg-primary text-white border-primary' 
+                        : 'bg-white text-dark-grey border-[#F2F2F2] shadow-sm hover:border-primary/30'
+                    }`}
+                    onClick={() => setAppointmentReason('urgente')}
+                  >
+                    Urgente
+                  </button>
+                </div>
+              </div>
+              
               {/* Booking Button */}
               <button 
                 className={`w-full py-3 px-4 rounded-lg font-medium flex items-center justify-center ${
-                  selectedSlot
+                  selectedSlot && appointmentReason
                     ? 'bg-primary text-white' 
-                    : 'bg-white text-medium-grey border border-[#F2F2F2] cursor-not-allowed'
+                    : 'bg-white text-medium-grey border border-[#F2F2F2] cursor-not-allowed shadow-sm' /* Added shadow-sm */
                 }`}
                 onClick={() => {
-                  handleBookAppointment();
-                  setShowDoctorDetails(false);
+                  if (selectedSlot && appointmentReason) {
+                    handleBookAppointment();
+                    setShowDoctorDetails(false);
+                  }
                 }}
-                disabled={!selectedSlot}
+                disabled={!selectedSlot || !appointmentReason}
               >
                 Reservar Cita <span className="ml-2">›</span>
               </button>
