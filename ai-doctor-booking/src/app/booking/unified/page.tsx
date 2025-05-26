@@ -1159,11 +1159,11 @@ const UnifiedBookingView = () => {
                 {(doctors.length > 0 ? doctors : defaultDoctors).map((doctor) => (
                   <div 
                     key={doctor.id} 
-                    className="w-[130px] bg-white rounded-xl shadow-sm overflow-hidden cursor-pointer transition-all hover:shadow-md"
+                    className="w-[170px] bg-white rounded-xl shadow-sm overflow-hidden cursor-pointer transition-all hover:shadow-md" // Increased width from 130px to 170px
                     onClick={() => handleDoctorCardClick(doctor)}
                   >
                     {/* Doctor Image - Square */}
-                    <div className="w-full aspect-square relative overflow-hidden">
+                    <div className="w-full aspect-square relative overflow-hidden border-2 border-[#E5E7EB] rounded-lg"> {/* Added delineating border */}
                       {doctor.avatarUrl ? (
                         <Image 
                           src={doctor.avatarUrl} 
@@ -1185,10 +1185,7 @@ const UnifiedBookingView = () => {
                         <span className="text-primary text-xs">
                           {specialties.find(s => s.id === doctor.specialtyId)?.name || 'Especialista'}
                         </span>
-                        <div className="flex items-center text-xs text-medium-grey">
-                          <span className="text-amber-400 mr-0.5">★</span>
-                          <span>{doctor.rating}</span>
-                        </div>
+                        {/* Removed rating (puntuación) from main carousel card */}
                       </div>
                     </div>
                   </div>
@@ -1889,7 +1886,7 @@ const UnifiedBookingView = () => {
                       }}
                     >
                       {/* Doctor Image - Square */}
-                      <div className="w-full aspect-square relative overflow-hidden">
+                      <div className="w-full aspect-square relative overflow-hidden border-2 border-[#E5E7EB] rounded-lg"> {/* Added delineating border */}
                         {doctor.avatarUrl ? (
                           <Image 
                             src={doctor.avatarUrl} 
@@ -1911,10 +1908,7 @@ const UnifiedBookingView = () => {
                           <span className="text-primary text-xs">
                             {specialties.find(s => s.id === doctor.specialtyId)?.name || 'Especialista'}
                           </span>
-                          <div className="flex items-center text-xs text-medium-grey">
-                            <span className="text-amber-400 mr-0.5">★</span>
-                            <span>{doctor.rating}</span>
-                          </div>
+                          {/* Removed rating (puntuación) from modal doctor card */}
                         </div>
                       </div>
                     </div>

@@ -74,3 +74,12 @@ p {
   background-color: #CBD5E0;
   border-radius: 3px;
 }
+
+/* Hide scrollbars globally for all elements */
+*::-webkit-scrollbar {
+  display: none;
+}
+* {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;     /* Firefox */
+}
