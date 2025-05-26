@@ -161,289 +161,291 @@ const DoctorProfilePage = () => {
   };
   
   return (
-    <div className="container max-w-4xl mx-auto py-8 px-4">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Perfil Profesional</h1>
-        
-        {isEditing ? (
-          <div className="flex gap-3">
-            <Button 
-              type="secondary" 
-              onClick={() => setIsEditing(false)}
-            >
-              Cancelar
-            </Button>
+    <div style={{ backgroundColor: '#F0F4F9', minHeight: '100vh' }}>
+      <div className="container max-w-4xl mx-auto py-8 px-4">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold">Perfil Profesional</h1>
+          
+          {isEditing ? (
+            <div className="flex gap-3">
+              <Button 
+                type="secondary" 
+                onClick={() => setIsEditing(false)}
+              >
+                Cancelar
+              </Button>
+              <Button 
+                type="primary" 
+                onClick={handleSaveChanges}
+                disabled={isSaving}
+                className="flex items-center"
+              >
+                {isSaving ? 'Guardando...' : (
+                  <>
+                    <FiSave className="mr-2" /> Guardar Cambios
+                  </>
+                )}
+              </Button>
+            </div>
+          ) : (
             <Button 
               type="primary" 
-              onClick={handleSaveChanges}
-              disabled={isSaving}
+              onClick={() => setIsEditing(true)}
               className="flex items-center"
             >
-              {isSaving ? 'Guardando...' : (
-                <>
-                  <FiSave className="mr-2" /> Guardar Cambios
-                </>
-              )}
+              <FiEdit className="mr-2" /> Editar Perfil
             </Button>
-          </div>
-        ) : (
-          <Button 
-            type="primary" 
-            onClick={() => setIsEditing(true)}
-            className="flex items-center"
-          >
-            <FiEdit className="mr-2" /> Editar Perfil
-          </Button>
-        )}
-      </div>
-      
-      <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-6">
-        <div className="flex flex-col md:flex-row">
-          <div className="md:w-1/3 p-6 bg-primary/5 flex flex-col items-center">
-            <div className="relative w-40 h-40 rounded-full overflow-hidden border-4 border-white shadow-md mb-4">
-              <Image 
-                src={profile.avatar || 'https://via.placeholder.com/150'} 
-                alt={profile.fullName}
-                width={160}
-                height={160}
-                className="object-cover"
-              />
-              {isEditing && (
-                <label 
-                  htmlFor="avatar-upload"
-                  className="absolute inset-0 bg-black/30 opacity-0 hover:opacity-100 flex items-center justify-center cursor-pointer transition-opacity"
-                >
-                  <div className="text-white text-sm font-medium">
-                    Cambiar foto
-                  </div>
-                </label>
-              )}
-              <input 
-                type="file" 
-                id="avatar-upload" 
-                className="hidden" 
-                disabled={!isEditing}
-              />
-            </div>
-            
-            <h2 className="text-xl font-semibold text-center mb-1">{profile.fullName}</h2>
-            <p className="text-primary font-medium mb-4">
-              {profile.specialties.map(id => 
-                SAMPLE_SPECIALTIES.find(s => s.id === id)?.name
-              ).join(', ')}
-            </p>
-            
-            <div className="w-full space-y-3 text-medium-grey">
-              <div className="flex items-center">
-                <FiMapPin className="mr-2 text-primary" /> 
-                <span>{profile.location.city}, {profile.location.country}</span>
-              </div>
-              <div className="flex items-center">
-                <FiClock className="mr-2 text-primary" /> 
-                <span>{profile.experience} de experiencia</span>
-              </div>
-              <div className="flex items-center">
-                <FiFileText className="mr-2 text-primary" /> 
-                <span>Licencia: {profile.licenseNumber}</span>
-              </div>
-            </div>
-          </div>
-          
-          <div className="md:w-2/3 p-6">
-            {/* Tabs de navegación */}
-            <div className="border-b border-light-grey mb-6">
-              <div className="flex space-x-6">
-                <button
-                  className={`pb-3 font-medium ${activeTab === 'profile' 
-                    ? 'text-primary border-b-2 border-primary' 
-                    : 'text-medium-grey'}`}
-                  onClick={() => setActiveTab('profile')}
-                >
-                  Información Personal
-                </button>
-                <button
-                  className={`pb-3 font-medium ${activeTab === 'schedule' 
-                    ? 'text-primary border-b-2 border-primary' 
-                    : 'text-medium-grey'}`}
-                  onClick={() => setActiveTab('schedule')}
-                >
-                  Horarios
-                </button>
-              </div>
-            </div>
-            
-            {/* Tab de información personal */}
-            {activeTab === 'profile' && (
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Input
-                    label="Número de colegiado/licencia"
-                    name="licenseNumber"
-                    value={profile.licenseNumber}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                  />
-                  
-                  <Input
-                    label="Años de experiencia"
-                    name="experience"
-                    value={profile.experience}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                  />
-                  
-                  <Input
-                    label="Tarifa de consulta (€)"
-                    name="consultationFee"
-                    type="number"
-                    value={profile.consultationFee.toString()}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                  />
-                  
-                  <div className="flex items-center space-x-3 h-full pt-6">
-                    <input
-                      type="checkbox"
-                      id="isVirtual"
-                      name="isVirtual"
-                      checked={profile.isVirtual}
-                      onChange={handleInputChange}
-                      disabled={!isEditing}
-                      className="h-4 w-4 text-primary border-light-grey rounded focus:ring-primary"
-                    />
-                    <label htmlFor="isVirtual">
-                      Ofrecer consultas virtuales
-                    </label>
-                  </div>
-                </div>
-                
+          )}
+        </div>
+        
+        <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-6">
+          <div className="flex flex-col md:flex-row">
+            <div className="md:w-1/3 p-6 bg-primary/5 flex flex-col items-center">
+              <div className="relative w-40 h-40 rounded-full overflow-hidden border-4 border-white shadow-md mb-4">
+                <Image 
+                  src={profile.avatar || 'https://via.placeholder.com/150'} 
+                  alt={profile.fullName}
+                  width={160}
+                  height={160}
+                  className="object-cover"
+                />
                 {isEditing && (
-                  <div className="mb-4">
-                    <label className="block text-dark-grey font-medium mb-2">
-                      Especialidad(es)
-                    </label>
-                    <SpecialtySelector
-                      specialties={SAMPLE_SPECIALTIES}
-                      selectedSpecialties={profile.specialties}
-                      onChange={handleSpecialtiesChange}
-                    />
-                  </div>
-                )}
-                
-                <div className="mb-4">
-                  <label className="block text-dark-grey font-medium mb-2">
-                    Biografía profesional
+                  <label 
+                    htmlFor="avatar-upload"
+                    className="absolute inset-0 bg-black/30 opacity-0 hover:opacity-100 flex items-center justify-center cursor-pointer transition-opacity"
+                  >
+                    <div className="text-white text-sm font-medium">
+                      Cambiar foto
+                    </div>
                   </label>
-                  <textarea
-                    name="bio"
-                    value={profile.bio}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                    rows={4}
-                    className="w-full px-4 py-3 rounded-lg border border-light-grey focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary disabled:bg-light-grey/30 disabled:text-medium-grey"
-                  />
+                )}
+                <input 
+                  type="file" 
+                  id="avatar-upload" 
+                  className="hidden" 
+                  disabled={!isEditing}
+                />
+              </div>
+              
+              <h2 className="text-xl font-semibold text-center mb-1">{profile.fullName}</h2>
+              <p className="text-primary font-medium mb-4">
+                {profile.specialties.map(id => 
+                  SAMPLE_SPECIALTIES.find(s => s.id === id)?.name
+                ).join(', ')}
+              </p>
+              
+              <div className="w-full space-y-3 text-medium-grey">
+                <div className="flex items-center">
+                  <FiMapPin className="mr-2 text-primary" /> 
+                  <span>{profile.location.city}, {profile.location.country}</span>
                 </div>
-                
-                <div className="mb-4">
-                  <h3 className="font-medium mb-2">Dirección del consultorio</h3>
+                <div className="flex items-center">
+                  <FiClock className="mr-2 text-primary" /> 
+                  <span>{profile.experience} de experiencia</span>
+                </div>
+                <div className="flex items-center">
+                  <FiFileText className="mr-2 text-primary" /> 
+                  <span>Licencia: {profile.licenseNumber}</span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="md:w-2/3 p-6">
+              {/* Tabs de navegación */}
+              <div className="border-b border-light-grey mb-6">
+                <div className="flex space-x-6">
+                  <button
+                    className={`pb-3 font-medium ${activeTab === 'profile' 
+                      ? 'text-primary border-b-2 border-primary' 
+                      : 'text-medium-grey'}`}
+                    onClick={() => setActiveTab('profile')}
+                  >
+                    Información Personal
+                  </button>
+                  <button
+                    className={`pb-3 font-medium ${activeTab === 'schedule' 
+                      ? 'text-primary border-b-2 border-primary' 
+                      : 'text-medium-grey'}`}
+                    onClick={() => setActiveTab('schedule')}
+                  >
+                    Horarios
+                  </button>
+                </div>
+              </div>
+              
+              {/* Tab de información personal */}
+              {activeTab === 'profile' && (
+                <div className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <Input
-                      label="Dirección"
-                      name="location.address"
-                      value={profile.location.address}
+                      label="Número de colegiado/licencia"
+                      name="licenseNumber"
+                      value={profile.licenseNumber}
                       onChange={handleInputChange}
                       disabled={!isEditing}
                     />
                     
                     <Input
-                      label="Ciudad"
-                      name="location.city"
-                      value={profile.location.city}
+                      label="Años de experiencia"
+                      name="experience"
+                      value={profile.experience}
                       onChange={handleInputChange}
                       disabled={!isEditing}
                     />
                     
                     <Input
-                      label="Código Postal"
-                      name="location.postalCode"
-                      value={profile.location.postalCode}
+                      label="Tarifa de consulta (€)"
+                      name="consultationFee"
+                      type="number"
+                      value={profile.consultationFee.toString()}
                       onChange={handleInputChange}
                       disabled={!isEditing}
                     />
                     
-                    <Input
-                      label="País"
-                      name="location.country"
-                      value={profile.location.country}
+                    <div className="flex items-center space-x-3 h-full pt-6">
+                      <input
+                        type="checkbox"
+                        id="isVirtual"
+                        name="isVirtual"
+                        checked={profile.isVirtual}
+                        onChange={handleInputChange}
+                        disabled={!isEditing}
+                        className="h-4 w-4 text-primary border-light-grey rounded focus:ring-primary"
+                      />
+                      <label htmlFor="isVirtual">
+                        Ofrecer consultas virtuales
+                      </label>
+                    </div>
+                  </div>
+                  
+                  {isEditing && (
+                    <div className="mb-4">
+                      <label className="block text-dark-grey font-medium mb-2">
+                        Especialidad(es)
+                      </label>
+                      <SpecialtySelector
+                        specialties={SAMPLE_SPECIALTIES}
+                        selectedSpecialties={profile.specialties}
+                        onChange={handleSpecialtiesChange}
+                      />
+                    </div>
+                  )}
+                  
+                  <div className="mb-4">
+                    <label className="block text-dark-grey font-medium mb-2">
+                      Biografía profesional
+                    </label>
+                    <textarea
+                      name="bio"
+                      value={profile.bio}
                       onChange={handleInputChange}
                       disabled={!isEditing}
+                      rows={4}
+                      className="w-full px-4 py-3 rounded-lg border border-light-grey focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary disabled:bg-light-grey/30 disabled:text-medium-grey"
                     />
+                  </div>
+                  
+                  <div className="mb-4">
+                    <h3 className="font-medium mb-2">Dirección del consultorio</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <Input
+                        label="Dirección"
+                        name="location.address"
+                        value={profile.location.address}
+                        onChange={handleInputChange}
+                        disabled={!isEditing}
+                      />
+                      
+                      <Input
+                        label="Ciudad"
+                        name="location.city"
+                        value={profile.location.city}
+                        onChange={handleInputChange}
+                        disabled={!isEditing}
+                      />
+                      
+                      <Input
+                        label="Código Postal"
+                        name="location.postalCode"
+                        value={profile.location.postalCode}
+                        onChange={handleInputChange}
+                        disabled={!isEditing}
+                      />
+                      
+                      <Input
+                        label="País"
+                        name="location.country"
+                        value={profile.location.country}
+                        onChange={handleInputChange}
+                        disabled={!isEditing}
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
-            
-            {/* Tab de horarios */}
-            {activeTab === 'schedule' && (
-              <div>
-                {isEditing ? (
-                  <ScheduleManager
-                    initialSchedule={profile.availableTimes}
-                    onChange={handleScheduleChange}
-                  />
-                ) : (
-                  <div className="space-y-4">
-                    <div className="bg-light-grey p-4 rounded-lg mb-4">
-                      <h3 className="font-medium mb-2 flex items-center">
-                        <FiClock className="mr-2" /> Horario de Atención
-                      </h3>
-                      <p className="text-sm text-medium-grey">
-                        Estos son los horarios en los que ofreces consultas. Para modificarlos, haz clic en "Editar Perfil".
-                      </p>
-                    </div>
-                    
-                    <div className="space-y-3">
-                      {['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'].map((day, index) => {
-                        const daySchedule = profile.availableTimes.find(t => t.dayOfWeek === index);
-                        
-                        return (
-                          <div 
-                            key={index} 
-                            className={`p-3 rounded-lg ${daySchedule?.isAvailable ? 'bg-white border border-light-grey' : 'bg-light-grey/30'}`}
-                          >
-                            <div className="flex justify-between items-center">
-                              <span className={`font-medium ${daySchedule?.isAvailable ? 'text-dark-grey' : 'text-medium-grey'}`}>
-                                {day}
-                              </span>
+              )}
+              
+              {/* Tab de horarios */}
+              {activeTab === 'schedule' && (
+                <div>
+                  {isEditing ? (
+                    <ScheduleManager
+                      initialSchedule={profile.availableTimes}
+                      onChange={handleScheduleChange}
+                    />
+                  ) : (
+                    <div className="space-y-4">
+                      <div className="bg-light-grey p-4 rounded-lg mb-4">
+                        <h3 className="font-medium mb-2 flex items-center">
+                          <FiClock className="mr-2" /> Horario de Atención
+                        </h3>
+                        <p className="text-sm text-medium-grey">
+                          Estos son los horarios en los que ofreces consultas. Para modificarlos, haz clic en "Editar Perfil".
+                        </p>
+                      </div>
+                      
+                      <div className="space-y-3">
+                        {['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'].map((day, index) => {
+                          const daySchedule = profile.availableTimes.find(t => t.dayOfWeek === index);
+                          
+                          return (
+                            <div 
+                              key={index} 
+                              className={`p-3 rounded-lg ${daySchedule?.isAvailable ? 'bg-white border border-light-grey' : 'bg-light-grey/30'}`}
+                            >
+                              <div className="flex justify-between items-center">
+                                <span className={`font-medium ${daySchedule?.isAvailable ? 'text-dark-grey' : 'text-medium-grey'}`}>
+                                  {day}
+                                </span>
+                                
+                                {daySchedule?.isAvailable ? (
+                                  <span className="text-primary text-sm bg-primary/10 px-2 py-1 rounded-full">
+                                    Disponible
+                                  </span>
+                                ) : (
+                                  <span className="text-medium-grey text-sm">
+                                    No disponible
+                                  </span>
+                                )}
+                              </div>
                               
-                              {daySchedule?.isAvailable ? (
-                                <span className="text-primary text-sm bg-primary/10 px-2 py-1 rounded-full">
-                                  Disponible
-                                </span>
-                              ) : (
-                                <span className="text-medium-grey text-sm">
-                                  No disponible
-                                </span>
+                              {daySchedule?.isAvailable && daySchedule.slots.length > 0 && (
+                                <div className="mt-2 flex flex-wrap gap-2">
+                                  {daySchedule.slots.map((slot, slotIndex) => (
+                                    <div key={slotIndex} className="text-sm bg-light-grey px-3 py-1 rounded-full">
+                                      {slot.start} - {slot.end}
+                                    </div>
+                                  ))}
+                                </div>
                               )}
                             </div>
-                            
-                            {daySchedule?.isAvailable && daySchedule.slots.length > 0 && (
-                              <div className="mt-2 flex flex-wrap gap-2">
-                                {daySchedule.slots.map((slot, slotIndex) => (
-                                  <div key={slotIndex} className="text-sm bg-light-grey px-3 py-1 rounded-full">
-                                    {slot.start} - {slot.end}
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })}
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
-            )}
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
