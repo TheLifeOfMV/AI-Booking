@@ -973,6 +973,94 @@ const UnifiedBookingView = () => {
                         className="object-contain p-1"
                       />
                     </div>
+                  ) : specialty.id === '10' ? (
+                    // Para Urología (ID 10), usar la imagen específica de Urología
+                    <div className="scale-125">
+                      <Image 
+                        src="/specialties/Urologia..png"
+                        alt="Urología"
+                        width={45}
+                        height={50}
+                        className="object-contain"
+                      />
+                    </div>
+                  ) : specialty.id === '11' ? (
+                    // Para Psicología (ID 11), usar la imagen específica de Psicología
+                    <div className="scale-125">
+                      <Image 
+                        src="/specialties/Psicologiaa.png"
+                        alt="Psicología"
+                        width={45}
+                        height={45}
+                        className="object-contain"
+                      />
+                    </div>
+                  ) : specialty.id === '12' ? (
+                    // Para Hematología (ID 12), usar la imagen específica de Hematología
+                    <div className="scale-125">
+                      <Image 
+                        src="/specialties/Hemato.png"
+                        alt="Hematología"
+                        width={45}
+                        height={45}
+                        className="object-contain"
+                      />
+                    </div>
+                  ) : specialty.id === '13' ? (
+                    // Para Ginecología (ID 13), usar la imagen específica de útero
+                    <div className="scale-125">
+                      <Image 
+                        src="/specialties/utero.png"
+                        alt="Ginecología"
+                        width={50}
+                        height={50}
+                        className="object-contain p-1"
+                      />
+                    </div>
+                  ) : specialty.id === '14' ? (
+                    // Para Cirugía Plástica (ID 14), usar la imagen específica de Cirugía Plástica
+                    <div className="scale-125">
+                      <Image 
+                        src="/specialties/C Plastica.png"
+                        alt="Cirugía Plástica"
+                        width={50}
+                        height={50}
+                        className="object-contain"
+                      />
+                    </div>
+                  ) : specialty.id === '15' ? (
+                    // Para Cirugía General (ID 15), usar la imagen específica de Cirugía General
+                    <div className="scale-125">
+                      <Image 
+                        src="/specialties/Cirugia.png"
+                        alt="Cirugía General"
+                        width={50}
+                        height={50}
+                        className="object-contain"
+                      />
+                    </div>
+                  ) : specialty.id === '16' ? (
+                    // Para Fisioterapia (ID 16), usar la imagen específica de Fisioterapia
+                    <div className="scale-125">
+                      <Image 
+                        src="/specialties/fisioterapia.png"
+                        alt="Fisioterapia"
+                        width={36}
+                        height={36}
+                        className="object-contain"
+                      />
+                    </div>
+                  ) : specialty.id === '17' ? (
+                    // Para Oncología (ID 17), usar la imagen específica de Oncología
+                    <div className="scale-125">
+                      <Image 
+                        src="/specialties/oncologia.png"
+                        alt="Oncología"
+                        width={32}
+                        height={32}
+                        className="object-contain"
+                      />
+                    </div>
                   ) : specialty.imageUrl ? (
                     <Image 
                       src={specialty.imageUrl}
@@ -1265,6 +1353,86 @@ const UnifiedBookingView = () => {
                             width={72}
                             height={72}
                             className="object-contain p-1"
+                          />
+                        </div>
+                      ) : specialty.id === '10' ? (
+                        <div className="scale-125">
+                          <Image 
+                            src="/specialties/Urologia..png"
+                            alt="Urología"
+                            width={65}
+                            height={65}
+                            className="object-contain"
+                          />
+                        </div>
+                      ) : specialty.id === '11' ? (
+                        <div className="scale-125">
+                          <Image 
+                            src="/specialties/Psicologiaa.png"
+                            alt="Psicología"
+                            width={70}
+                            height={70}
+                            className="object-contain"
+                          />
+                        </div>
+                      ) : specialty.id === '12' ? (
+                        <div className="scale-125">
+                          <Image 
+                            src="/specialties/Hemato.png"
+                            alt="Hematología"
+                            width={70}
+                            height={70}
+                            className="object-contain"
+                          />
+                        </div>
+                      ) : specialty.id === '13' ? (
+                        <div className="scale-125">
+                          <Image 
+                            src="/specialties/utero.png"
+                            alt="Ginecología"
+                            width={75}
+                            height={75}
+                            className="object-contain p-2"
+                          />
+                        </div>
+                      ) : specialty.id === '14' ? (
+                        <div className="scale-125">
+                          <Image 
+                            src="/specialties/C Plastica.png"
+                            alt="Cirugía Plástica"
+                            width={80}
+                            height={80}
+                            className="object-contain"
+                          />
+                        </div>
+                      ) : specialty.id === '15' ? (
+                        <div className="scale-125">
+                          <Image 
+                            src="/specialties/Cirugia.png"
+                            alt="Cirugía General"
+                            width={80}
+                            height={80}
+                            className="object-contain"
+                          />
+                        </div>
+                      ) : specialty.id === '16' ? (
+                        <div className="scale-125">
+                          <Image 
+                            src="/specialties/fisioterapia.png"
+                            alt="Fisioterapia"
+                            width={50}
+                            height={50}
+                            className="object-contain"
+                          />
+                        </div>
+                      ) : specialty.id === '17' ? (
+                        <div className="scale-125">
+                          <Image 
+                            src="/specialties/oncologia.png"
+                            alt="Oncología"
+                            width={45}
+                            height={45}
+                            className="object-contain"
                           />
                         </div>
                       ) : specialty.imageUrl ? (
