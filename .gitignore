@@ -69,3 +69,4 @@ logs
 # YAML files (uncommenting this line if these files should be tracked)
 # *.yaml
 # *.yml 
+DOCTOR_SUBSCRIPTION_SYSTEM.md

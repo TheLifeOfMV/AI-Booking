@@ -45,6 +45,18 @@ const MOCK_DOCTORS: Doctor[] = [
     ],
     location: 'San Francisco Medical Center',
     createdAt: new Date('2022-05-15').toISOString(),
+    subscription: {
+      id: 'sub_1',
+      planType: 'premium',
+      monthlyFee: 150000, // 150,000 COP
+      status: 'active',
+      paymentStatus: 'paid',
+      startDate: '2022-05-15',
+      endDate: '2025-05-15',
+      lastPaymentDate: '2024-01-15',
+      nextPaymentDate: '2024-02-15',
+      failedPaymentAttempts: 0
+    }
   },
   {
     id: '2',
@@ -94,6 +106,18 @@ const MOCK_DOCTORS: Doctor[] = [
     ],
     location: 'Boston Medical Center',
     createdAt: new Date('2021-11-20').toISOString(),
+    subscription: {
+      id: 'sub_2',
+      planType: 'enterprise',
+      monthlyFee: 250000, // 250,000 COP
+      status: 'active',
+      paymentStatus: 'paid',
+      startDate: '2021-11-20',
+      endDate: '2024-11-20',
+      lastPaymentDate: '2024-01-20',
+      nextPaymentDate: '2024-02-20',
+      failedPaymentAttempts: 0
+    }
   },
   {
     id: '3',
@@ -137,6 +161,17 @@ const MOCK_DOCTORS: Doctor[] = [
     ],
     location: 'Los Angeles Medical Plaza',
     createdAt: new Date('2022-01-10').toISOString(),
+    subscription: {
+      id: 'sub_3',
+      planType: 'basic',
+      monthlyFee: 80000, // 80,000 COP
+      status: 'active',
+      paymentStatus: 'pending',
+      startDate: '2022-01-10',
+      endDate: '2025-01-10',
+      nextPaymentDate: '2024-02-10',
+      failedPaymentAttempts: 1
+    }
   },
   {
     id: '4',
@@ -180,6 +215,17 @@ const MOCK_DOCTORS: Doctor[] = [
     ],
     location: 'Chicago Medical Center',
     createdAt: new Date('2022-03-25').toISOString(),
+    subscription: {
+      id: 'sub_4',
+      planType: 'basic',
+      monthlyFee: 80000, // 80,000 COP
+      status: 'expired',
+      paymentStatus: 'failed',
+      startDate: '2022-03-25',
+      endDate: '2024-03-25',
+      nextPaymentDate: '2024-04-25',
+      failedPaymentAttempts: 3
+    }
   },
   {
     id: '5',
@@ -223,6 +269,18 @@ const MOCK_DOCTORS: Doctor[] = [
     ],
     location: 'Philadelphia Children\'s Hospital',
     createdAt: new Date('2022-08-15').toISOString(),
+    subscription: {
+      id: 'sub_5',
+      planType: 'premium',
+      monthlyFee: 150000, // 150,000 COP
+      status: 'active',
+      paymentStatus: 'paid',
+      startDate: '2022-08-15',
+      endDate: '2025-08-15',
+      lastPaymentDate: '2024-01-15',
+      nextPaymentDate: '2024-02-15',
+      failedPaymentAttempts: 0
+    }
   },
 ];
 

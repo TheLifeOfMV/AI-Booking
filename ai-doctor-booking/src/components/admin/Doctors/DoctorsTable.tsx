@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Doctor, DoctorFilter, DoctorTableColumn, CredentialStatus } from '@/types/doctor';
+import { Doctor, DoctorFilter, DoctorTableColumn, CredentialStatus, PaymentStatus, SubscriptionStatus } from '@/types/doctor';
 import DoctorFilters from './DoctorFilters';
 import CredentialStatusBadge from './CredentialStatusBadge';
 import ApprovalToggle from './ApprovalToggle';
@@ -9,7 +9,39 @@ import DoctorEditModal from './DoctorEditModal';
 import { useToast } from '@/hooks/useToast';
 
 // Define the sortable fields type to include all possible column keys
-type SortableFields = keyof Doctor | 'credentials.status' | 'actions';
+type SortableFields = keyof Doctor | 'credentials.status' | 'subscription.monthlyFee' | 'subscription.paymentStatus' | 'actions';
+
+// Helper function to get payment status badge styles
+const getPaymentStatusBadge = (status: PaymentStatus) => {
+  switch (status) {
+    case 'paid':
+      return 'bg-green-100 text-green-800';
+    case 'pending':
+      return 'bg-yellow-100 text-yellow-800';
+    case 'failed':
+      return 'bg-red-100 text-red-800';
+    case 'refunded':
+      return 'bg-gray-100 text-gray-800';
+    default:
+      return 'bg-gray-100 text-gray-800';
+  }
+};
+
+// Helper function to translate payment status
+const translatePaymentStatus = (status: PaymentStatus): string => {
+  switch (status) {
+    case 'paid':
+      return 'Pagado';
+    case 'pending':
+      return 'Pendiente';
+    case 'failed':
+      return 'Falló';
+    case 'refunded':
+      return 'Reembolsado';
+    default:
+      return status;
+  }
+};
 
 /**
  * Componente DoctorsTable
@@ -41,7 +73,7 @@ const DoctorsTable: React.FC = () => {
     { key: 'credentials.status', title: 'Estado Credencial' },
     { key: 'approvalStatus', title: 'Aprobado' },
     { key: 'experience', title: 'Experiencia' },
-    { key: 'consultationFee', title: 'Tarifa', sortable: true },
+    { key: 'subscription.monthlyFee', title: 'Tarifa y Pago', sortable: true },
     { key: 'actions', title: 'Acciones', width: '100px' },
   ];
   
@@ -98,15 +130,30 @@ const DoctorsTable: React.FC = () => {
     fetchDoctors();
   }, [fetchDoctors]);
   
-  // Handle sort
+  // Handle sort with special logic for combined tarifa column
   const handleSort = (field: SortableFields) => {
-    // If clicking the same field, toggle sort direction
-    if (field === sortField) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    // Special handling for combined tarifa column - alternate between fee and payment status
+    if (field === 'subscription.monthlyFee') {
+      if (sortField === 'subscription.monthlyFee') {
+        // If already sorting by fee, switch to payment status
+        setSortField('subscription.paymentStatus');
+        setSortDirection('asc');
+      } else if (sortField === 'subscription.paymentStatus') {
+        // If sorting by payment status, toggle direction
+        setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+      } else {
+        // First click - sort by fee
+        setSortField(field);
+        setSortDirection('asc');
+      }
     } else {
-      // Otherwise, sort ascending by the new field
-      setSortField(field);
-      setSortDirection('asc');
+      // Standard sorting logic for other fields
+      if (field === sortField) {
+        setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+      } else {
+        setSortField(field);
+        setSortDirection('asc');
+      }
     }
   };
   
@@ -122,10 +169,16 @@ const DoctorsTable: React.FC = () => {
     
     let aValue, bValue;
     
-    // Handle nested field (credentials.status)
+    // Handle nested fields
     if (sortField === 'credentials.status') {
       aValue = a.credentials.status;
       bValue = b.credentials.status;
+    } else if (sortField === 'subscription.monthlyFee') {
+      aValue = a.subscription.monthlyFee;
+      bValue = b.subscription.monthlyFee;
+    } else if (sortField === 'subscription.paymentStatus') {
+      aValue = a.subscription.paymentStatus;
+      bValue = b.subscription.paymentStatus;
     } else if (sortField !== 'actions') {
       aValue = a[sortField as keyof Doctor];
       bValue = b[sortField as keyof Doctor];
@@ -255,9 +308,14 @@ const DoctorsTable: React.FC = () => {
                   >
                     <div className="flex items-center">
                       {column.title}
-                      {column.sortable && sortField === column.key && (
-                        <span className="ml-1">
+                      {column.sortable && (sortField === column.key || (column.key === 'subscription.monthlyFee' && sortField === 'subscription.paymentStatus')) && (
+                        <span className="ml-1 text-xs">
                           {sortDirection === 'asc' ? '↑' : '↓'}
+                          {column.key === 'subscription.monthlyFee' && (
+                            <span className="text-[10px] ml-1">
+                              {sortField === 'subscription.monthlyFee' ? 'Tarifa' : 'Estado'}
+                            </span>
+                          )}
                         </span>
                       )}
                     </div>
@@ -317,8 +375,15 @@ const DoctorsTable: React.FC = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-dark-grey">
                       {doctor.experience}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-dark-grey">
-                      ${doctor.consultationFee}
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex flex-col items-start">
+                        <div className="text-sm font-medium text-dark-grey">
+                          ${doctor.subscription.monthlyFee.toLocaleString('es-CO')} COP
+                        </div>
+                        <span className={`px-2 py-1 text-xs rounded-full mt-1 ${getPaymentStatusBadge(doctor.subscription.paymentStatus)}`}>
+                          {translatePaymentStatus(doctor.subscription.paymentStatus)}
+                        </span>
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
                       <button

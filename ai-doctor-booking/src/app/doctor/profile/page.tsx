@@ -46,6 +46,19 @@ interface DoctorProfile {
       end: string;
     }[];
   }[];
+  
+  subscription: {
+    id: string;
+    planType: 'basic' | 'premium' | 'enterprise';
+    monthlyFee: number;
+    status: 'active' | 'pending' | 'expired' | 'cancelled';
+    paymentStatus: 'paid' | 'pending' | 'failed' | 'refunded';
+    startDate: string;
+    endDate: string;
+    lastPaymentDate?: string;
+    nextPaymentDate: string;
+    failedPaymentAttempts: number;
+  };
 }
 
 // Datos de perfil de ejemplo
@@ -106,7 +119,20 @@ const MOCK_DOCTOR_PROFILE: DoctorProfile = {
     },
     { dayOfWeek: 5, isAvailable: false, slots: [] },
     { dayOfWeek: 6, isAvailable: false, slots: [] }
-  ]
+  ],
+  
+  subscription: {
+    id: 'sub123',
+    planType: 'premium',
+    monthlyFee: 150000, // 150,000 COP
+    status: 'active',
+    paymentStatus: 'paid',
+    startDate: '2023-01-01',
+    endDate: '2023-12-31',
+    lastPaymentDate: '2023-06-01',
+    nextPaymentDate: '2024-02-01',
+    failedPaymentAttempts: 0
+  }
 };
 
 // Blocked days type
@@ -309,6 +335,14 @@ const DoctorProfilePage = () => {
                     onClick={() => setActiveTab('schedule')}
                   >
                     Horarios
+                  </button>
+                  <button
+                    className={`pb-3 font-medium ${activeTab === 'subscription' 
+                      ? 'text-primary border-b-2 border-primary' 
+                      : 'text-medium-grey'}`}
+                    onClick={() => setActiveTab('subscription')}
+                  >
+                    Suscripción
                   </button>
                 </div>
               </div>
@@ -580,6 +614,148 @@ const DoctorProfilePage = () => {
                         </div>
                       </div>
                     </>
+                  )}
+                </div>
+              )}
+              
+              {/* Tab de suscripción */}
+              {activeTab === 'subscription' && (
+                <div>
+                  <div className="bg-light-grey p-4 rounded-lg mb-6">
+                    <h3 className="font-medium mb-2 flex items-center">
+                      <FiUser className="mr-2" /> Información de Suscripción
+                    </h3>
+                    <p className="text-sm text-medium-grey">
+                      Gestiona tu suscripción a la plataforma y revisa el estado de tus pagos.
+                    </p>
+                  </div>
+                  
+                  {/* Plan Information */}
+                  <div className="bg-white rounded-xl p-4 shadow-sm mb-6">
+                    <h3 className="font-semibold text-lg mb-3">Plan Actual</h3>
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <h4 className="font-medium text-primary capitalize">{profile.subscription.planType}</h4>
+                        <p className="text-medium-grey text-sm">Plan mensual</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-semibold text-lg">${profile.subscription.monthlyFee.toLocaleString('es-CO')} COP</p>
+                        <p className="text-medium-grey text-sm">por mes</p>
+                      </div>
+                    </div>
+                    
+                    <div className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
+                      profile.subscription.status === 'active' 
+                        ? 'bg-green-100 text-green-800' 
+                        : profile.subscription.status === 'pending' 
+                          ? 'bg-yellow-100 text-yellow-800' 
+                          : profile.subscription.status === 'expired' 
+                            ? 'bg-red-100 text-red-800' 
+                            : 'bg-gray-100 text-gray-800'
+                    }`}>
+                      {profile.subscription.status === 'active' ? 'Activa' : 
+                       profile.subscription.status === 'pending' ? 'Pendiente' : 
+                       profile.subscription.status === 'expired' ? 'Expirada' : 
+                       'Cancelada'}
+                    </div>
+                  </div>
+                  
+                  {/* Payment Information */}
+                  <div className="bg-white rounded-xl p-4 shadow-sm mb-6">
+                    <h3 className="font-semibold text-lg mb-3">Estado de Pagos</h3>
+                    
+                    <div className="space-y-3">
+                      <div className="flex justify-between py-2 border-b border-light-grey">
+                        <span className="text-medium-grey">Estado del Pago</span>
+                        <span className={`font-medium px-2 py-1 rounded-full text-xs ${
+                          profile.subscription.paymentStatus === 'paid' 
+                            ? 'bg-green-100 text-green-800' 
+                            : profile.subscription.paymentStatus === 'pending' 
+                              ? 'bg-yellow-100 text-yellow-800' 
+                              : profile.subscription.paymentStatus === 'failed' 
+                                ? 'bg-red-100 text-red-800' 
+                                : 'bg-gray-100 text-gray-800'
+                        }`}>
+                          {profile.subscription.paymentStatus === 'paid' ? 'Pagado' : 
+                           profile.subscription.paymentStatus === 'pending' ? 'Pendiente' : 
+                           profile.subscription.paymentStatus === 'failed' ? 'Falló' : 
+                           'Reembolsado'}
+                        </span>
+                      </div>
+                      
+                      <div className="flex justify-between py-2 border-b border-light-grey">
+                        <span className="text-medium-grey">Fecha de Inicio</span>
+                        <span className="font-medium">{new Date(profile.subscription.startDate).toLocaleDateString('es-ES')}</span>
+                      </div>
+                      
+                      <div className="flex justify-between py-2 border-b border-light-grey">
+                        <span className="text-medium-grey">Fecha de Vencimiento</span>
+                        <span className="font-medium">{new Date(profile.subscription.endDate).toLocaleDateString('es-ES')}</span>
+                      </div>
+                      
+                      {profile.subscription.lastPaymentDate && (
+                        <div className="flex justify-between py-2 border-b border-light-grey">
+                          <span className="text-medium-grey">Último Pago</span>
+                          <span className="font-medium">{new Date(profile.subscription.lastPaymentDate).toLocaleDateString('es-ES')}</span>
+                        </div>
+                      )}
+                      
+                      <div className="flex justify-between py-2">
+                        <span className="text-medium-grey">Próximo Pago</span>
+                        <span className="font-medium">{new Date(profile.subscription.nextPaymentDate).toLocaleDateString('es-ES')}</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Payment Actions */}
+                  <div className="bg-white rounded-xl p-4 shadow-sm">
+                    <h3 className="font-semibold text-lg mb-3">Acciones</h3>
+                    
+                    <div className="space-y-3">
+                      {profile.subscription.paymentStatus === 'pending' && (
+                        <button className="w-full bg-primary text-white py-3 rounded-lg font-medium">
+                          Realizar Pago Pendiente
+                        </button>
+                      )}
+                      
+                      {profile.subscription.paymentStatus === 'failed' && (
+                        <button className="w-full bg-red-500 text-white py-3 rounded-lg font-medium">
+                          Reintentar Pago
+                        </button>
+                      )}
+                      
+                      <button className="w-full border border-primary text-primary py-3 rounded-lg font-medium">
+                        Actualizar Método de Pago
+                      </button>
+                      
+                      <button className="w-full border border-medium-grey text-medium-grey py-3 rounded-lg font-medium">
+                        Descargar Factura
+                      </button>
+                      
+                      {profile.subscription.status === 'active' && (
+                        <button className="w-full border border-red-500 text-red-500 py-3 rounded-lg font-medium">
+                          Cancelar Suscripción
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {/* Failed Payment Warning */}
+                  {profile.subscription.failedPaymentAttempts > 0 && (
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-4 mt-6">
+                      <div className="flex items-center">
+                        <svg className="h-5 w-5 text-red-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 15.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                        </svg>
+                        <div>
+                          <h4 className="font-medium text-red-800">Advertencia de Pago</h4>
+                          <p className="text-red-700 text-sm">
+                            Ha habido {profile.subscription.failedPaymentAttempts} intento(s) de pago fallido(s). 
+                            Por favor actualiza tu método de pago para evitar la suspensión del servicio.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
                   )}
                 </div>
               )}
