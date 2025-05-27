@@ -29,7 +29,6 @@ export interface Doctor extends Omit<User, 'role'> {
   }[];
 
   location?: string;
-  consultationFee: number;
 }
 
 export interface DoctorFilter {

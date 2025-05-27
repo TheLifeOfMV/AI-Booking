@@ -217,11 +217,6 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
               <span className="font-medium">{selectedBooking.location}</span>
             </div>
             
-            <div className="flex justify-between py-2 border-b border-light-grey">
-              <span className="text-medium-grey">Precio</span>
-              <span className="font-medium">{selectedBooking.price}€</span>
-            </div>
-            
             <div className="flex justify-between py-2">
               <span className="text-medium-grey">Estado</span>
               <span className={`font-medium ${

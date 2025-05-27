@@ -99,47 +99,22 @@ const SpecialtiesStep: React.FC<SpecialtiesStepProps> = ({
         </div>
 
         <div>
-          <label htmlFor="consultationFee" className="block text-sm font-medium text-dark-grey mb-1">
-            Tarifa de Consulta ($)*
+          <label htmlFor="experience" className="block text-sm font-medium text-dark-grey mb-1">
+            Experiencia*
           </label>
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <span className="text-medium-grey">$</span>
-            </div>
-            <input
-              type="number"
-              id="consultationFee"
-              name="consultationFee"
-              value={formData.consultationFee}
-              onChange={handleChange}
-              min="0"
-              step="5"
-              placeholder="100"
-              className={`w-full pl-7 p-3 border ${
-                errors.consultationFee ? 'border-red-500' : 'border-gray-300'
-              } rounded-md focus:ring-primary focus:border-primary transition-colors duration-200`}
-            />
-          </div>
-          {errors.consultationFee && <p className="mt-1 text-sm text-red-500">{errors.consultationFee}</p>}
+          <input
+            type="text"
+            id="experience"
+            name="experience"
+            value={formData.experience}
+            onChange={handleChange}
+            placeholder="10+ años"
+            className={`w-full p-3 border ${
+              errors.experience ? 'border-red-500' : 'border-gray-300'
+            } rounded-md focus:ring-primary focus:border-primary transition-colors duration-200`}
+          />
+          {errors.experience && <p className="mt-1 text-sm text-red-500">{errors.experience}</p>}
         </div>
-      </div>
-
-      <div>
-        <label htmlFor="experience" className="block text-sm font-medium text-dark-grey mb-1">
-          Experiencia*
-        </label>
-        <input
-          type="text"
-          id="experience"
-          name="experience"
-          value={formData.experience}
-          onChange={handleChange}
-          placeholder="10+ años"
-          className={`w-full p-3 border ${
-            errors.experience ? 'border-red-500' : 'border-gray-300'
-          } rounded-md focus:ring-primary focus:border-primary transition-colors duration-200`}
-        />
-        {errors.experience && <p className="mt-1 text-sm text-red-500">{errors.experience}</p>}
       </div>
 
       <div>

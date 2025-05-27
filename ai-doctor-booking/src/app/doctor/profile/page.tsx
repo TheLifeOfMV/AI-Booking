@@ -37,8 +37,7 @@ interface DoctorProfile {
     postalCode: string;
     country: string;
   };
-  consultationFee: number;
-
+  
   availableTimes: {
     dayOfWeek: number;
     isAvailable: boolean;
@@ -66,7 +65,6 @@ const MOCK_DOCTOR_PROFILE: DoctorProfile = {
     postalCode: '28001',
     country: 'España'
   },
-  consultationFee: 50,
   
   availableTimes: [
     {
@@ -334,17 +332,6 @@ const DoctorProfilePage = () => {
                       onChange={handleInputChange}
                       disabled={!isEditing}
                     />
-                    
-                    <Input
-                      label="Tarifa de consulta (€)"
-                      name="consultationFee"
-                      type="number"
-                      value={profile.consultationFee.toString()}
-                      onChange={handleInputChange}
-                      disabled={!isEditing}
-                    />
-                    
-
                   </div>
                   
                   {isEditing && (

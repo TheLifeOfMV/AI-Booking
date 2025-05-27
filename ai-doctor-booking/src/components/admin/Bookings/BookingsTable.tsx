@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useAdminBookingsContext } from '@/context/AdminBookingsProvider';
-import { AdminBooking, BookingStatus, PaymentStatus } from '@/types/admin';
+import { AdminBooking, BookingStatus } from '@/types/admin';
 import ImpersonationButton from './ImpersonationButton';
 
 export default function BookingsTable() {
@@ -35,12 +35,6 @@ export default function BookingsTable() {
       case 'date':
         comparison = new Date(a.date).getTime() - new Date(b.date).getTime();
         break;
-      case 'createdAt':
-        comparison = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-        break;
-      case 'amount':
-        comparison = a.amount - b.amount;
-        break;
       default:
         comparison = String(a[sortField]).localeCompare(String(b[sortField]));
     }
@@ -48,7 +42,7 @@ export default function BookingsTable() {
     return sortDirection === 'asc' ? comparison : -comparison;
   });
   
-  // Status and payment badge styles
+  // Status badge styles
   const getStatusBadgeClass = (status: BookingStatus) => {
     switch (status) {
       case 'scheduled':
@@ -59,19 +53,6 @@ export default function BookingsTable() {
         return 'bg-red-100 text-red-800';
       case 'no-show':
         return 'bg-gray-100 text-gray-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
-  
-  const getPaymentBadgeClass = (status: PaymentStatus) => {
-    switch (status) {
-      case 'paid':
-        return 'bg-green-100 text-green-800';
-      case 'refunded':
-        return 'bg-orange-100 text-orange-800';
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
@@ -88,20 +69,6 @@ export default function BookingsTable() {
         return 'Cancelada';
       case 'no-show':
         return 'No asistió';
-      default:
-        return status;
-    }
-  };
-  
-  // Función para traducir los status de pago
-  const translatePaymentStatus = (status: PaymentStatus): string => {
-    switch (status) {
-      case 'paid':
-        return 'Pagado';
-      case 'refunded':
-        return 'Reembolsado';
-      case 'pending':
-        return 'Pendiente';
       default:
         return status;
     }
@@ -225,26 +192,6 @@ export default function BookingsTable() {
                   <span className="ml-1">{sortDirection === 'asc' ? '↑' : '↓'}</span>
                 )}
               </th>
-              <th
-                scope="col"
-                className="px-4 py-3 text-xs font-medium text-dark-grey uppercase tracking-wider text-left cursor-pointer"
-                onClick={() => handleSort('amount')}
-              >
-                Importe
-                {sortField === 'amount' && (
-                  <span className="ml-1">{sortDirection === 'asc' ? '↑' : '↓'}</span>
-                )}
-              </th>
-              <th
-                scope="col"
-                className="px-4 py-3 text-xs font-medium text-dark-grey uppercase tracking-wider text-left cursor-pointer"
-                onClick={() => handleSort('paymentStatus')}
-              >
-                Pago
-                {sortField === 'paymentStatus' && (
-                  <span className="ml-1">{sortDirection === 'asc' ? '↑' : '↓'}</span>
-                )}
-              </th>
               <th scope="col" className="px-4 py-3 text-xs font-medium text-dark-grey uppercase tracking-wider text-left">
                 Acciones
               </th>
@@ -282,14 +229,6 @@ export default function BookingsTable() {
                 <td className="px-4 py-3 text-sm">
                   <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeClass(booking.status)}`}>
                     {translateBookingStatus(booking.status)}
-                  </span>
-                </td>
-                <td className="px-4 py-3 text-sm text-dark-grey">
-                  ${booking.amount}
-                </td>
-                <td className="px-4 py-3 text-sm">
-                  <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getPaymentBadgeClass(booking.paymentStatus)}`}>
-                    {translatePaymentStatus(booking.paymentStatus)}
                   </span>
                 </td>
                 <td className="px-4 py-3 text-sm text-right">

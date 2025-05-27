@@ -43,5 +43,4 @@ export interface Booking extends DraftBooking {
   specialtyName: string;
   slotTime: string;
   location: string;
-  price: number;
 } 

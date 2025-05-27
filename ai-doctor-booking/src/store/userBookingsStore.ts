@@ -44,8 +44,7 @@ export const useUserBookingsStore = create<UserBookingsState>((set, get) => ({
           doctorAvatar: '/doctors/doctor1.jpg',
           specialtyName: 'Oftalmólogo',
           slotTime: '8:00',
-          location: 'Centro Médico California, Sala 234',
-          price: 35
+          location: 'Centro Médico California, Sala 234'
         },
         {
           id: '2',
@@ -60,8 +59,7 @@ export const useUserBookingsStore = create<UserBookingsState>((set, get) => ({
           doctorAvatar: '/doctors/doctor2.jpg',
           specialtyName: 'Dentista',
           slotTime: '13:00',
-          location: 'Clínica Downtown, Sala 101',
-          price: 45
+          location: 'Clínica Downtown, Sala 101'
         },
         {
           id: '3',
@@ -76,8 +74,7 @@ export const useUserBookingsStore = create<UserBookingsState>((set, get) => ({
           doctorAvatar: '/doctors/doctor3.jpg',
           specialtyName: 'Cardiólogo',
           slotTime: '17:00',
-          location: 'Centro Cardiológico, Piso 3',
-          price: 55
+          location: 'Centro Cardiológico, Piso 3'
         }
       ];
       
@@ -112,8 +109,7 @@ export const useUserBookingsStore = create<UserBookingsState>((set, get) => ({
           doctorAvatar: '/doctors/doctor1.jpg',
           specialtyName: 'Oftalmólogo',
           slotTime: '8:00',
-          location: 'Centro Médico California, Sala 234',
-          price: 35
+          location: 'Centro Médico California, Sala 234'
         };
       }
       

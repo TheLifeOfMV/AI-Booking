@@ -77,8 +77,8 @@ const InsuranceSelectionPage = () => {
             
             <div className="mb-2">
               <p className="text-medium-grey ml-14 text-sm">
-                Paga directamente por tu consulta sin usar seguro médico.
-                El pago se realizará al momento de la atención.
+                Agenda tu consulta sin usar seguro médico.
+                Consulta particular sin cobertura de seguro.
               </p>
             </div>
             

@@ -1,21 +1,24 @@
 // Admin types for bookings management
+export type BookingStatus = 'scheduled' | 'completed' | 'cancelled' | 'no-show';
+
 export interface AdminBooking {
   id: string;
-  patientName: string;
   patientId: string;
+  patientName: string;
   doctorName: string;
-  doctorId: string;
   specialty: string;
   date: string;
   time: string;
   status: BookingStatus;
-  amount: number;
-  paymentStatus: PaymentStatus;
-  createdAt: string;
 }
 
-export type BookingStatus = 'scheduled' | 'completed' | 'cancelled' | 'no-show';
-export type PaymentStatus = 'paid' | 'refunded' | 'pending';
+export interface DashboardStats {
+  totalBookings: number;
+  todayBookings: number;
+  totalDoctors: number;
+  totalPatients: number;
+  recentBookings: AdminBooking[];
+}
 
 export interface BookingFilters {
   dateRange?: {
