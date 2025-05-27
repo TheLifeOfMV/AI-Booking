@@ -138,8 +138,7 @@ export const getPatientAppointments = async (patientId: string) => {
       date: '2023-12-15',
       time: '10:00',
       status: 'confirmed',
-      location: 'Centro Médico Alameda, Consulta 5',
-      isVirtual: false
+      location: 'Centro Médico Alameda, Consulta 5'
     },
     {
       id: 'apt2',
@@ -148,8 +147,7 @@ export const getPatientAppointments = async (patientId: string) => {
       date: '2023-11-10',
       time: '16:30',
       status: 'completed',
-      location: 'Consulta Online',
-      isVirtual: true
+      location: 'Hospital Dermatológico, Sala 2'
     },
     {
       id: 'apt3',
@@ -158,8 +156,7 @@ export const getPatientAppointments = async (patientId: string) => {
       date: '2024-01-20',
       time: '09:15',
       status: 'pending',
-      location: 'Hospital Universitario, Piso 3',
-      isVirtual: false
+      location: 'Hospital Universitario, Piso 3'
     }
   ];
 }; 

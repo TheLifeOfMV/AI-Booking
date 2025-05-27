@@ -163,19 +163,7 @@ const AvailabilityStep: React.FC<AvailabilityStepProps> = ({
           </label>
         </div>
         
-        <div className="flex items-center space-x-2">
-          <input
-            id="isVirtual"
-            name="isVirtual"
-            type="checkbox"
-            checked={formData.isVirtual}
-            onChange={handleChange}
-            className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
-          />
-          <label htmlFor="isVirtual" className="text-sm font-medium text-dark-grey">
-            Offers Virtual Consultations
-          </label>
-        </div>
+
       </div>
 
       <div className="border-t pt-6 mt-2">

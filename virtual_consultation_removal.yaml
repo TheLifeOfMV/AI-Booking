@@ -1,0 +1,60 @@
+# Virtual Consultation Feature Removal Summary
+# Following MONOCODE principles: Observable Implementation & Progressive Construction
+
+## Overview
+Systematically removed virtual consultation features ("Ofrecer consultas virtuales") from the AI Booking application as requested by the user.
+
+## Files Modified
+
+### Core Type Definitions
+- `ai-doctor-booking/src/types/doctor.ts`
+  - Removed: `isVirtual: boolean` property from Doctor interface
+
+### Doctor Components
+- `ai-doctor-booking/src/app/doctor/profile/page.tsx`
+  - Removed: `isVirtual` property from DoctorProfile interface
+  - Removed: Virtual consultation checkbox in profile form
+  - Removed: `isVirtual: true` from MOCK_DOCTOR_PROFILE
+
+- `ai-doctor-booking/src/app/doctor/dashboard/page.tsx`
+  - Removed: `isVirtual` properties from MOCK_APPOINTMENTS
+  - Updated: Appointment display to always show "Presencial" instead of dynamic virtual/in-person
+
+### Admin Components
+- `ai-doctor-booking/src/components/admin/Doctors/steps/AvailabilityStep.tsx`
+  - Removed: "Offers Virtual Consultations" checkbox
+  - Cleaned: Form layout after removal
+
+### Patient Components
+- `ai-doctor-booking/src/components/patient/AppointmentCard.tsx`
+  - Removed: `isVirtual` property from interface
+  - Removed: FiVideo icon import
+  - Updated: Always show FiMapPin icon for location
+  - Simplified: Location display logic
+
+- `ai-doctor-booking/src/app/patient/profile/page.tsx`
+  - Removed: `isVirtual` property usage in AppointmentCard components
+
+### Service Layer
+- `ai-doctor-booking/src/services/doctorService.ts`
+  - Removed: `isVirtual` properties from all MOCK_DOCTORS entries
+
+- `ai-doctor-booking/src/services/patientService.ts`
+  - Removed: `isVirtual` properties from appointment mock data
+  - Updated: "Consulta Online" location changed to "Hospital Dermatológico, Sala 2"
+
+## Implementation Strategy
+1. **Progressive Construction**: Removed features systematically from types → components → services
+2. **Observable Implementation**: Each change was atomic and verifiable
+3. **Error Prevention**: Used search-replace for exact matches to avoid breaking related code
+4. **Consistency**: All virtual consultation references removed uniformly across the codebase
+
+## Verification
+- ✅ No remaining `isVirtual` properties in codebase
+- ✅ No remaining "virtuales" text in Spanish
+- ✅ All appointment cards now show physical location icons
+- ✅ All forms cleaned of virtual consultation options
+- ✅ Mock data updated to reflect physical-only appointments
+
+## Note
+The channel page still contains "asistente virtual" which refers to the AI chat assistant, not medical consultations, so it was left unchanged. 

@@ -14,7 +14,6 @@ const MOCK_APPOINTMENTS = [
     date: '2023-07-15',
     time: '09:30',
     status: 'confirmed',
-    isVirtual: true,
   },
   {
     id: '2',
@@ -23,7 +22,6 @@ const MOCK_APPOINTMENTS = [
     date: '2023-07-15',
     time: '11:00',
     status: 'confirmed',
-    isVirtual: false,
   },
   {
     id: '3',
@@ -32,7 +30,6 @@ const MOCK_APPOINTMENTS = [
     date: '2023-07-15',
     time: '12:30',
     status: 'pending',
-    isVirtual: true,
   }
 ];
 
@@ -182,8 +179,8 @@ const DoctorDashboardPage = () => {
                           <FiClock className="mr-1" />
                           <span>{appointment.time}</span>
                           <span className="mx-1">•</span>
-                          <span className={`${appointment.isVirtual ? 'text-primary' : 'text-dark-grey'}`}>
-                            {appointment.isVirtual ? 'Virtual' : 'Presencial'}
+                          <span className="text-dark-grey">
+                            Presencial
                           </span>
                         </div>
                       </div>

@@ -6,7 +6,7 @@ import Input from '@/components/Input';
 import Button from '@/components/Button';
 import SpecialtySelector from '@/components/doctor/SpecialtySelector';
 import ScheduleManager from '@/components/doctor/ScheduleManager';
-import { FiUser, FiMapPin, FiSave, FiClock, FiFileText, FiEdit } from 'react-icons/fi';
+import { FiUser, FiMapPin, FiSave, FiClock, FiFileText, FiEdit, FiCalendar, FiCheck } from 'react-icons/fi';
 
 // Datos de muestra para las especialidades
 const SAMPLE_SPECIALTIES = [
@@ -38,7 +38,7 @@ interface DoctorProfile {
     country: string;
   };
   consultationFee: number;
-  isVirtual: boolean;
+
   availableTimes: {
     dayOfWeek: number;
     isAvailable: boolean;
@@ -67,7 +67,7 @@ const MOCK_DOCTOR_PROFILE: DoctorProfile = {
     country: 'España'
   },
   consultationFee: 50,
-  isVirtual: true,
+  
   availableTimes: [
     {
       dayOfWeek: 0,
@@ -111,11 +111,29 @@ const MOCK_DOCTOR_PROFILE: DoctorProfile = {
   ]
 };
 
+// Blocked days type
+interface BlockedDate {
+  date: string;
+  reason: string;
+}
+
+const MOCK_BLOCKED_DATES: BlockedDate[] = [
+  { date: '2023-07-15', reason: 'Vacaciones' },
+  { date: '2023-07-16', reason: 'Vacaciones' },
+  { date: '2023-07-17', reason: 'Vacaciones' },
+  { date: '2023-08-05', reason: 'Conferencia Médica' }
+];
+
 const DoctorProfilePage = () => {
   const [profile, setProfile] = useState<DoctorProfile>(MOCK_DOCTOR_PROFILE);
   const [activeTab, setActiveTab] = useState('profile');
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  // Blocked days state
+  const [blockedDates, setBlockedDates] = useState<BlockedDate[]>(MOCK_BLOCKED_DATES);
+  const [newBlockDate, setNewBlockDate] = useState('');
+  const [newBlockReason, setNewBlockReason] = useState('');
+  const [savedSuccess, setSavedSuccess] = useState(false);
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target as HTMLInputElement;
@@ -148,13 +166,37 @@ const DoctorProfilePage = () => {
     setProfile(prev => ({ ...prev, availableTimes: schedule }));
   };
   
+  // Handlers for blocked days
+  const handleAddBlockedDate = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newBlockDate || !newBlockReason) {
+      // Fail fast, fail loud
+      alert('Por favor, completa la fecha y el motivo.');
+      return;
+    }
+    if (blockedDates.some(item => item.date === newBlockDate)) {
+      alert('Ya existe un día bloqueado para esa fecha.');
+      return;
+    }
+    setBlockedDates([
+      ...blockedDates,
+      { date: newBlockDate, reason: newBlockReason }
+    ]);
+    setNewBlockDate('');
+    setNewBlockReason('');
+  };
+  const handleRemoveBlockedDate = (dateToRemove: string) => {
+    setBlockedDates(blockedDates.filter(item => item.date !== dateToRemove));
+  };
+  
   const handleSaveChanges = () => {
     setIsSaving(true);
-    
     // Simulación de guardado
     setTimeout(() => {
       setIsSaving(false);
       setIsEditing(false);
+      setSavedSuccess(true);
+      setTimeout(() => setSavedSuccess(false), 3000);
       // Aquí iría el código para guardar en el backend
       alert('Perfil actualizado correctamente');
     }, 1000);
@@ -302,20 +344,7 @@ const DoctorProfilePage = () => {
                       disabled={!isEditing}
                     />
                     
-                    <div className="flex items-center space-x-3 h-full pt-6">
-                      <input
-                        type="checkbox"
-                        id="isVirtual"
-                        name="isVirtual"
-                        checked={profile.isVirtual}
-                        onChange={handleInputChange}
-                        disabled={!isEditing}
-                        className="h-4 w-4 text-primary border-light-grey rounded focus:ring-primary"
-                      />
-                      <label htmlFor="isVirtual">
-                        Ofrecer consultas virtuales
-                      </label>
-                    </div>
+
                   </div>
                   
                   {isEditing && (
@@ -388,60 +417,182 @@ const DoctorProfilePage = () => {
               {activeTab === 'schedule' && (
                 <div>
                   {isEditing ? (
-                    <ScheduleManager
-                      initialSchedule={profile.availableTimes}
-                      onChange={handleScheduleChange}
-                    />
-                  ) : (
-                    <div className="space-y-4">
-                      <div className="bg-light-grey p-4 rounded-lg mb-4">
-                        <h3 className="font-medium mb-2 flex items-center">
-                          <FiClock className="mr-2" /> Horario de Atención
-                        </h3>
-                        <p className="text-sm text-medium-grey">
-                          Estos son los horarios en los que ofreces consultas. Para modificarlos, haz clic en "Editar Perfil".
-                        </p>
-                      </div>
-                      
-                      <div className="space-y-3">
-                        {['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'].map((day, index) => {
-                          const daySchedule = profile.availableTimes.find(t => t.dayOfWeek === index);
-                          
-                          return (
-                            <div 
-                              key={index} 
-                              className={`p-3 rounded-lg ${daySchedule?.isAvailable ? 'bg-white border border-light-grey' : 'bg-light-grey/30'}`}
+                    <>
+                      <ScheduleManager
+                        initialSchedule={profile.availableTimes}
+                        onChange={handleScheduleChange}
+                      />
+                      {/* Editable Blocked Days UI */}
+                      <div className="bg-white rounded-xl shadow-sm overflow-hidden mt-8 mb-6">
+                        <div className="p-4 border-b border-light-grey bg-light-grey/20">
+                          <h2 className="text-lg font-semibold flex items-center">
+                            <FiCalendar className="mr-2" /> Días Bloqueados
+                          </h2>
+                          <p className="text-sm text-medium-grey">
+                            Añade días específicos en los que no estarás disponible.
+                          </p>
+                        </div>
+                        <div className="p-4">
+                          <form onSubmit={handleAddBlockedDate} className="mb-4">
+                            <div className="mb-4">
+                              <label htmlFor="block-date" className="block text-dark-grey font-medium mb-1">
+                                Fecha
+                              </label>
+                              <input
+                                type="date"
+                                id="block-date"
+                                value={newBlockDate}
+                                onChange={(e) => setNewBlockDate(e.target.value)}
+                                className="w-full px-4 py-2 rounded-lg border border-light-grey focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                                min={new Date().toISOString().split('T')[0]}
+                                required
+                              />
+                            </div>
+                            <div className="mb-4">
+                              <label htmlFor="block-reason" className="block text-dark-grey font-medium mb-1">
+                                Motivo
+                              </label>
+                              <input
+                                type="text"
+                                id="block-reason"
+                                value={newBlockReason}
+                                onChange={(e) => setNewBlockReason(e.target.value)}
+                                placeholder="Vacaciones, conferencia, etc."
+                                className="w-full px-4 py-2 rounded-lg border border-light-grey focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                                required
+                              />
+                            </div>
+                            <Button
+                              type="primary"
+                              htmlType="submit"
+                              fullWidth
                             >
-                              <div className="flex justify-between items-center">
-                                <span className={`font-medium ${daySchedule?.isAvailable ? 'text-dark-grey' : 'text-medium-grey'}`}>
-                                  {day}
-                                </span>
-                                
-                                {daySchedule?.isAvailable ? (
-                                  <span className="text-primary text-sm bg-primary/10 px-2 py-1 rounded-full">
-                                    Disponible
-                                  </span>
-                                ) : (
-                                  <span className="text-medium-grey text-sm">
-                                    No disponible
-                                  </span>
+                              Añadir Día Bloqueado
+                            </Button>
+                          </form>
+                          <div className="border-t border-light-grey pt-4">
+                            <h3 className="font-medium mb-2">Días Bloqueados Programados</h3>
+                            {blockedDates.length > 0 ? (
+                              <ul className="space-y-2 max-h-80 overflow-y-auto">
+                                {blockedDates.map((blockedDate, index) => {
+                                  const date = new Date(blockedDate.date);
+                                  const formattedDate = date.toLocaleDateString('es-ES', {
+                                    weekday: 'long',
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric'
+                                  });
+                                  return (
+                                    <li
+                                      key={index}
+                                      className="bg-light-grey/30 rounded-lg p-3 flex justify-between items-center"
+                                    >
+                                      <div>
+                                        <p className="font-medium capitalize">{formattedDate}</p>
+                                        <p className="text-sm text-medium-grey">{blockedDate.reason}</p>
+                                      </div>
+                                      <button
+                                        onClick={() => handleRemoveBlockedDate(blockedDate.date)}
+                                        className="text-red-500 hover:text-red-700"
+                                        title="Eliminar"
+                                        type="button"
+                                      >
+                                        ✕
+                                      </button>
+                                    </li>
+                                  );
+                                })}
+                              </ul>
+                            ) : (
+                              <p className="text-medium-grey text-center p-4">
+                                No tienes días bloqueados configurados.
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="space-y-4">
+                        <div className="bg-light-grey p-4 rounded-lg mb-4">
+                          <h3 className="font-medium mb-2 flex items-center">
+                            <FiClock className="mr-2" /> Horario de Atención
+                          </h3>
+                          <p className="text-sm text-medium-grey">
+                            Estos son los horarios en los que ofreces consultas. Para modificarlos, haz clic en "Editar Perfil".
+                          </p>
+                        </div>
+                        <div className="space-y-3">
+                          {['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'].map((day, index) => {
+                            const daySchedule = profile.availableTimes.find(t => t.dayOfWeek === index);
+                            return (
+                              <div
+                                key={index}
+                                className={`p-3 rounded-lg ${daySchedule?.isAvailable ? 'bg-white border border-light-grey' : 'bg-light-grey/30'}`}
+                              >
+                                <div className="flex justify-between items-center">
+                                  <span className={`font-medium ${daySchedule?.isAvailable ? 'text-dark-grey' : 'text-medium-grey'}`}>{day}</span>
+                                  {daySchedule?.isAvailable ? (
+                                    <span className="text-primary text-sm bg-primary/10 px-2 py-1 rounded-full">Disponible</span>
+                                  ) : (
+                                    <span className="text-medium-grey text-sm">No disponible</span>
+                                  )}
+                                </div>
+                                {daySchedule?.isAvailable && daySchedule.slots.length > 0 && (
+                                  <div className="mt-2 flex flex-wrap gap-2">
+                                    {daySchedule.slots.map((slot, slotIndex) => (
+                                      <div key={slotIndex} className="text-sm bg-light-grey px-3 py-1 rounded-full">
+                                        {slot.start} - {slot.end}
+                                      </div>
+                                    ))}
+                                  </div>
                                 )}
                               </div>
-                              
-                              {daySchedule?.isAvailable && daySchedule.slots.length > 0 && (
-                                <div className="mt-2 flex flex-wrap gap-2">
-                                  {daySchedule.slots.map((slot, slotIndex) => (
-                                    <div key={slotIndex} className="text-sm bg-light-grey px-3 py-1 rounded-full">
-                                      {slot.start} - {slot.end}
-                                    </div>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
-                          );
-                        })}
+                            );
+                          })}
+                        </div>
                       </div>
-                    </div>
+                      {/* Read-only Blocked Days List */}
+                      <div className="bg-white rounded-xl shadow-sm overflow-hidden mt-8 mb-6">
+                        <div className="p-4 border-b border-light-grey bg-light-grey/20">
+                          <h2 className="text-lg font-semibold flex items-center">
+                            <FiCalendar className="mr-2" /> Días Bloqueados
+                          </h2>
+                        </div>
+                        <div className="p-4">
+                          <h3 className="font-medium mb-2">Días Bloqueados Programados</h3>
+                          {blockedDates.length > 0 ? (
+                            <ul className="space-y-2 max-h-80 overflow-y-auto">
+                              {blockedDates.map((blockedDate, index) => {
+                                const date = new Date(blockedDate.date);
+                                const formattedDate = date.toLocaleDateString('es-ES', {
+                                  weekday: 'long',
+                                  year: 'numeric',
+                                  month: 'long',
+                                  day: 'numeric'
+                                });
+                                return (
+                                  <li
+                                    key={index}
+                                    className="bg-light-grey/30 rounded-lg p-3 flex justify-between items-center"
+                                  >
+                                    <div>
+                                      <p className="font-medium capitalize">{formattedDate}</p>
+                                      <p className="text-sm text-medium-grey">{blockedDate.reason}</p>
+                                    </div>
+                                  </li>
+                                );
+                              })}
+                            </ul>
+                          ) : (
+                            <p className="text-medium-grey text-center p-4">
+                              No tienes días bloqueados configurados.
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </>
                   )}
                 </div>
               )}

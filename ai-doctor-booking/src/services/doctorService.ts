@@ -43,7 +43,6 @@ const MOCK_DOCTORS: Doctor[] = [
         ]
       }
     ],
-    isVirtual: true,
     location: 'San Francisco Medical Center',
     consultationFee: 150,
     createdAt: new Date('2022-05-15').toISOString(),
@@ -94,7 +93,6 @@ const MOCK_DOCTORS: Doctor[] = [
         ]
       }
     ],
-    isVirtual: false,
     location: 'Boston Medical Center',
     consultationFee: 200,
     createdAt: new Date('2021-11-20').toISOString(),
@@ -139,7 +137,6 @@ const MOCK_DOCTORS: Doctor[] = [
         ]
       }
     ],
-    isVirtual: true,
     location: 'Los Angeles Medical Plaza',
     consultationFee: 130,
     createdAt: new Date('2022-01-10').toISOString(),
@@ -184,7 +181,6 @@ const MOCK_DOCTORS: Doctor[] = [
         ]
       }
     ],
-    isVirtual: false,
     location: 'Chicago Medical Center',
     consultationFee: 160,
     createdAt: new Date('2022-03-25').toISOString(),
@@ -229,7 +225,6 @@ const MOCK_DOCTORS: Doctor[] = [
         ]
       }
     ],
-    isVirtual: true,
     location: 'Philadelphia Children\'s Hospital',
     consultationFee: 120,
     createdAt: new Date('2022-08-15').toISOString(),

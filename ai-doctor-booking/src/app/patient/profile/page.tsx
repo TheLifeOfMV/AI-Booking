@@ -659,7 +659,6 @@ export default function PatientProfilePage() {
                       time={appointment.time}
                       status={appointment.status}
                       location={appointment.location}
-                      isVirtual={appointment.isVirtual}
                     />
                   ))}
               </div>
@@ -690,7 +689,6 @@ export default function PatientProfilePage() {
                       time={appointment.time}
                       status="completed"
                       location={appointment.location}
-                      isVirtual={appointment.isVirtual}
                     />
                   ))}
               </div>

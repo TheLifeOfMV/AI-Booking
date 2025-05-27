@@ -1,5 +1,5 @@
 import React from 'react';
-import { FiClock, FiMapPin, FiVideo, FiCalendar } from 'react-icons/fi';
+import { FiClock, FiMapPin, FiCalendar } from 'react-icons/fi';
 
 interface AppointmentCardProps {
   id: string;
@@ -9,7 +9,7 @@ interface AppointmentCardProps {
   time: string;
   status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
   location: string;
-  isVirtual: boolean;
+
 }
 
 /**
@@ -22,8 +22,7 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({
   date,
   time,
   status,
-  location,
-  isVirtual
+  location
 }) => {
   // Formatear la fecha a un formato más legible
   const formatDate = (dateString: string) => {
@@ -81,11 +80,7 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({
             <span>{time}</span>
           </div>
           <div className="flex items-center text-sm text-medium-grey">
-            {isVirtual ? (
-              <FiVideo className="mr-2" />
-            ) : (
-              <FiMapPin className="mr-2" />
-            )}
+            <FiMapPin className="mr-2" />
             <span>{location}</span>
           </div>
         </div>

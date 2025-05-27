@@ -27,7 +27,7 @@ export interface Doctor extends Omit<User, 'role'> {
       end: string;
     }[];
   }[];
-  isVirtual: boolean;
+
   location?: string;
   consultationFee: number;
 }
