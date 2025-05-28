@@ -4,9 +4,11 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import Input from '@/components/Input';
 import Button from '@/components/Button';
+import ScheduleEditor from '@/components/doctor/ScheduleEditor';
 import SpecialtySelector from '@/components/doctor/SpecialtySelector';
-import ScheduleManager from '@/components/doctor/ScheduleManager';
-import { FiUser, FiMapPin, FiSave, FiClock, FiFileText, FiEdit, FiCalendar, FiCheck } from 'react-icons/fi';
+import PlanChangeModal from '@/components/doctor/PlanChangeModal';
+import { FiUser, FiMapPin, FiSave, FiClock, FiFileText, FiCreditCard, FiAlertTriangle, FiCheck, FiSettings, FiEdit } from 'react-icons/fi';
+import { formatCurrency, SUBSCRIPTION_PLANS } from '@/constants/subscriptionPlans';
 
 // Datos de muestra para las especialidades
 const SAMPLE_SPECIALTIES = [
@@ -158,27 +160,26 @@ const DoctorProfilePage = () => {
   const [newBlockDate, setNewBlockDate] = useState('');
   const [newBlockReason, setNewBlockReason] = useState('');
   const [savedSuccess, setSavedSuccess] = useState(false);
+  const [showPlanChangeModal, setShowPlanChangeModal] = useState(false);
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value, type } = e.target as HTMLInputElement;
+    const { name, value } = e.target;
     
     if (name.includes('.')) {
-      // Manejar campos anidados (ej: location.address)
+      // Para campos anidados como location.address
       const [parent, child] = name.split('.');
-      if (parent === 'location') {
-        setProfile(prev => ({
-          ...prev,
-          location: {
-            ...prev.location,
-            [child]: value
-          }
-        }));
-      }
-    } else if (type === 'checkbox') {
-      const { checked } = e.target as HTMLInputElement;
-      setProfile(prev => ({ ...prev, [name]: checked }));
+      setProfile(prev => ({
+        ...prev,
+        [parent]: {
+          ...prev[parent as keyof DoctorProfile] as any,
+          [child]: value
+        }
+      }));
     } else {
-      setProfile(prev => ({ ...prev, [name]: value }));
+      setProfile(prev => ({
+        ...prev,
+        [name]: value
+      }));
     }
   };
   
@@ -213,6 +214,14 @@ const DoctorProfilePage = () => {
     setBlockedDates(blockedDates.filter(item => item.date !== dateToRemove));
   };
   
+  const handlePlanChanged = (newSubscription: any) => {
+    setProfile(prev => ({
+      ...prev,
+      subscription: newSubscription
+    }));
+    setShowPlanChangeModal(false);
+  };
+  
   const handleSaveChanges = () => {
     setIsSaving(true);
     // Simulación de guardado
@@ -225,6 +234,42 @@ const DoctorProfilePage = () => {
       alert('Perfil actualizado correctamente');
     }, 1000);
   };
+  
+  const getPaymentStatusBadge = (status: string) => {
+    const statusConfig = {
+      paid: { color: 'bg-green-100 text-green-800', label: 'Pagado' },
+      pending: { color: 'bg-yellow-100 text-yellow-800', label: 'Pendiente' },
+      failed: { color: 'bg-red-100 text-red-800', label: 'Fallido' },
+      refunded: { color: 'bg-blue-100 text-blue-800', label: 'Reembolsado' }
+    };
+    
+    const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.pending;
+    
+    return (
+      <span className={`px-2 py-1 rounded-full text-xs font-medium ${config.color}`}>
+        {config.label}
+      </span>
+    );
+  };
+
+  const getSubscriptionStatusBadge = (status: string) => {
+    const statusConfig = {
+      active: { color: 'bg-green-100 text-green-800', label: 'Activa' },
+      pending: { color: 'bg-yellow-100 text-yellow-800', label: 'Pendiente' },
+      expired: { color: 'bg-red-100 text-red-800', label: 'Expirada' },
+      cancelled: { color: 'bg-gray-100 text-gray-800', label: 'Cancelada' }
+    };
+    
+    const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.pending;
+    
+    return (
+      <span className={`px-2 py-1 rounded-full text-xs font-medium ${config.color}`}>
+        {config.label}
+      </span>
+    );
+  };
+
+  const currentPlanData = SUBSCRIPTION_PLANS[profile.subscription.planType];
   
   return (
     <div style={{ backgroundColor: '#F0F4F9', minHeight: '100vh' }}>
@@ -439,15 +484,15 @@ const DoctorProfilePage = () => {
                 <div>
                   {isEditing ? (
                     <>
-                      <ScheduleManager
-                        initialSchedule={profile.availableTimes}
+                      <ScheduleEditor
+                        schedule={profile.availableTimes}
                         onChange={handleScheduleChange}
                       />
                       {/* Editable Blocked Days UI */}
                       <div className="bg-white rounded-xl shadow-sm overflow-hidden mt-8 mb-6">
                         <div className="p-4 border-b border-light-grey bg-light-grey/20">
                           <h2 className="text-lg font-semibold flex items-center">
-                            <FiCalendar className="mr-2" /> Días Bloqueados
+                            <FiClock className="mr-2" /> Días Bloqueados
                           </h2>
                           <p className="text-sm text-medium-grey">
                             Añade días específicos en los que no estarás disponible.
@@ -578,7 +623,7 @@ const DoctorProfilePage = () => {
                       <div className="bg-white rounded-xl shadow-sm overflow-hidden mt-8 mb-6">
                         <div className="p-4 border-b border-light-grey bg-light-grey/20">
                           <h2 className="text-lg font-semibold flex items-center">
-                            <FiCalendar className="mr-2" /> Días Bloqueados
+                            <FiClock className="mr-2" /> Días Bloqueados
                           </h2>
                         </div>
                         <div className="p-4">
@@ -620,149 +665,168 @@ const DoctorProfilePage = () => {
               
               {/* Tab de suscripción */}
               {activeTab === 'subscription' && (
-                <div>
-                  <div className="bg-light-grey p-4 rounded-lg mb-6">
-                    <h3 className="font-medium mb-2 flex items-center">
-                      <FiUser className="mr-2" /> Información de Suscripción
-                    </h3>
-                    <p className="text-sm text-medium-grey">
-                      Gestiona tu suscripción a la plataforma y revisa el estado de tus pagos.
-                    </p>
-                  </div>
-                  
-                  {/* Plan Information */}
-                  <div className="bg-white rounded-xl p-4 shadow-sm mb-6">
-                    <h3 className="font-semibold text-lg mb-3">Plan Actual</h3>
+                <div className="space-y-6">
+                  {/* Plan Actual */}
+                  <div className="bg-white border border-light-grey rounded-lg p-6">
                     <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg font-semibold text-dark-grey">Plan Actual</h3>
+                      <button
+                        onClick={() => setShowPlanChangeModal(true)}
+                        className="flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors"
+                      >
+                        <FiSettings className="w-4 h-4 mr-2" />
+                        Cambiar Plan
+                      </button>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
-                        <h4 className="font-medium text-primary capitalize">{profile.subscription.planType}</h4>
-                        <p className="text-medium-grey text-sm">Plan mensual</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-semibold text-lg">${profile.subscription.monthlyFee.toLocaleString('es-CO')} COP</p>
-                        <p className="text-medium-grey text-sm">por mes</p>
-                      </div>
-                    </div>
-                    
-                    <div className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
-                      profile.subscription.status === 'active' 
-                        ? 'bg-green-100 text-green-800' 
-                        : profile.subscription.status === 'pending' 
-                          ? 'bg-yellow-100 text-yellow-800' 
-                          : profile.subscription.status === 'expired' 
-                            ? 'bg-red-100 text-red-800' 
-                            : 'bg-gray-100 text-gray-800'
-                    }`}>
-                      {profile.subscription.status === 'active' ? 'Activa' : 
-                       profile.subscription.status === 'pending' ? 'Pendiente' : 
-                       profile.subscription.status === 'expired' ? 'Expirada' : 
-                       'Cancelada'}
-                    </div>
-                  </div>
-                  
-                  {/* Payment Information */}
-                  <div className="bg-white rounded-xl p-4 shadow-sm mb-6">
-                    <h3 className="font-semibold text-lg mb-3">Estado de Pagos</h3>
-                    
-                    <div className="space-y-3">
-                      <div className="flex justify-between py-2 border-b border-light-grey">
-                        <span className="text-medium-grey">Estado del Pago</span>
-                        <span className={`font-medium px-2 py-1 rounded-full text-xs ${
-                          profile.subscription.paymentStatus === 'paid' 
-                            ? 'bg-green-100 text-green-800' 
-                            : profile.subscription.paymentStatus === 'pending' 
-                              ? 'bg-yellow-100 text-yellow-800' 
-                              : profile.subscription.paymentStatus === 'failed' 
-                                ? 'bg-red-100 text-red-800' 
-                                : 'bg-gray-100 text-gray-800'
-                        }`}>
-                          {profile.subscription.paymentStatus === 'paid' ? 'Pagado' : 
-                           profile.subscription.paymentStatus === 'pending' ? 'Pendiente' : 
-                           profile.subscription.paymentStatus === 'failed' ? 'Falló' : 
-                           'Reembolsado'}
-                        </span>
-                      </div>
-                      
-                      <div className="flex justify-between py-2 border-b border-light-grey">
-                        <span className="text-medium-grey">Fecha de Inicio</span>
-                        <span className="font-medium">{new Date(profile.subscription.startDate).toLocaleDateString('es-ES')}</span>
-                      </div>
-                      
-                      <div className="flex justify-between py-2 border-b border-light-grey">
-                        <span className="text-medium-grey">Fecha de Vencimiento</span>
-                        <span className="font-medium">{new Date(profile.subscription.endDate).toLocaleDateString('es-ES')}</span>
-                      </div>
-                      
-                      {profile.subscription.lastPaymentDate && (
-                        <div className="flex justify-between py-2 border-b border-light-grey">
-                          <span className="text-medium-grey">Último Pago</span>
-                          <span className="font-medium">{new Date(profile.subscription.lastPaymentDate).toLocaleDateString('es-ES')}</span>
+                        <div className="flex items-center mb-2">
+                          <div 
+                            className="w-4 h-4 rounded-full mr-3"
+                            style={{ backgroundColor: currentPlanData?.color }}
+                          />
+                          <h4 className="text-xl font-bold text-dark-grey">
+                            Plan {currentPlanData?.name}
+                          </h4>
                         </div>
-                      )}
+                        <p className="text-medium-grey mb-3">{currentPlanData?.description}</p>
+                        <div className="text-2xl font-bold text-dark-grey">
+                          {formatCurrency(profile.subscription.monthlyFee)}
+                          <span className="text-sm font-normal text-medium-grey">/mes</span>
+                        </div>
+                      </div>
                       
-                      <div className="flex justify-between py-2">
-                        <span className="text-medium-grey">Próximo Pago</span>
-                        <span className="font-medium">{new Date(profile.subscription.nextPaymentDate).toLocaleDateString('es-ES')}</span>
+                      <div className="space-y-3">
+                        <div className="flex justify-between">
+                          <span className="text-medium-grey">Estado:</span>
+                          {getSubscriptionStatusBadge(profile.subscription.status)}
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-medium-grey">Pago:</span>
+                          {getPaymentStatusBadge(profile.subscription.paymentStatus)}
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-medium-grey">Próximo pago:</span>
+                          <span className="font-medium">
+                            {new Date(profile.subscription.nextPaymentDate).toLocaleDateString('es-ES')}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>
-                  
-                  {/* Payment Actions */}
-                  <div className="bg-white rounded-xl p-4 shadow-sm">
-                    <h3 className="font-semibold text-lg mb-3">Acciones</h3>
-                    
-                    <div className="space-y-3">
-                      {profile.subscription.paymentStatus === 'pending' && (
-                        <button className="w-full bg-primary text-white py-3 rounded-lg font-medium">
-                          Realizar Pago Pendiente
-                        </button>
-                      )}
-                      
-                      {profile.subscription.paymentStatus === 'failed' && (
-                        <button className="w-full bg-red-500 text-white py-3 rounded-lg font-medium">
-                          Reintentar Pago
-                        </button>
-                      )}
-                      
-                      <button className="w-full border border-primary text-primary py-3 rounded-lg font-medium">
-                        Actualizar Método de Pago
-                      </button>
-                      
-                      <button className="w-full border border-medium-grey text-medium-grey py-3 rounded-lg font-medium">
-                        Descargar Factura
-                      </button>
-                      
-                      {profile.subscription.status === 'active' && (
-                        <button className="w-full border border-red-500 text-red-500 py-3 rounded-lg font-medium">
-                          Cancelar Suscripción
-                        </button>
-                      )}
+
+                  {/* Características del Plan */}
+                  <div className="bg-white border border-light-grey rounded-lg p-6">
+                    <h3 className="text-lg font-semibold text-dark-grey mb-4">Características Incluidas</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {currentPlanData?.features.map((feature, index) => (
+                        <div key={index} className="flex items-start">
+                          <FiCheck className="w-4 h-4 text-green-500 mt-0.5 mr-3 flex-shrink-0" />
+                          <span className="text-sm text-dark-grey">{feature}</span>
+                        </div>
+                      ))}
                     </div>
                   </div>
-                  
-                  {/* Failed Payment Warning */}
-                  {profile.subscription.failedPaymentAttempts > 0 && (
-                    <div className="bg-red-50 border border-red-200 rounded-lg p-4 mt-6">
-                      <div className="flex items-center">
-                        <svg className="h-5 w-5 text-red-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 15.5c-.77.833.192 2.5 1.732 2.5z"></path>
-                        </svg>
+
+                  {/* Alertas de Pago */}
+                  {profile.subscription.paymentStatus === 'failed' && (
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                      <div className="flex items-start">
+                        <FiAlertTriangle className="w-5 h-5 text-red-600 mt-0.5 mr-3" />
                         <div>
-                          <h4 className="font-medium text-red-800">Advertencia de Pago</h4>
-                          <p className="text-red-700 text-sm">
-                            Ha habido {profile.subscription.failedPaymentAttempts} intento(s) de pago fallido(s). 
-                            Por favor actualiza tu método de pago para evitar la suspensión del servicio.
+                          <h4 className="font-medium text-red-900">Pago Fallido</h4>
+                          <p className="text-red-700 text-sm mt-1">
+                            Tu último pago no pudo ser procesado. Por favor, actualiza tu método de pago 
+                            para evitar la suspensión de tu cuenta.
                           </p>
+                          <div className="mt-3 space-x-3">
+                            <button className="text-sm bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700">
+                              Reintentar Pago
+                            </button>
+                            <button className="text-sm text-red-600 hover:text-red-800">
+                              Actualizar Método de Pago
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>
                   )}
+
+                  {/* Historial de Pagos */}
+                  <div className="bg-white border border-light-grey rounded-lg p-6">
+                    <h3 className="text-lg font-semibold text-dark-grey mb-4">Historial de Pagos</h3>
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center py-2 border-b border-light-grey">
+                        <div>
+                          <span className="font-medium">Enero 2024</span>
+                          <span className="text-medium-grey ml-2">Plan Premium</span>
+                        </div>
+                        <div className="flex items-center">
+                          <span className="font-medium mr-3">{formatCurrency(150000)}</span>
+                          {getPaymentStatusBadge('paid')}
+                        </div>
+                      </div>
+                      <div className="flex justify-between items-center py-2 border-b border-light-grey">
+                        <div>
+                          <span className="font-medium">Diciembre 2023</span>
+                          <span className="text-medium-grey ml-2">Plan Premium</span>
+                        </div>
+                        <div className="flex items-center">
+                          <span className="font-medium mr-3">{formatCurrency(150000)}</span>
+                          {getPaymentStatusBadge('paid')}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-4 pt-4 border-t border-light-grey">
+                      <button className="text-primary hover:text-blue-600 text-sm font-medium">
+                        Ver historial completo
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Acciones de Suscripción */}
+                  <div className="bg-white border border-light-grey rounded-lg p-6">
+                    <h3 className="text-lg font-semibold text-dark-grey mb-4">Gestión de Suscripción</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <button className="flex items-center justify-center px-4 py-3 border border-light-grey rounded-lg hover:bg-light-grey/50 transition-colors">
+                        <FiCreditCard className="w-4 h-4 mr-2" />
+                        Actualizar Método de Pago
+                      </button>
+                      <button className="flex items-center justify-center px-4 py-3 border border-light-grey rounded-lg hover:bg-light-grey/50 transition-colors">
+                        <FiFileText className="w-4 h-4 mr-2" />
+                        Descargar Facturas
+                      </button>
+                    </div>
+                    
+                    <div className="mt-4 pt-4 border-t border-light-grey">
+                      <button className="text-red-600 hover:text-red-800 text-sm font-medium">
+                        Cancelar Suscripción
+                      </button>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
           </div>
         </div>
       </div>
+
+      {/* Plan Change Modal */}
+      <PlanChangeModal
+        isOpen={showPlanChangeModal}
+        onClose={() => setShowPlanChangeModal(false)}
+        currentPlan={profile.subscription.planType}
+        doctorId={profile.id}
+        onPlanChanged={handlePlanChanged}
+      />
+
+      {savedSuccess && (
+        <div className="fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg">
+          ¡Perfil actualizado correctamente!
+        </div>
+      )}
     </div>
   );
 };
