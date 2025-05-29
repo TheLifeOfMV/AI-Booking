@@ -130,6 +130,10 @@ const UnifiedBookingView = () => {
     notificationCount: 3
   });
   
+  // Swipe navigation state
+  const [touchStart, setTouchStart] = useState<{ x: number; y: number; time: number } | null>(null);
+  const [isSwipeActive, setIsSwipeActive] = useState(false);
+  
   // Paso 1 y 8: Actualizar el estado para manejar la ubicación y búsqueda
   const [location, setLocation] = useState('Ibagué');
   const [searchQuery, setSearchQuery] = useState('');
@@ -166,6 +170,76 @@ const UnifiedBookingView = () => {
       window.history.replaceState({}, '', newUrl);
     }
   }, [selectedDoctor]);
+
+  // Swipe navigation for going back to previous page
+  useEffect(() => {
+    const handleTouchStart = (e: TouchEvent) => {
+      const touch = e.touches[0];
+      // Only start tracking if touch starts from the left edge (within 50px)
+      if (touch.clientX <= 50) {
+        setTouchStart({
+          x: touch.clientX,
+          y: touch.clientY,
+          time: Date.now()
+        });
+        setIsSwipeActive(true);
+      }
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!touchStart || !isSwipeActive) return;
+      
+      const touch = e.touches[0];
+      const deltaX = touch.clientX - touchStart.x;
+      const deltaY = touch.clientY - touchStart.y;
+      
+      // If user moves too much vertically, cancel the swipe
+      if (Math.abs(deltaY) > 100) {
+        setIsSwipeActive(false);
+        setTouchStart(null);
+      }
+    };
+
+    const handleTouchEnd = (e: TouchEvent) => {
+      if (!touchStart || !isSwipeActive) return;
+      
+      const touch = e.changedTouches[0];
+      const deltaX = touch.clientX - touchStart.x;
+      const deltaY = touch.clientY - touchStart.y;
+      const deltaTime = Date.now() - touchStart.time;
+      
+      // Check if it's a valid swipe gesture:
+      // - Started from left edge
+      // - Moved right at least 100px
+      // - Vertical movement less than 100px
+      // - Completed within 500ms
+      if (
+        deltaX > 100 && 
+        Math.abs(deltaY) < 100 && 
+        deltaTime < 500 &&
+        touchStart.x <= 50
+      ) {
+        // Navigate back to previous page
+        router.back();
+      }
+      
+      // Reset swipe state
+      setIsSwipeActive(false);
+      setTouchStart(null);
+    };
+
+    // Add event listeners
+    document.addEventListener('touchstart', handleTouchStart, { passive: true });
+    document.addEventListener('touchmove', handleTouchMove, { passive: true });
+    document.addEventListener('touchend', handleTouchEnd, { passive: true });
+
+    // Cleanup
+    return () => {
+      document.removeEventListener('touchstart', handleTouchStart);
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [router, touchStart, isSwipeActive]);
   
   // Paso 1: Modificar el estado inicial de las especialidades
   const [specialties, setSpecialties] = useState<Specialty[]>([
