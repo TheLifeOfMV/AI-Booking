@@ -41,6 +41,45 @@ const hideScrollbarCSS = `
     outline: none !important;
     box-shadow: none !important;
   }
+  
+  /* Solución definitiva para eliminar espacio en blanco durante scroll */
+  html {
+    background-color: #F0F4F9 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    height: 100% !important;
+  }
+  
+  body {
+    background-color: #F0F4F9 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    min-height: 100vh !important;
+    height: 100% !important;
+    overflow-x: hidden;
+  }
+  
+  #__next {
+    background-color: #F0F4F9 !important;
+    min-height: 100vh !important;
+  }
+  
+  /* Asegurar que el contenedor principal mantenga el fondo durante scroll */
+  .min-h-screen {
+    background-color: #F0F4F9 !important;
+    position: relative;
+  }
+  
+  /* Prevenir cualquier espacio en blanco en ios safari */
+  @supports (-webkit-touch-callout: none) {
+    html, body {
+      height: -webkit-fill-available !important;
+    }
+    
+    .min-h-screen {
+      min-height: -webkit-fill-available !important;
+    }
+  }
 `;
 
 // Función auxiliar para convertir un color hex a rgba con transparencia
@@ -720,22 +759,37 @@ const UnifiedBookingView = () => {
             <p className="text-xl font-semibold text-gray-800">¿Cómo te sientes hoy?</p>
           </div>
           <div className="relative">
-            <button className="w-10 h-10 flex items-center justify-center bg-transparent p-0">
+            <button className="w-11 h-11 flex items-center justify-center bg-white hover:bg-gray-50 rounded-full shadow-sm hover:shadow-md transition-all duration-200 border border-gray-100 hover:border-gray-200">
               <svg 
-                width="24" 
-                height="24" 
+                width="20" 
+                height="20" 
                 viewBox="0 0 24 24" 
                 fill="none" 
                 xmlns="http://www.w3.org/2000/svg"
+                className="text-gray-600 hover:text-primary transition-colors duration-200"
               >
+                {/* Bell body */}
                 <path 
-                  d="M12 22C13.1 22 14 21.1 14 20H10C10 21.1 10.9 22 12 22ZM18 16V11C18 7.93 16.36 5.36 13.5 4.68V4C13.5 3.17 12.83 2.5 12 2.5C11.17 2.5 10.5 3.17 10.5 4V4.68C7.63 5.36 6 7.92 6 11V16L4 18V19H20V18L18 16Z"
-                  stroke="#000" strokeWidth="2" fill="none"
+                  d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" 
+                  stroke="currentColor" 
+                  strokeWidth="1.8" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round"
+                  fill="none"
+                />
+                {/* Bell clapper */}
+                <path 
+                  d="M13.73 21a2 2 0 0 1-3.46 0" 
+                  stroke="currentColor" 
+                  strokeWidth="1.8" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round"
+                  fill="none"
                 />
               </svg>
             </button>
             {user.notificationCount > 0 && (
-              <div className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-[#007AFF] text-white rounded-full text-xs flex items-center justify-center font-medium" style={{fontSize: '0.75rem'}}>
+              <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-[#007AFF] to-[#0056CC] text-white rounded-full text-xs flex items-center justify-center font-semibold shadow-lg border-2 border-white" style={{fontSize: '0.7rem'}}>
                 {user.notificationCount}
               </div>
             )}
@@ -744,57 +798,89 @@ const UnifiedBookingView = () => {
       </header>
 
       {/* Main Content */}
-      <div className="px-4 py-4 pb-16" style={{ backgroundColor: '#F0F4F9' }}>
+      <div className="px-4 py-4 pb-4" style={{ backgroundColor: '#F0F4F9' }}>
         {/* Paso 2 y 6: Crear el componente de barra de búsqueda y ajustar el estilo del contenedor */}
         <div className="search-bar-container mb-4 mt-1">
           <div className="flex items-center bg-white rounded-full p-1 shadow-sm">
-            <div className="location-selector flex items-center pl-3 pr-2 relative">
-              <svg 
-                width="20" 
-                height="20" 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path 
-                  d="M12 12.75C13.6569 12.75 15 11.4069 15 9.75C15 8.09315 13.6569 6.75 12 6.75C10.3431 6.75 9 8.09315 9 9.75C9 11.4069 10.3431 12.75 12 12.75Z" 
-                  stroke="#4B5563" 
-                  strokeWidth="1.5" 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round"
-                />
-                <path 
-                  d="M19.5 9.75C19.5 16.5 12 21.75 12 21.75C12 21.75 4.5 16.5 4.5 9.75C4.5 7.76088 5.29018 5.85322 6.6967 4.4467C8.10322 3.04018 10.0109 2.25 12 2.25C13.9891 2.25 15.8968 3.04018 17.3033 4.4467C18.7098 5.85322 19.5 7.76088 19.5 9.75Z" 
-                  stroke="#4B5563" 
-                  strokeWidth="1.5" 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round"
-                />
-              </svg>
+            <div className="location-selector flex items-center relative">
+              {/* Modern Pill-Shaped Location Button */}
               <button 
-                className="text-dark-grey text-sm font-medium ml-2 flex items-center"
+                className="flex items-center bg-white hover:bg-gray-50 text-dark-grey text-sm font-medium px-3 py-1.5 rounded-full border border-gray-200 hover:border-gray-300 transition-all duration-200 ease-in-out transform hover:scale-105 shadow-sm hover:shadow-md"
                 onClick={() => setShowLocationDropdown(!showLocationDropdown)}
               >
-                {location} <span className="ml-1">▼</span>
+                <svg 
+                  width="16" 
+                  height="16" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="mr-1.5 text-primary"
+                >
+                  <path 
+                    d="M12 12.75C13.6569 12.75 15 11.4069 15 9.75C15 8.09315 13.6569 6.75 12 6.75C10.3431 6.75 9 8.09315 9 9.75C9 11.4069 10.3431 12.75 12 12.75Z" 
+                    stroke="currentColor" 
+                    strokeWidth="1.5" 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round"
+                  />
+                  <path 
+                    d="M19.5 9.75C19.5 16.5 12 21.75 12 21.75C12 21.75 4.5 16.5 4.5 9.75C4.5 7.76088 5.29018 5.85322 6.6967 4.4467C8.10322 3.04018 10.0109 2.25 12 2.25C13.9891 2.25 15.8968 3.04018 17.3033 4.4467C18.7098 5.85322 19.5 7.76088 19.5 9.75Z" 
+                    stroke="currentColor" 
+                    strokeWidth="1.5" 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                <span className="mr-1.5">{location}</span>
+                <svg 
+                  width="12" 
+                  height="12" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="2" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round"
+                  className={`transition-transform duration-200 ${showLocationDropdown ? 'rotate-180' : ''}`}
+                >
+                  <path d="M6 9l6 6 6-6"/>
+                </svg>
               </button>
               
               {/* Paso 4: Agregar el dropdown de ubicaciones */}
               {showLocationDropdown && (
-                <div className="location-dropdown absolute top-full left-0 mt-2 bg-white rounded-lg shadow-md z-10 w-48">
+                <div className="location-dropdown absolute top-full left-0 mt-2 bg-white rounded-xl shadow-lg border border-gray-100 z-10 w-48 overflow-hidden backdrop-blur-sm">
                   {availableLocations.map((loc, index) => (
                     <button 
                       key={index}
                       onClick={() => handleLocationSelect(loc)}
-                      className="block w-full text-left px-4 py-2 text-sm text-dark-grey hover:bg-light-grey"
+                      className="block w-full text-left px-4 py-3 text-sm text-dark-grey hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 hover:text-primary transition-all duration-150 border-b border-gray-50 last:border-b-0"
                     >
-                      {loc}
+                      <div className="flex items-center">
+                        <svg 
+                          width="16" 
+                          height="16" 
+                          viewBox="0 0 24 24" 
+                          fill="none" 
+                          stroke="currentColor" 
+                          strokeWidth="1.5" 
+                          className="mr-3 text-gray-400"
+                        >
+                          <path d="M12 12.75C13.6569 12.75 15 11.4069 15 9.75C15 8.09315 13.6569 6.75 12 6.75C10.3431 6.75 9 8.09315 9 9.75C9 11.4069 10.3431 12.75 12 12.75Z"/>
+                          <path d="M19.5 9.75C19.5 16.5 12 21.75 12 21.75C12 21.75 4.5 16.5 4.5 9.75C4.5 7.76088 5.29018 5.85322 6.6967 4.4467C8.10322 3.04018 10.0109 2.25 12 2.25C13.9891 2.25 15.8968 3.04018 17.3033 4.4467C18.7098 5.85322 19.5 7.76088 19.5 9.75Z"/>
+                        </svg>
+                        {loc}
+                      </div>
                     </button>
                   ))}
                 </div>
               )}
             </div>
             
-            <div className="h-6 w-px bg-medium-grey opacity-20 mx-1"></div>
+            {/* Modern Separator - Subtle Dot Instead of Line */}
+            <div className="flex items-center justify-center px-3">
+              <div className="w-1.5 h-1.5 bg-gray-300 rounded-full opacity-40"></div>
+            </div>
             
             <div className="search-input flex items-center flex-1 pl-2 pr-3">
               <input 
@@ -803,28 +889,29 @@ const UnifiedBookingView = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyPress={handleKeyPress}
-                className="bg-transparent w-full text-dark-grey text-sm focus:outline-none"
+                className="bg-transparent w-full text-dark-grey text-sm focus:outline-none placeholder-gray-400"
               />
-              <button className="ml-2" onClick={handleSearch}>
+              <button className="ml-2 p-1 hover:bg-gray-100 rounded-full transition-colors duration-150" onClick={handleSearch}>
                 <svg 
                   width="20" 
                   height="20" 
                   viewBox="0 0 24 24" 
                   fill="none" 
                   xmlns="http://www.w3.org/2000/svg"
+                  className="text-gray-500 hover:text-primary transition-colors"
                 >
                   <circle 
                     cx="11" 
                     cy="11" 
                     r="8" 
-                    stroke="#4B5563" 
+                    stroke="currentColor" 
                     strokeWidth="1.5" 
                     strokeLinecap="round" 
                     strokeLinejoin="round"
                   />
                   <path 
                     d="M21 21L16.65 16.65" 
-                    stroke="#4B5563" 
+                    stroke="currentColor" 
                     strokeWidth="1.5" 
                     strokeLinecap="round" 
                     strokeLinejoin="round"
