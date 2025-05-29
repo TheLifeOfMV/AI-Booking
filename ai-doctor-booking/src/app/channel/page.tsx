@@ -19,7 +19,7 @@ export default function ChannelSelectionPage() {
   };
   
   return (
-    <div className="h-[100dvh] flex flex-col py-4 px-4 overflow-hidden" style={{ backgroundColor: '#F0F4F9' }}>
+    <div className="h-screen max-h-screen overflow-hidden fixed inset-0 flex flex-col py-4 px-4" style={{ backgroundColor: '#F0F4F9' }}>
       {/* Header - Reduced bottom margin */}
       <div className="w-full max-w-md text-center mx-auto mb-3 mt-2">
         <h1 className="text-2xl font-bold text-dark-grey mb-1">
@@ -93,7 +93,7 @@ export default function ChannelSelectionPage() {
               </svg>
             </div>
             <div className="ml-4 flex-1">
-              <h3 className="text-lg font-semibold text-dark-grey">En la App</h3>
+              <h3 className="text-lg font-semibold text-dark-grey">App</h3>
               <p className="text-medium-grey text-sm mb-1">Reserva directamente a través de nuestra app</p>
             </div>
             <Button type="text" className="shrink-0 flex items-center justify-center">
@@ -109,7 +109,7 @@ export default function ChannelSelectionPage() {
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-primary mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            Las citas pueden ser reprogramadas en cualquier momento
+            Las citas pueden ser reprogramadas minimo con 2 horas de antelación
           </p>
         </div>
       </div>
