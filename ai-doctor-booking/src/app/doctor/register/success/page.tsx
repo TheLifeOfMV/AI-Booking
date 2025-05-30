@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { FiCheckCircle, FiClock, FiMail } from 'react-icons/fi';
+import { FiCheckCircle, FiClock } from 'react-icons/fi';
 import Button from '@/components/Button';
 
 const DoctorRegisterSuccessPage = () => {
@@ -51,27 +51,19 @@ const DoctorRegisterSuccessPage = () => {
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8">
           <h3 className="font-medium text-blue-900 mb-2">Información sobre suscripciones</h3>
           <p className="text-sm text-blue-700">
-            Una vez aprobada tu cuenta, podrás elegir entre nuestros planes de suscripción (Básico, Premium o Enterprise) 
+            Una vez aprobada tu cuenta, tendras acceso a la plataforma y tendras un free trial de 14 dias para que puedas probar la plataforma y ver si es lo que necesitas.
+            Una vez finalice el free trial, podrás elegir entre nuestros planes de suscripción (Básico, Premium o Enterprise) 
             según las necesidades de tu práctica médica. Cada plan incluye diferentes beneficios y características.
           </p>
         </div>
         
-        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+        <div className="flex justify-center">
           <Button
             type="primary"
-            onClick={() => router.push('/doctor/dashboard')}
+            onClick={() => router.push('/')}
             fullWidth
           >
             Volver al Inicio
-          </Button>
-          
-          <Button
-            type="secondary"
-            onClick={() => {}}
-            fullWidth
-            className="flex items-center justify-center"
-          >
-            <FiMail className="mr-2" /> Contactar Soporte
           </Button>
         </div>
       </div>

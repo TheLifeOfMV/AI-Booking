@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 
 // Routes that don't require authentication
-const publicRoutes = ['/login', '/intro', '/', '/admin/login'];
+const publicRoutes = ['/login', '/intro', '/', '/admin/login', '/doctor/register/success'];
 
 // Routes that require specific roles
 const roleRestrictedRoutes = [
@@ -24,6 +24,11 @@ export default function RouteGuard({ children }: RouteGuardProps) {
   const { isAuthenticated, user } = useAuthStore();
   
   useEffect(() => {
+    // Allow all doctor registration routes without authentication
+    if (pathname.startsWith('/doctor/register')) {
+      return;
+    }
+    
     // Check if route requires authentication
     const requiresAuth = !publicRoutes.includes(pathname);
     
