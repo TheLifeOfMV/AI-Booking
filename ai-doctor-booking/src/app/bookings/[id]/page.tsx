@@ -197,6 +197,26 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
     <div className="pb-24 bg-gray-50">
       {/* Header */}
       <div className="bg-dark-grey text-white p-6 relative">
+        {/* Close button */}
+        <button 
+          onClick={() => router.push('/bookings')}
+          className="absolute top-4 right-4 p-2 hover:bg-white/10 rounded-full transition-colors z-10"
+          aria-label="Cerrar detalles"
+        >
+          <svg 
+            width="20" 
+            height="20" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            stroke="currentColor" 
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M18 6L6 18M6 6l12 12" />
+          </svg>
+        </button>
+        
         <h1 className="text-xl font-semibold mb-4">Detalles de la Cita</h1>
         
         <div className="text-lg font-semibold mb-3">
