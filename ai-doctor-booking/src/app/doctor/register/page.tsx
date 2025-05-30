@@ -1,15 +1,13 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Input from '@/components/Input';
 import Button from '@/components/Button';
 import CredentialUpload from '@/components/doctor/CredentialUpload';
 import SpecialtySelector from '@/components/doctor/SpecialtySelector';
-import PlanSelector from '@/components/doctor/PlanSelector';
-import { FiUpload, FiCheckCircle, FiClock, FiUser, FiCreditCard } from 'react-icons/fi';
-import { subscriptionService } from '@/services/subscriptionService';
+import { FiUpload, FiCheckCircle, FiUser } from 'react-icons/fi';
 
 // Datos de muestra para las especialidades
 const SAMPLE_SPECIALTIES = [
@@ -25,7 +23,6 @@ const SAMPLE_SPECIALTIES = [
 
 const DoctorRegisterPage = () => {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasError, setHasError] = useState(false);
@@ -40,32 +37,9 @@ const DoctorRegisterPage = () => {
     profilePicture: null as File | null,
     credentials: [] as File[],
     bio: '',
-    selectedPlan: '',
-    expectedMonthlyAppointments: 0,
     termsAccepted: false
   });
   const [profilePreview, setProfilePreview] = useState<string | null>(null);
-  
-  // Handle plan parameter from URL
-  useEffect(() => {
-    console.log('[DoctorRegister] Component mounted, checking URL params');
-    
-    try {
-      const planParam = searchParams.get('plan');
-      console.log('[DoctorRegister] Plan parameter from URL:', planParam);
-      
-      if (planParam && ['basic', 'premium', 'enterprise'].includes(planParam)) {
-        console.log('[DoctorRegister] Valid plan parameter, setting form data:', planParam);
-        setFormData(prev => ({ ...prev, selectedPlan: planParam }));
-      } else if (planParam) {
-        console.warn('[DoctorRegister] Invalid plan parameter received:', planParam);
-      }
-    } catch (error) {
-      console.error('[DoctorRegister] Error processing URL parameters:', error);
-      setHasError(true);
-      setErrorMessage('Error al procesar los parámetros de la URL. Por favor, recarga la página.');
-    }
-  }, [searchParams]);
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target as HTMLInputElement;
@@ -84,14 +58,6 @@ const DoctorRegisterPage = () => {
   
   const handleCredentialsChange = (files: File[]) => {
     setFormData(prev => ({ ...prev, credentials: files }));
-  };
-
-  const handlePlanSelect = (planId: string) => {
-    setFormData(prev => ({ ...prev, selectedPlan: planId }));
-  };
-
-  const handleAppointmentsChange = (appointments: number) => {
-    setFormData(prev => ({ ...prev, expectedMonthlyAppointments: appointments }));
   };
   
   const handleProfilePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -133,17 +99,13 @@ const DoctorRegisterPage = () => {
           console.log('[DoctorRegister] Step 2 validation:', { step2Valid, specialties: formData.specialties.length, licenseNumber: !!formData.licenseNumber, experienceYears: !!formData.experienceYears });
           return step2Valid;
         case 3:
-          const step3Valid = formData.selectedPlan !== '';
-          console.log('[DoctorRegister] Step 3 validation:', { step3Valid, selectedPlan: formData.selectedPlan });
+          const step3Valid = formData.credentials.length > 0;
+          console.log('[DoctorRegister] Step 3 validation:', { step3Valid, credentialsCount: formData.credentials.length });
           return step3Valid;
         case 4:
-          const step4Valid = formData.credentials.length > 0;
-          console.log('[DoctorRegister] Step 4 validation:', { step4Valid, credentialsCount: formData.credentials.length });
+          const step4Valid = formData.termsAccepted;
+          console.log('[DoctorRegister] Step 4 validation:', { step4Valid, termsAccepted: formData.termsAccepted });
           return step4Valid;
-        case 5:
-          const step5Valid = formData.termsAccepted;
-          console.log('[DoctorRegister] Step 5 validation:', { step5Valid, termsAccepted: formData.termsAccepted });
-          return step5Valid;
         default:
           console.warn('[DoctorRegister] Unknown step for validation:', currentStep);
           return true;
@@ -157,32 +119,22 @@ const DoctorRegisterPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (currentStep === 5 && formData.termsAccepted) {
+    if (currentStep === 4 && formData.termsAccepted) {
       setIsSubmitting(true);
       
       try {
-        // Simular creación de doctor y suscripción
+        // Simular creación de doctor sin suscripción específica
         console.log('[DoctorRegistration] Creating doctor account:', {
           ...formData,
           profilePicture: formData.profilePicture ? 'File uploaded' : null,
           credentials: `${formData.credentials.length} files uploaded`
         });
 
-        // Crear suscripción inicial
-        const subscriptionResult = await subscriptionService.createInitialSubscription(
-          'temp_doctor_id', // En producción, esto vendría del backend
-          formData.selectedPlan
-        );
-
-        if (subscriptionResult.success) {
-          console.log('[DoctorRegistration] Subscription created successfully:', subscriptionResult.data);
-          
-          // Redirigir a la página de éxito
-          router.push('/doctor/register/success');
-        } else {
-          console.error('[DoctorRegistration] Subscription creation failed:', subscriptionResult.error);
-          alert('Error al crear la suscripción. Por favor, inténtalo de nuevo.');
-        }
+        // El doctor será registrado con un plan básico por defecto
+        console.log('[DoctorRegistration] Doctor registered successfully');
+        
+        // Redirigir a la página de éxito
+        router.push('/doctor/register/success');
       } catch (error) {
         console.error('[DoctorRegistration] Registration failed:', error);
         alert('Error en el registro. Por favor, inténtalo de nuevo.');
@@ -196,9 +148,8 @@ const DoctorRegisterPage = () => {
     switch (step) {
       case 1: return 'Personal';
       case 2: return 'Profesional';
-      case 3: return 'Plan';
-      case 4: return 'Documentos';
-      case 5: return 'Finalizar';
+      case 3: return 'Documentos';
+      case 4: return 'Finalizar';
       default: return '';
     }
   };
@@ -239,23 +190,25 @@ const DoctorRegisterPage = () => {
         <h1 className="text-2xl font-bold text-center mb-6">Registro de Especialista Médico</h1>
         
         {/* Indicador de pasos */}
-        <div className="flex items-center justify-between mb-8 max-w-2xl mx-auto">
-          {[1, 2, 3, 4, 5].map(step => (
-            <div 
-              key={step} 
-              className="flex flex-col items-center"
-            >
+        <div className="flex justify-center mb-8">
+          <div className="flex items-center space-x-8">
+            {[1, 2, 3, 4].map(step => (
               <div 
-                className={`w-8 h-8 rounded-full flex items-center justify-center 
-                  ${currentStep >= step ? 'bg-primary text-white' : 'bg-light-grey text-medium-grey'}`}
+                key={step} 
+                className="flex flex-col items-center"
               >
-                {currentStep > step ? <FiCheckCircle /> : step}
+                <div 
+                  className={`w-8 h-8 rounded-full flex items-center justify-center 
+                    ${currentStep >= step ? 'bg-primary text-white' : 'bg-light-grey text-medium-grey'}`}
+                >
+                  {currentStep > step ? <FiCheckCircle /> : step}
+                </div>
+                <span className={`text-xs mt-1 ${currentStep >= step ? 'text-primary' : 'text-medium-grey'}`}>
+                  {getStepLabel(step)}
+                </span>
               </div>
-              <span className={`text-xs mt-1 ${currentStep >= step ? 'text-primary' : 'text-medium-grey'}`}>
-                {getStepLabel(step)}
-              </span>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
         
         <form onSubmit={handleSubmit}>
@@ -375,7 +328,7 @@ const DoctorRegisterPage = () => {
                   required
                 />
                 
-                <div className="mb-4">
+                <div>
                   <label className="block text-dark-grey font-medium mb-2">
                     Biografía profesional
                   </label>
@@ -391,22 +344,9 @@ const DoctorRegisterPage = () => {
               </div>
             </div>
           )}
-
-          {/* Paso 3: Selección de plan */}
-          {currentStep === 3 && (
-            <div className="max-w-6xl mx-auto">
-              <PlanSelector
-                selectedPlan={formData.selectedPlan}
-                onPlanSelect={handlePlanSelect}
-                expectedMonthlyAppointments={formData.expectedMonthlyAppointments}
-                onAppointmentsChange={handleAppointmentsChange}
-                showRecommendation={true}
-              />
-            </div>
-          )}
           
-          {/* Paso 4: Documentos y credenciales */}
-          {currentStep === 4 && (
+          {/* Paso 3: Documentos y credenciales */}
+          {currentStep === 3 && (
             <div className="max-w-xl mx-auto">
               <div className="space-y-4">
                 <h2 className="text-xl font-semibold mb-4 flex items-center">
@@ -432,8 +372,8 @@ const DoctorRegisterPage = () => {
             </div>
           )}
           
-          {/* Paso 5: Términos y condiciones */}
-          {currentStep === 5 && (
+          {/* Paso 4: Términos y condiciones */}
+          {currentStep === 4 && (
             <div className="max-w-xl mx-auto">
               <div className="space-y-4">
                 <h2 className="text-xl font-semibold mb-4">Completar Registro</h2>
@@ -451,12 +391,11 @@ const DoctorRegisterPage = () => {
                     </li>
                     <li><strong>Licencia:</strong> {formData.licenseNumber}</li>
                     <li><strong>Experiencia:</strong> {formData.experienceYears} años</li>
-                    <li><strong>Plan seleccionado:</strong> {formData.selectedPlan}</li>
                     <li><strong>Documentos:</strong> {formData.credentials.length} archivo(s)</li>
                   </ul>
                 </div>
                 
-                <div className="flex items-start mb-6">
+                <div className="flex items-start">
                   <input
                     type="checkbox"
                     id="terms"
@@ -488,7 +427,7 @@ const DoctorRegisterPage = () => {
               <div></div> // Espacio vacío para mantener la alineación
             )}
             
-            {currentStep < 5 ? (
+            {currentStep < 4 ? (
               <Button 
                 type="primary" 
                 onClick={handleNextStep}

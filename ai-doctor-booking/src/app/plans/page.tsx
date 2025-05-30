@@ -16,8 +16,8 @@ const PlansPage = () => {
   };
 
   const handleGetStarted = () => {
-    // Redirect to doctor registration with selected plan
-    router.push(`/doctor/register?plan=${selectedPlan}`);
+    // Redirect to doctor registration (plan selection will be available after approval)
+    router.push('/doctor/register');
   };
 
   const faqs = [
@@ -41,10 +41,6 @@ const PlansPage = () => {
       question: "¿Ofrecen descuentos para clínicas grandes?",
       answer: "Sí, ofrecemos planes empresariales personalizados para clínicas con múltiples médicos. Contáctanos para más información."
     },
-    {
-      question: "¿Puedo obtener un reembolso?",
-      answer: "Ofrecemos reembolso completo dentro de los primeros 30 días si no estás satisfecho con el servicio."
-    }
   ];
 
   const testimonials = [

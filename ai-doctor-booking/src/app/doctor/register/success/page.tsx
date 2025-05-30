@@ -42,10 +42,18 @@ const DoctorRegisterSuccessPage = () => {
             <li className="flex">
               <span className="bg-primary/20 text-primary font-semibold rounded-full w-6 h-6 flex items-center justify-center mr-3 flex-shrink-0">3</span>
               <p>
-                Una vez aprobada tu solicitud, podrás acceder a tu cuenta y configurar tu perfil profesional completo.
+                Una vez aprobada tu solicitud, podrás acceder a tu cuenta y seleccionar el plan de suscripción que mejor se adapte a tu práctica médica.
               </p>
             </li>
           </ol>
+        </div>
+        
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8">
+          <h3 className="font-medium text-blue-900 mb-2">Información sobre suscripciones</h3>
+          <p className="text-sm text-blue-700">
+            Una vez aprobada tu cuenta, podrás elegir entre nuestros planes de suscripción (Básico, Premium o Enterprise) 
+            según las necesidades de tu práctica médica. Cada plan incluye diferentes beneficios y características.
+          </p>
         </div>
         
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
