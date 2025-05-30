@@ -296,6 +296,81 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
           </div>
         </div>
         
+        {/* Appointment Recommendations */}
+        <div className="bg-white rounded-xl p-4 shadow-sm mb-6">
+          <h2 className="font-semibold text-lg mb-3">Recomendaciones para tu Cita</h2>
+          
+          <div className="space-y-3">
+            <div className="flex items-start gap-3">
+              <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mt-0.5 flex-shrink-0">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="12" cy="12" r="10" stroke="#3B82F6" strokeWidth="2"/>
+                  <path d="M12 6v6l4 2" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <div>
+                <h3 className="font-medium text-dark-grey text-sm">Llega 10 minutos antes</h3>
+                <p className="text-medium-grey text-xs">Esto te permitirá completar cualquier documentación necesaria.</p>
+              </div>
+            </div>
+            
+            <div className="flex items-start gap-3">
+              <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mt-0.5 flex-shrink-0">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="#059669" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <polyline points="14,2 14,8 20,8" stroke="#059669" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <line x1="16" y1="13" x2="8" y2="13" stroke="#059669" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <line x1="16" y1="17" x2="8" y2="17" stroke="#059669" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <div>
+                <h3 className="font-medium text-dark-grey text-sm">Lleva exámenes previos</h3>
+                <p className="text-medium-grey text-xs">Trae resultados de laboratorio, radiografías o estudios anteriores.</p>
+              </div>
+            </div>
+            
+            <div className="flex items-start gap-3">
+              <div className="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center mt-0.5 flex-shrink-0">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="#7C3AED" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <circle cx="9" cy="7" r="4" stroke="#7C3AED" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87" stroke="#7C3AED" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75" stroke="#7C3AED" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <div>
+                <h3 className="font-medium text-dark-grey text-sm">Documento de identidad</h3>
+                <p className="text-medium-grey text-xs">Asegúrate de llevar tu cédula o documento oficial vigente.</p>
+              </div>
+            </div>
+            
+            <div className="flex items-start gap-3">
+              <div className="w-6 h-6 bg-orange-100 rounded-full flex items-center justify-center mt-0.5 flex-shrink-0">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M20 6L9 17l-5-5" stroke="#EA580C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <div>
+                <h3 className="font-medium text-dark-grey text-sm">Seguro Medico</h3>
+                <p className="text-medium-grey text-xs">Si agendaste la cita con seguro medico, asegurate de llevar el documento o numero de afiliado.</p>
+              </div>
+            </div>
+            
+            <div className="flex items-start gap-3">
+              <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center mt-0.5 flex-shrink-0">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M3 3h18v18H3zM9 9h6v6H9z" stroke="#DC2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M9 1v4M15 1v4M1 9h4M19 9h4" stroke="#DC2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <div>
+                <h3 className="font-medium text-dark-grey text-sm">Confirma tu asistencia</h3>
+                <p className="text-medium-grey text-xs">Si no puedes asistir, cancela con 24h de anticipación.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
         {/* Contact doctor */}
         <div className="bg-white rounded-xl p-4 shadow-sm mb-6">
           <h2 className="font-semibold text-lg mb-3">Quieres reprogramar tu cita?</h2>
