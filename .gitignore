@@ -70,3 +70,9 @@ logs
 # *.yaml
 # *.yml 
 DOCTOR_SUBSCRIPTION_SYSTEM.md
+
+# Documentation files - keep local but don't track
+AUTHENTICATION_FIX.md
+AUTHENTICATION_FLOW_FIX.md
+CLIENT_SERVER_COMPONENT_FIX.md
+DASHBOARD_CHANGES.md
