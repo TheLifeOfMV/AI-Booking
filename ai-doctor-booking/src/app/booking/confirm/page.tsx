@@ -136,8 +136,8 @@ const BookingConfirmationView = () => {
       {/* Success Modal */}
       {showSuccessModal && <SuccessModal />}
       
-      {/* Summary Card with Dark Background */}
-      <div className="bg-dark-grey text-white rounded-xl overflow-hidden mb-8">
+      {/* Summary Card with Light Gray Background */}
+      <div className="text-white rounded-xl overflow-hidden mb-8" style={{ backgroundColor: '#D1D5DB' }}>
         <div className="p-6 flex flex-col items-center text-center">
           
           {/* 1. Doctor Avatar (square, centered, larger) */}
@@ -158,16 +158,16 @@ const BookingConfirmationView = () => {
           </div>
           
           {/* 2. Doctor Name (centered) */}
-          <h3 className="text-lg font-semibold mt-0">{selectedDoctor.name}</h3>
+          <h3 className="text-lg font-semibold mt-0 text-dark-grey">{selectedDoctor.name}</h3>
           
           {/* 3. Specialty (centered) */}
-          <p className="text-base opacity-80 mb-0">{selectedSpecialty.name}</p>
+          <p className="text-base mb-0 text-dark-grey">{selectedSpecialty.name}</p>
           
           {/* 4. Location (centered) */}
-          <p className="text-sm opacity-80 mb-1">Centro Médico California, Sala 234</p>
+          <p className="text-sm mb-1 text-dark-grey">Centro Médico California, Sala 234</p>
           
           {/* 5. Date, Time (centered) */}
-          <p className="text-lg font-medium mb-4">{formatDate(selectedDate)}, {selectedSlot.time}</p>
+          <p className="text-lg font-medium mb-4 text-dark-grey">{formatDate(selectedDate)}, {selectedSlot.time}</p>
           
           {/* 6. Confirm Button */}
           <button

@@ -1766,12 +1766,12 @@ const UnifiedBookingView = () => {
           }}
         >
           <div className="rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto modal-content" style={{ backgroundColor: '#F0F4F9' }}>
-            {/* Doctor Image Header - Changed from Blue to Dark Grey Background */}
-            <div className="relative h-48 bg-dark-grey"> {/* Changed from bg-[#007AFF] to bg-dark-grey */}
+            {/* Doctor Image Header - Light Gray Background like reference photo */}
+            <div className="relative h-60 flex items-center justify-center" style={{ backgroundColor: '#D1D5DB' }}> {/* Changed from #E5E7EB to #D1D5DB for slightly darker gray */}
               {/* Close button */}
               <button 
                 onClick={() => setShowDoctorDetails(false)}
-                className="absolute top-4 right-4 p-1.5 bg-white/20 hover:bg-white/30 rounded-full transition-colors z-10"
+                className="absolute top-4 right-4 p-1.5 bg-black/20 hover:bg-black/30 rounded-full transition-colors z-10"
                 aria-label="Cerrar modal"
               >
                 <svg 
@@ -1779,7 +1779,7 @@ const UnifiedBookingView = () => {
                   height="20" 
                   viewBox="0 0 24 24" 
                   fill="none" 
-                  stroke="white" 
+                  stroke="black" 
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -1788,8 +1788,8 @@ const UnifiedBookingView = () => {
                 </svg>
               </button>
               
-              {/* Doctor Avatar - Changed to match confirm page style */}
-              <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 w-28 h-28 rounded-lg overflow-hidden bg-light-grey border-4 border-white shadow-md"> {/* Changed w-32 h-32 rounded-full to w-28 h-28 rounded-lg, bg-white to bg-light-grey */}
+              {/* Doctor Avatar - No background, only silhouette */}
+              <div className="w-48 h-48 rounded-xl overflow-hidden shadow-xl"> {/* Changed from w-40 h-40 to w-48 h-48 for larger photo space */}
                 {selectedDoctorDetails.avatarUrl ? (
                   <Image 
                     src={selectedDoctorDetails.avatarUrl} 
@@ -1798,7 +1798,7 @@ const UnifiedBookingView = () => {
                     className="object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-light-grey text-dark-grey text-5xl font-semibold"> {/* Changed bg-white to bg-light-grey, text-gray-500 to text-dark-grey, text-4xl to text-5xl */}
+                  <div className="w-full h-full flex items-center justify-center bg-white text-dark-grey text-7xl font-semibold rounded-xl"> {/* Changed text-6xl to text-7xl to match larger size */}
                     {selectedDoctorDetails.name.charAt(0)}
                   </div>
                 )}
@@ -1806,7 +1806,7 @@ const UnifiedBookingView = () => {
             </div>
             
             {/* Doctor Details Content */}
-            <div className="p-6 pt-20">
+            <div className="p-6 pt-6"> {/* Changed pt-24 back to pt-6 since avatar is no longer overlapping */}
               {/* Doctor Name and Rating */}
               <div className="text-center mb-4">
                 <h2 className="font-semibold text-xl text-dark-grey">{selectedDoctorDetails.name}</h2>
@@ -1814,10 +1814,6 @@ const UnifiedBookingView = () => {
                   <span className="text-primary font-medium text-sm">
                     {specialties.find(s => s.id === selectedDoctorDetails.specialtyId)?.name || 'Especialista'}
                   </span>
-                  <div className="flex items-center text-sm text-medium-grey">
-                    <span className="text-amber-400 mr-0.5">★</span>
-                    <span>{selectedDoctorDetails.rating}</span>
-                  </div>
                 </div>
               </div>
               
