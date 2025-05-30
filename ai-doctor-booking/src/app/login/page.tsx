@@ -94,12 +94,13 @@ export default function LoginPage() {
         role: userRole // Añadimos el rol para saber a dónde redirigir
       });
       
-      // Redirigir basado en el rol seleccionado
+      // Redirigir basado en el rol seleccionado y estado de registro
       if (userRole === 'doctor') {
-        // Comprobación para determinar si el doctor necesita registrarse
-        // En un caso real, esto debería venir del backend
-        // Para propósitos de la demo, siempre lo enviamos a registrarse primero
-        router.push('/doctor/register');
+        // Para doctores, revisar si han completado el registro
+        // En un caso real, esto vendría del backend
+        // Por ahora, redirigimos al dashboard directamente después del login
+        console.log('Redirecting doctor to dashboard after login');
+        router.push('/doctor/dashboard');
       } else {
         router.push('/channel');
       }

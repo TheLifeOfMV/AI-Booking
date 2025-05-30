@@ -8,6 +8,7 @@ import Button from '@/components/Button';
 import CredentialUpload from '@/components/doctor/CredentialUpload';
 import SpecialtySelector from '@/components/doctor/SpecialtySelector';
 import { FiUpload, FiCheckCircle, FiUser } from 'react-icons/fi';
+import { useAuthStore } from '@/store/authStore';
 
 // Datos de muestra para las especialidades
 const SAMPLE_SPECIALTIES = [
@@ -23,6 +24,7 @@ const SAMPLE_SPECIALTIES = [
 
 const DoctorRegisterPage = () => {
   const router = useRouter();
+  const { login } = useAuthStore();
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasError, setHasError] = useState(false);
@@ -123,7 +125,7 @@ const DoctorRegisterPage = () => {
       setIsSubmitting(true);
       
       try {
-        // Simular creación de doctor sin suscripción específica
+        // Simular creación de doctor account
         console.log('[DoctorRegistration] Creating doctor account:', {
           ...formData,
           profilePicture: formData.profilePicture ? 'File uploaded' : null,
@@ -132,6 +134,15 @@ const DoctorRegisterPage = () => {
 
         // El doctor será registrado con un plan básico por defecto
         console.log('[DoctorRegistration] Doctor registered successfully');
+        
+        // **SOLUCIÓN**: Autenticar automáticamente al doctor después del registro
+        await login({
+          identifier: formData.email,
+          password: 'demo_password', // In real app, would come from actual registration
+          role: 'doctor'
+        });
+        
+        console.log('[DoctorRegistration] Doctor authenticated automatically');
         
         // Redirigir a la página de éxito
         router.push('/doctor/register/success');

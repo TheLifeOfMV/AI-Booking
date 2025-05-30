@@ -60,10 +60,10 @@ const DoctorRegisterSuccessPage = () => {
         <div className="flex justify-center">
           <Button
             type="primary"
-            onClick={() => router.push('/')}
+            onClick={() => router.push('/doctor/dashboard')}
             fullWidth
           >
-            Volver al Inicio
+            Ir al Dashboard
           </Button>
         </div>
       </div>

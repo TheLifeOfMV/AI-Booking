@@ -10,7 +10,21 @@ interface AuthState {
   logout: () => void;
   clearError: () => void;
   isAdmin: () => boolean;
+  initializeAuth: () => void;
 }
+
+// Helper function to safely parse JSON from localStorage
+const parseStoredUser = (storedUser: string | null): User | null => {
+  if (!storedUser) return null;
+  try {
+    return JSON.parse(storedUser);
+  } catch {
+    return null;
+  }
+};
+
+// Helper function to check if we're in browser environment
+const isBrowser = typeof window !== 'undefined';
 
 export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
@@ -18,44 +32,121 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   isAuthenticated: false,
   error: null,
 
-  login: async (credentials: LoginCredentials) => {
-    set({ isLoading: true, error: null });
+  // Initialize authentication state from localStorage
+  initializeAuth: () => {
+    console.log('AuthStore: Initializing authentication...');
+    
+    if (!isBrowser) {
+      console.log('AuthStore: Not in browser environment, skipping initialization');
+      return;
+    }
+    
     try {
-      // In a real app, this would be an API call
-      // For now, just simulate a login with a delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const storedUser = localStorage.getItem('auth_user');
+      const storedToken = localStorage.getItem('auth_token');
       
-      // Simulate a successful login
-      // For demo: if login includes 'admin', assign admin role
-      const isAdminLogin = credentials.identifier.includes('admin');
-      
-      const user: User = {
-        id: '1',
-        email: credentials.identifier.includes('@') ? credentials.identifier : 'user@example.com',
-        phone: !credentials.identifier.includes('@') ? credentials.identifier : undefined,
-        // Usar el rol proporcionado en las credenciales o determinarlo por el identificador
-        role: credentials.role || (isAdminLogin ? 'admin' : 'client'),
-      };
-      
-      set({ 
-        user, 
-        isAuthenticated: true, 
-        isLoading: false 
+      console.log('AuthStore: Checking stored data -', { 
+        hasUser: !!storedUser, 
+        hasToken: !!storedToken,
+        userData: storedUser ? 'present' : 'missing'
       });
       
-      // Store token in localStorage (this would be a JWT in a real app)
-      localStorage.setItem('auth_token', 'demo_token');
-      
-    } catch (err) {
+      if (storedUser && storedToken) {
+        const user = parseStoredUser(storedUser);
+        if (user) {
+          console.log('AuthStore: Restoring user session -', { 
+            email: user.email, 
+            role: user.role 
+          });
+          
+          set({ 
+            user, 
+            isAuthenticated: true, 
+            isLoading: false,
+            error: null 
+          });
+          
+          console.log('AuthStore: User session restored successfully');
+        } else {
+          console.log('AuthStore: Invalid stored user data, clearing localStorage');
+          localStorage.removeItem('auth_user');
+          localStorage.removeItem('auth_token');
+        }
+      } else {
+        console.log('AuthStore: No stored session found');
+        set({ 
+          user: null, 
+          isAuthenticated: false, 
+          isLoading: false,
+          error: null 
+        });
+      }
+    } catch (error) {
+      console.error('AuthStore: Error during initialization:', error);
       set({ 
-        error: 'Invalid credentials', 
-        isLoading: false 
+        user: null, 
+        isAuthenticated: false, 
+        isLoading: false,
+        error: 'Error al inicializar sesión' 
       });
     }
   },
 
+  login: async (credentials: LoginCredentials) => {
+    console.log('AuthStore: Starting login process -', { 
+      identifier: credentials.identifier, 
+      role: credentials.role 
+    });
+    
+    set({ isLoading: true, error: null });
+    
+    try {
+      // Simulate API call delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Create mock user based on credentials
+      const mockUser: User = {
+        id: '1',
+        email: credentials.identifier,
+        name: credentials.role === 'doctor' ? 'Dr. Ejemplo' : 'Usuario Ejemplo',
+        role: credentials.role || 'client'
+      };
+      
+      console.log('AuthStore: Login successful, creating user -', mockUser);
+      
+      // Store in localStorage
+      if (isBrowser) {
+        localStorage.setItem('auth_token', 'demo_token');
+        localStorage.setItem('auth_user', JSON.stringify(mockUser));
+        console.log('AuthStore: Data saved to localStorage');
+      }
+      
+      // Update state
+      set({ 
+        user: mockUser, 
+        isAuthenticated: true, 
+        isLoading: false,
+        error: null
+      });
+      
+      console.log('AuthStore: Login completed successfully');
+    } catch (error) {
+      console.error('AuthStore: Login failed -', error);
+      set({ 
+        error: 'Error de autenticación. Verifica tus credenciales.', 
+        isLoading: false,
+        isAuthenticated: false,
+        user: null
+      });
+      throw error;
+    }
+  },
+
   logout: () => {
-    localStorage.removeItem('auth_token');
+    if (isBrowser) {
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('auth_user');
+    }
     set({ 
       user: null, 
       isAuthenticated: false 
@@ -68,4 +159,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     const state = get();
     return state.isAuthenticated && state.user?.role === 'admin';
   },
-})); 
+}));
+
+// Initialize auth state on store creation (client-side only)
+if (isBrowser) {
+  useAuthStore.getState().initializeAuth();
+} 

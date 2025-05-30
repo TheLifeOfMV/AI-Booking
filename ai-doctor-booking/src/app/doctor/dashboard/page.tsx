@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { FiCalendar, FiClock, FiUsers, FiDollarSign, FiTrendingUp, FiBarChart, FiMessageCircle, FiChevronRight, FiBell, FiUser } from 'react-icons/fi';
+import { FiCalendar, FiClock, FiUsers, FiTrendingUp, FiBarChart, FiMessageCircle, FiChevronRight, FiBell, FiUser, FiX } from 'react-icons/fi';
 
 // Datos de muestra para el dashboard
 const MOCK_APPOINTMENTS = [
@@ -36,7 +36,6 @@ const MOCK_APPOINTMENTS = [
 const MOCK_STATS = {
   todayPatients: 3,
   weeklyPatients: 15,
-  monthlyEarnings: 750,
   totalPatients: 48,
   pendingAppointments: 5
 };
@@ -67,62 +66,201 @@ const MOCK_NOTIFICATIONS = [
 
 const DoctorDashboardPage = () => {
   const [dateFilter, setDateFilter] = useState('today');
+  const [showNotifications, setShowNotifications] = useState(false);
+  const notificationRef = useRef<HTMLDivElement>(null);
+  
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (notificationRef.current && !notificationRef.current.contains(event.target as Node)) {
+        setShowNotifications(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const markAllAsRead = () => {
+    // In a real app, this would make an API call
+    console.log('Marking all notifications as read');
+  };
   
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#F0F4F9' }}>
-      <div className="container max-w-6xl mx-auto py-8 px-4">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+    <div className="min-h-screen relative" style={{ backgroundColor: '#F2F2F2' }}>
+      {/* Fixed Top-Right Notification Icon */}
+      <div className="fixed top-6 right-6 z-50" ref={notificationRef}>
+        <button 
+          onClick={() => setShowNotifications(!showNotifications)}
+          className="relative p-4 bg-white rounded-full shadow-lg border border-light-grey hover:shadow-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary/20"
+          style={{ backgroundColor: '#FFFFFF' }}
+        >
+          <FiBell size={28} style={{ color: '#777777' }} />
+          {MOCK_NOTIFICATIONS.filter(n => !n.isRead).length > 0 && (
+            <span 
+              className="absolute -top-2 -right-2 h-7 w-7 rounded-full text-white text-sm flex items-center justify-center font-bold animate-pulse shadow-md"
+              style={{ backgroundColor: '#FF9500' }}
+            >
+              {MOCK_NOTIFICATIONS.filter(n => !n.isRead).length}
+            </span>
+          )}
+        </button>
+
+        {/* Enhanced Notifications Dropdown - Fixed positioning */}
+        {showNotifications && (
+          <div 
+            className="absolute top-full mt-4 bg-white rounded-2xl shadow-2xl border border-light-grey overflow-hidden"
+            style={{ 
+              backgroundColor: '#FFFFFF',
+              boxShadow: '0 20px 50px rgba(0, 0, 0, 0.15)',
+              right: 0,
+              width: '420px',
+              maxWidth: '90vw',
+              maxHeight: '80vh',
+              transform: 'translateX(0)',
+              zIndex: 1000
+            }}
+          >
+            {/* Dropdown Header */}
+            <div className="flex justify-between items-center p-6 border-b border-light-grey bg-gradient-to-r from-blue-50 to-indigo-50">
+              <div>
+                <h3 className="text-xl font-bold text-dark-grey">Notificaciones</h3>
+                <p className="text-sm text-medium-grey mt-1">
+                  {MOCK_NOTIFICATIONS.filter(n => !n.isRead).length} sin leer
+                </p>
+              </div>
+              <div className="flex items-center gap-3">
+                <button 
+                  onClick={markAllAsRead}
+                  className="text-sm font-semibold px-3 py-1.5 rounded-full transition-all duration-200 hover:bg-white/80"
+                  style={{ color: '#007AFF' }}
+                >
+                  Marcar todas
+                </button>
+                <button 
+                  onClick={() => setShowNotifications(false)}
+                  className="p-2 hover:bg-white/80 rounded-full transition-colors"
+                >
+                  <FiX size={20} className="text-medium-grey" />
+                </button>
+              </div>
+            </div>
+            
+            {/* Notifications List */}
+            <div className="overflow-y-auto custom-scrollbar" style={{ maxHeight: '400px' }}>
+              <div className="divide-y divide-light-grey">
+                {MOCK_NOTIFICATIONS.map(notification => (
+                  <div 
+                    key={notification.id} 
+                    className={`p-5 hover:bg-gradient-to-r hover:from-blue-50/50 hover:to-indigo-50/50 transition-all duration-200 cursor-pointer ${
+                      notification.isRead ? 'bg-white' : 'bg-gradient-to-r from-blue-50/30 to-indigo-50/30'
+                    }`}
+                    onClick={() => {/* Handle notification click */}}
+                  >
+                    <div className="flex items-start gap-4">
+                      <div className="flex-shrink-0 mt-1">
+                        {notification.type === 'appointment' && 
+                          <div className="p-3 bg-blue-100 rounded-xl shadow-sm">
+                            <FiCalendar size={18} style={{ color: '#007AFF' }} />
+                          </div>
+                        }
+                        {notification.type === 'message' && 
+                          <div className="p-3 bg-green-100 rounded-xl shadow-sm">
+                            <FiMessageCircle size={18} className="text-green-600" />
+                          </div>
+                        }
+                        {notification.type === 'system' && 
+                          <div className="p-3 bg-orange-100 rounded-xl shadow-sm">
+                            <FiBell size={18} style={{ color: '#FF9500' }} />
+                          </div>
+                        }
+                      </div>
+                      
+                      <div className="flex-1 min-w-0">
+                        <p className={`text-sm leading-relaxed ${
+                          notification.isRead ? 'text-medium-grey' : 'text-dark-grey font-semibold'
+                        }`}>
+                          {notification.message}
+                        </p>
+                        <span className="text-xs text-medium-grey mt-2 block font-medium">
+                          Hace {notification.time}
+                        </span>
+                      </div>
+                      
+                      {!notification.isRead && (
+                        <div 
+                          className="w-3 h-3 rounded-full flex-shrink-0 mt-2 animate-pulse"
+                          style={{ backgroundColor: '#007AFF' }}
+                        ></div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            {/* Dropdown Footer */}
+            <div className="p-5 border-t border-light-grey bg-gradient-to-r from-gray-50 to-blue-50">
+              <Link 
+                href="/doctor/notifications" 
+                className="flex items-center justify-center font-semibold text-sm py-3 px-4 rounded-xl transition-all duration-200 hover:shadow-md w-full"
+                style={{ 
+                  color: '#007AFF',
+                  backgroundColor: 'rgba(0, 122, 255, 0.1)'
+                }}
+                onClick={() => setShowNotifications(false)}
+              >
+                Ver todas las notificaciones <FiChevronRight className="ml-2" size={16} />
+              </Link>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="container max-w-6xl mx-auto py-8 px-6">
+        {/* Header - Simplified without notification icon */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 pr-20">
           <div>
-            <h1 className="text-2xl font-bold">Dashboard</h1>
-            <p className="text-medium-grey">
+            <h1 className="text-3xl font-bold text-dark-grey mb-2">Dashboard</h1>
+            <p className="text-medium-grey text-lg">
               Bienvenido de nuevo, Dr. Juan Pérez
             </p>
           </div>
           
-          <div className="mt-4 md:mt-0 flex items-center gap-4">
-            <div className="relative">
-              <button className="p-2 text-medium-grey hover:text-primary transition-colors focus:outline-none">
-                <FiBell size={20} />
-                <span className="absolute top-0 right-0 h-5 w-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center">
-                  {MOCK_NOTIFICATIONS.filter(n => !n.isRead).length}
-                </span>
-              </button>
-            </div>
-            
+          <div className="mt-4 md:mt-0 flex items-center">
             <Link 
               href="/doctor/profile" 
-              className="flex items-center text-primary hover:text-primary/80 font-medium bg-primary/10 px-3 py-1.5 rounded-full transition-colors"
+              className="flex items-center font-medium px-6 py-3 rounded-full transition-all duration-200 hover:shadow-md"
+              style={{ 
+                color: '#007AFF', 
+                backgroundColor: 'rgba(0, 122, 255, 0.1)',
+              }}
             >
-              <FiUser className="mr-1.5" /> Ver Perfil
+              <FiUser className="mr-2" size={18} /> Ver Perfil
             </Link>
           </div>
         </div>
         
-        {/* Tarjetas de estadísticas */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        {/* Tarjetas de estadísticas - Removed monthly income card */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <StatCard 
-            icon={<FiUsers size={20} className="text-blue-500" />}
+            icon={<FiUsers size={24} style={{ color: '#007AFF' }} />}
             title="Pacientes Hoy"
             value={MOCK_STATS.todayPatients}
             bgColor="bg-blue-50"
           />
           
           <StatCard 
-            icon={<FiCalendar size={20} className="text-green-500" />}
+            icon={<FiCalendar size={24} className="text-green-600" />}
             title="Pacientes Semanales"
             value={MOCK_STATS.weeklyPatients}
             bgColor="bg-green-50"
           />
           
           <StatCard 
-            icon={<FiDollarSign size={20} className="text-purple-500" />}
-            title="Ingresos Mensuales"
-            value={`${MOCK_STATS.monthlyEarnings} €`}
-            bgColor="bg-purple-50"
-          />
-          
-          <StatCard 
-            icon={<FiBarChart size={20} className="text-orange-500" />}
+            icon={<FiBarChart size={24} style={{ color: '#FF9500' }} />}
             title="Total Pacientes"
             value={MOCK_STATS.totalPatients}
             trend="+8% vs mes pasado"
@@ -131,25 +269,40 @@ const DoctorDashboardPage = () => {
         </div>
         
         {/* Citas del día */}
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-8">
-          <div className="flex justify-between items-center p-4 border-b border-light-grey">
-            <h2 className="text-lg font-semibold">Tus Citas</h2>
+        <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-8" style={{ backgroundColor: '#FFFFFF' }}>
+          <div className="flex justify-between items-center p-6 border-b border-light-grey">
+            <h2 className="text-xl font-semibold text-dark-grey">Tus Citas</h2>
             
             <div className="flex rounded-lg overflow-hidden border border-light-grey">
               <button 
-                className={`px-3 py-1 text-sm ${dateFilter === 'today' ? 'bg-primary text-white' : 'bg-white text-medium-grey'}`}
+                className={`px-4 py-2 text-sm font-medium transition-colors ${
+                  dateFilter === 'today' 
+                    ? 'text-white' 
+                    : 'bg-white text-medium-grey hover:bg-light-grey'
+                }`}
+                style={{ backgroundColor: dateFilter === 'today' ? '#007AFF' : undefined }}
                 onClick={() => setDateFilter('today')}
               >
                 Hoy
               </button>
               <button 
-                className={`px-3 py-1 text-sm ${dateFilter === 'tomorrow' ? 'bg-primary text-white' : 'bg-white text-medium-grey'}`}
+                className={`px-4 py-2 text-sm font-medium transition-colors ${
+                  dateFilter === 'tomorrow' 
+                    ? 'text-white' 
+                    : 'bg-white text-medium-grey hover:bg-light-grey'
+                }`}
+                style={{ backgroundColor: dateFilter === 'tomorrow' ? '#007AFF' : undefined }}
                 onClick={() => setDateFilter('tomorrow')}
               >
                 Mañana
               </button>
               <button 
-                className={`px-3 py-1 text-sm ${dateFilter === 'week' ? 'bg-primary text-white' : 'bg-white text-medium-grey'}`}
+                className={`px-4 py-2 text-sm font-medium transition-colors ${
+                  dateFilter === 'week' 
+                    ? 'text-white' 
+                    : 'bg-white text-medium-grey hover:bg-light-grey'
+                }`}
+                style={{ backgroundColor: dateFilter === 'week' ? '#007AFF' : undefined }}
                 onClick={() => setDateFilter('week')}
               >
                 Semana
@@ -160,46 +313,47 @@ const DoctorDashboardPage = () => {
           {MOCK_APPOINTMENTS.length > 0 ? (
             <div className="divide-y divide-light-grey">
               {MOCK_APPOINTMENTS.map(appointment => (
-                <div key={appointment.id} className="p-4 hover:bg-light-grey/10 transition-colors">
+                <div key={appointment.id} className="p-6 hover:bg-light-grey/30 transition-colors">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center">
-                      <div className="w-10 h-10 rounded-full overflow-hidden bg-light-grey mr-3">
+                      <div className="w-12 h-12 rounded-full overflow-hidden bg-light-grey mr-4">
                         <Image 
                           src={appointment.patientAvatar} 
                           alt={appointment.patientName}
-                          width={40}
-                          height={40}
+                          width={48}
+                          height={48}
                           className="object-cover"
                         />
                       </div>
                       
                       <div>
-                        <h3 className="font-medium">{appointment.patientName}</h3>
-                        <div className="flex items-center text-sm text-medium-grey">
-                          <FiClock className="mr-1" />
-                          <span>{appointment.time}</span>
-                          <span className="mx-1">•</span>
-                          <span className="text-dark-grey">
-                            Presencial
-                          </span>
+                        <h3 className="font-semibold text-dark-grey text-lg">{appointment.patientName}</h3>
+                        <div className="flex items-center text-medium-grey mt-1">
+                          <FiClock className="mr-2" size={16} />
+                          <span className="font-medium">{appointment.time}</span>
+                          <span className="mx-2">•</span>
+                          <span>Presencial</span>
                         </div>
                       </div>
                     </div>
                     
-                    <div className="flex items-center">
+                    <div className="flex items-center gap-4">
                       <span 
-                        className={`inline-block px-2 py-1 rounded-full text-xs mr-3 ${
+                        className={`inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium ${
                           appointment.status === 'confirmed' 
-                            ? 'bg-green-100 text-green-800' 
-                            : 'bg-yellow-100 text-yellow-800'
+                            ? 'bg-green-100 text-green-700' 
+                            : 'bg-yellow-100 text-yellow-700'
                         }`}
                       >
                         {appointment.status === 'confirmed' ? 'Confirmada' : 'Pendiente'}
                       </span>
                       
                       <Link href={`/doctor/appointments/${appointment.id}`}>
-                        <button className="text-primary hover:text-primary/80">
-                          <FiChevronRight />
+                        <button 
+                          className="p-2 hover:bg-light-grey rounded-full transition-colors"
+                          style={{ color: '#007AFF' }}
+                        >
+                          <FiChevronRight size={20} />
                         </button>
                       </Link>
                     </div>
@@ -208,132 +362,128 @@ const DoctorDashboardPage = () => {
               ))}
             </div>
           ) : (
-            <div className="p-8 text-center text-medium-grey">
-              <FiCalendar size={48} className="mx-auto mb-4 text-light-grey" />
-              <h3 className="text-lg font-medium mb-1">No tienes citas programadas</h3>
-              <p>Disfruta de tu tiempo libre.</p>
+            <div className="p-12 text-center text-medium-grey">
+              <FiCalendar size={64} className="mx-auto mb-4 text-light-grey" />
+              <h3 className="text-xl font-semibold mb-2 text-dark-grey">No tienes citas programadas</h3>
+              <p className="text-lg">Disfruta de tu tiempo libre.</p>
             </div>
           )}
           
-          <div className="p-4 border-t border-light-grey">
+          <div className="p-6 border-t border-light-grey">
             <Link 
               href="/doctor/appointments" 
-              className="text-primary hover:text-primary/80 font-medium text-sm flex items-center justify-center"
+              className="font-medium text-sm flex items-center justify-center transition-colors hover:text-primary/80"
+              style={{ color: '#007AFF' }}
             >
-              Ver todas las citas <FiChevronRight className="ml-1" />
+              Ver todas las citas <FiChevronRight className="ml-1" size={16} />
             </Link>
           </div>
         </div>
         
-        {/* Notificaciones y Actividad Reciente */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Notificaciones */}
-          <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-            <div className="flex justify-between items-center p-4 border-b border-light-grey">
-              <h2 className="text-lg font-semibold">Notificaciones</h2>
-              <button className="text-sm text-primary">Marcar todas como leídas</button>
-            </div>
-            
-            <div className="max-h-[350px] overflow-y-auto">
-              <div className="divide-y divide-light-grey">
-                {MOCK_NOTIFICATIONS.map(notification => (
-                  <div 
-                    key={notification.id} 
-                    className={`p-4 flex ${notification.isRead ? 'bg-white' : 'bg-blue-50'}`}
-                  >
-                    <div className="mr-3">
-                      {notification.type === 'appointment' && <FiCalendar className="text-blue-500" />}
-                      {notification.type === 'message' && <FiMessageCircle className="text-green-500" />}
-                      {notification.type === 'system' && <FiBell className="text-orange-500" />}
-                    </div>
-                    
-                    <div className="flex-1">
-                      <p className={`${notification.isRead ? 'text-medium-grey' : 'text-dark-grey font-medium'}`}>
-                        {notification.message}
-                      </p>
-                      <span className="text-xs text-medium-grey">
-                        Hace {notification.time}
-                      </span>
-                    </div>
+        {/* Estadísticas de Actividad Reciente */}
+        <div className="bg-white rounded-xl shadow-sm overflow-hidden" style={{ backgroundColor: '#FFFFFF' }}>
+          <div className="p-6 border-b border-light-grey">
+            <h2 className="text-xl font-semibold text-dark-grey">Actividad Reciente</h2>
+          </div>
+          
+          <div className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-6">
+                <div>
+                  <div className="flex justify-between mb-2">
+                    <span className="text-medium-grey font-medium">Tasa de ocupación</span>
+                    <span className="font-semibold text-dark-grey text-lg">85%</span>
                   </div>
-                ))}
+                  <div className="h-3 bg-light-grey rounded-full overflow-hidden">
+                    <div 
+                      className="h-full rounded-full transition-all duration-1000" 
+                      style={{ width: '85%', backgroundColor: '#007AFF' }}
+                    ></div>
+                  </div>
+                </div>
+                
+                <div>
+                  <div className="flex justify-between mb-2">
+                    <span className="text-medium-grey font-medium">Citas completadas</span>
+                    <span className="font-semibold text-dark-grey text-lg">18/20</span>
+                  </div>
+                  <div className="h-3 bg-light-grey rounded-full overflow-hidden">
+                    <div className="h-full bg-green-500 rounded-full transition-all duration-1000" style={{ width: '90%' }}></div>
+                  </div>
+                </div>
               </div>
-            </div>
-            
-            <div className="p-4 border-t border-light-grey">
-              <Link 
-                href="/doctor/notifications" 
-                className="text-primary hover:text-primary/80 font-medium text-sm flex items-center justify-center"
-              >
-                Ver todas las notificaciones <FiChevronRight className="ml-1" />
-              </Link>
+              
+              <div className="space-y-6">
+                <div>
+                  <div className="flex justify-between mb-2">
+                    <span className="text-medium-grey font-medium">Valoraciones positivas</span>
+                    <span className="font-semibold text-dark-grey text-lg">92%</span>
+                  </div>
+                  <div className="h-3 bg-light-grey rounded-full overflow-hidden">
+                    <div 
+                      className="h-full rounded-full transition-all duration-1000" 
+                      style={{ width: '92%', backgroundColor: '#FF9500' }}
+                    ></div>
+                  </div>
+                </div>
+                
+                <div>
+                  <div className="flex justify-between mb-2">
+                    <span className="text-medium-grey font-medium">Nuevos pacientes</span>
+                    <span className="font-semibold text-dark-grey text-lg">8</span>
+                  </div>
+                  <div className="h-3 bg-light-grey rounded-full overflow-hidden">
+                    <div className="h-full bg-purple-500 rounded-full transition-all duration-1000" style={{ width: '40%' }}></div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
           
-          {/* Estadísticas */}
-          <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-            <div className="p-4 border-b border-light-grey">
-              <h2 className="text-lg font-semibold">Actividad Reciente</h2>
-            </div>
-            
-            <div className="p-4">
-              <div className="mb-4">
-                <div className="flex justify-between mb-1">
-                  <span className="text-sm text-medium-grey">Tasa de ocupación</span>
-                  <span className="text-sm font-medium">85%</span>
-                </div>
-                <div className="h-2 bg-light-grey rounded-full">
-                  <div className="h-full bg-primary rounded-full" style={{ width: '85%' }}></div>
-                </div>
-              </div>
-              
-              <div className="mb-4">
-                <div className="flex justify-between mb-1">
-                  <span className="text-sm text-medium-grey">Citas completadas</span>
-                  <span className="text-sm font-medium">18/20</span>
-                </div>
-                <div className="h-2 bg-light-grey rounded-full">
-                  <div className="h-full bg-green-500 rounded-full" style={{ width: '90%' }}></div>
-                </div>
-              </div>
-              
-              <div className="mb-4">
-                <div className="flex justify-between mb-1">
-                  <span className="text-sm text-medium-grey">Valoraciones positivas</span>
-                  <span className="text-sm font-medium">92%</span>
-                </div>
-                <div className="h-2 bg-light-grey rounded-full">
-                  <div className="h-full bg-yellow-500 rounded-full" style={{ width: '92%' }}></div>
-                </div>
-              </div>
-              
-              <div className="mb-4">
-                <div className="flex justify-between mb-1">
-                  <span className="text-sm text-medium-grey">Nuevos pacientes</span>
-                  <span className="text-sm font-medium">8</span>
-                </div>
-                <div className="h-2 bg-light-grey rounded-full">
-                  <div className="h-full bg-purple-500 rounded-full" style={{ width: '40%' }}></div>
-                </div>
-              </div>
-            </div>
-            
-            <div className="p-4 border-t border-light-grey">
-              <Link 
-                href="/doctor/analytics" 
-                className="text-primary hover:text-primary/80 font-medium text-sm flex items-center justify-center"
-              >
-                Ver análisis detallado <FiTrendingUp className="ml-1" />
-              </Link>
-            </div>
+          <div className="p-6 border-t border-light-grey">
+            <Link 
+              href="/doctor/analytics" 
+              className="font-medium text-sm flex items-center justify-center transition-colors hover:text-primary/80"
+              style={{ color: '#007AFF' }}
+            >
+              Ver análisis detallado <FiTrendingUp className="ml-1" size={16} />
+            </Link>
           </div>
         </div>
       </div>
+
+      {/* Enhanced Custom scrollbar styles */}
+      <style jsx global>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: #F2F2F2;
+          border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: #777777;
+          border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: #007AFF;
+        }
+        
+        /* Responsive adjustments for notifications */
+        @media (max-width: 768px) {
+          .notification-dropdown {
+            right: 1rem !important;
+            left: 1rem !important;
+            width: auto !important;
+            max-width: none !important;
+          }
+        }
+      `}</style>
     </div>
   );
 };
 
-// Componente para tarjetas de estadísticas
+// Componente para tarjetas de estadísticas - Enhanced design
 interface StatCardProps {
   icon: React.ReactNode;
   title: string;
@@ -344,14 +494,19 @@ interface StatCardProps {
 
 const StatCard: React.FC<StatCardProps> = ({ icon, title, value, trend, bgColor }) => {
   return (
-    <div className="bg-white rounded-xl shadow-sm p-6 flex items-start">
-      <div className={`${bgColor} p-3 rounded-lg mr-4`}>
+    <div 
+      className="rounded-xl shadow-sm p-6 flex items-start transition-all duration-200 hover:shadow-md"
+      style={{ backgroundColor: '#FFFFFF' }}
+    >
+      <div className={`${bgColor} p-4 rounded-xl mr-4 flex-shrink-0`}>
         {icon}
       </div>
-      <div>
-        <h3 className="text-medium-grey text-sm mb-1">{title}</h3>
-        <p className="text-2xl font-bold">{value}</p>
-        {trend && <p className="text-xs text-green-600 font-medium">{trend}</p>}
+      <div className="flex-1">
+        <h3 className="text-medium-grey text-sm font-medium mb-2">{title}</h3>
+        <p className="text-3xl font-bold text-dark-grey mb-1">{value}</p>
+        {trend && (
+          <p className="text-sm text-green-600 font-medium">{trend}</p>
+        )}
       </div>
     </div>
   );

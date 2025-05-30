@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import RouteGuardProvider from "@/components/RouteGuardProvider";
 import BottomNavigation from "@/components/BottomNavigation";
+import AuthInitializer from "@/components/AuthInitializer";
 
 export const metadata: Metadata = {
   title: "AI Doctor Booking",
@@ -16,12 +17,14 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body className="antialiased">
-        <RouteGuardProvider>
-          <main className="min-h-screen pb-16">
-            {children}
-          </main>
-          <BottomNavigation />
-        </RouteGuardProvider>
+        <AuthInitializer>
+          <RouteGuardProvider>
+            <main className="min-h-screen pb-16">
+              {children}
+            </main>
+            <BottomNavigation />
+          </RouteGuardProvider>
+        </AuthInitializer>
       </body>
     </html>
   );
