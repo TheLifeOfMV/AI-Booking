@@ -4,25 +4,19 @@ import { User } from './user';
  * Representa el perfil completo de un paciente
  */
 export interface Patient extends User {
-  // Información médica
-  bloodType?: 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-';
-  allergies?: string[];
-  chronicConditions?: string[];
-  medications?: string[];
+  // Información básica adicional
+  lastName?: string;
+  documentType?: 'cedula_ciudadania' | 'pasaporte' | 'tarjeta_identidad' | 'cedula_extranjeria' | 'registro_civil';
+  documentNumber?: string;
+  birthDate?: string;
+  gender?: 'masculino' | 'femenino' | 'otro';
+  
+  // Contacto de emergencia (simplificado)
   emergencyContact?: {
     name: string;
-    relationship: string;
     phone: string;
   };
-  
-  // Información de dirección
-  address?: {
-    street: string;
-    city: string;
-    postalCode: string;
-    country: string;
-  };
-  
+
   // Información de seguro médico
   insurance?: {
     provider: string;
@@ -30,15 +24,6 @@ export interface Patient extends User {
     expirationDate: string;
     coverageDetails: string;
   };
-  
-  // Documentos médicos
-  medicalDocuments?: Array<{
-    id: string;
-    title: string;
-    date: string;
-    fileUrl: string;
-    type: 'report' | 'prescription' | 'labResult' | 'other';
-  }>;
 }
 
 /**
@@ -46,19 +31,15 @@ export interface Patient extends User {
  */
 export interface PatientFormData {
   name: string;
+  lastName?: string;
   email: string;
   phone: string;
-  bloodType?: string;
-  allergies?: string;
-  chronicConditions?: string;
-  medications?: string;
+  documentType?: string;
+  documentNumber?: string;
+  birthDate?: string;
+  gender?: string;
   emergencyContactName?: string;
-  emergencyContactRelationship?: string;
   emergencyContactPhone?: string;
-  street?: string;
-  city?: string;
-  postalCode?: string;
-  country?: string;
   insuranceProvider?: string;
   insurancePolicyNumber?: string;
   insuranceExpirationDate?: string;

@@ -2,76 +2,302 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { useAuthStore } from '@/store/authStore';
 import { 
   FiUser, 
   FiPhone, 
   FiMail, 
-  FiMapPin, 
   FiHeart, 
   FiPlus, 
   FiClock, 
   FiAlertTriangle,
   FiEdit,
   FiSave,
+  FiMessageSquare,
+  FiChevronDown,
+  FiChevronUp,
+  FiLock,
+  FiHelpCircle,
+  FiLogOut,
+  FiCalendar,
   FiFileText,
   FiShield,
-  FiMessageSquare
+  FiCamera,
+  FiMapPin,
+  FiActivity
 } from 'react-icons/fi';
 import Button from '@/components/Button';
 import Input from '@/components/Input';
-import ProfileSection from '@/components/patient/ProfileSection';
-import InfoField from '@/components/patient/InfoField';
-import DocumentCard from '@/components/patient/DocumentCard';
 import AppointmentCard from '@/components/patient/AppointmentCard';
 import { Patient, PatientFormData } from '@/types/patient';
-import { getPatientProfile, updatePatientProfile, getPatientDocuments, getPatientAppointments } from '@/services/patientService';
+import { getPatientProfile, updatePatientProfile, getPatientAppointments } from '@/services/patientService';
 
-// Pestañas disponibles
-type ProfileTab = 'personal' | 'medical' | 'appointments' | 'documents';
+// Tipos de documento disponibles
+const DOCUMENT_TYPES = [
+  { value: 'cedula_ciudadania', label: 'Cédula de Ciudadanía' },
+  { value: 'pasaporte', label: 'Pasaporte' },
+  { value: 'tarjeta_identidad', label: 'Tarjeta de Identidad' },
+  { value: 'cedula_extranjeria', label: 'Cédula de Extranjería' },
+  { value: 'registro_civil', label: 'Registro Civil' }
+];
+
+const GENDER_OPTIONS = [
+  { value: 'masculino', label: 'Masculino' },
+  { value: 'femenino', label: 'Femenino' },
+  { value: 'otro', label: 'Otro' }
+];
+
+// Componente para panel colapsable con diseño profesional
+interface CollapsiblePanelProps {
+  title: string;
+  icon: React.ReactNode;
+  isOpen: boolean;
+  onToggle: () => void;
+  children: React.ReactNode;
+  isEditable?: boolean;
+  onEdit?: () => void;
+  variant?: 'default' | 'danger';
+}
+
+const CollapsiblePanel: React.FC<CollapsiblePanelProps> = ({
+  title,
+  icon,
+  isOpen,
+  onToggle,
+  children,
+  isEditable = false,
+  onEdit,
+  variant = 'default'
+}) => {
+  const isDanger = variant === 'danger';
+  
+  return (
+    <div className="bg-white rounded-xl shadow-sm mb-3 overflow-hidden border border-gray-100 hover:shadow-md transition-all duration-300">
+      <button
+        onClick={onToggle}
+        className={`w-full px-4 py-3 flex items-center justify-between transition-all duration-200 ${
+          isDanger 
+            ? 'hover:bg-red-50 text-red-600' 
+            : 'hover:bg-gray-50'
+        }`}
+      >
+        <div className="flex items-center">
+          <div className={`p-1.5 rounded-lg mr-3 ${
+            isDanger 
+              ? 'bg-red-100 text-red-600' 
+              : 'bg-blue-100 text-blue-600'
+          }`}>
+            {icon}
+          </div>
+          <h3 className="font-semibold text-base text-gray-900">{title}</h3>
+        </div>
+        <div className="flex items-center space-x-2">
+          {isEditable && onEdit && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit();
+              }}
+              className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200"
+              aria-label="Editar"
+            >
+              <FiEdit size={16} />
+            </button>
+          )}
+          <div className={`p-1 rounded-lg transition-transform duration-200 ${
+            isOpen ? 'rotate-45' : ''
+          }`}>
+            <FiPlus size={18} className="text-gray-400" />
+          </div>
+        </div>
+      </button>
+      
+      {isOpen && (
+        <div className="px-4 pb-4 border-t border-gray-100 bg-gray-50/30">
+          {children}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Componente para campo de información profesional
+interface InfoRowProps {
+  label: string;
+  value: string;
+  icon?: React.ReactNode;
+}
+
+const InfoRow: React.FC<InfoRowProps> = ({ label, value, icon }) => (
+  <div className="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+    <div className="flex items-center">
+      {icon && (
+        <div className="p-1 rounded-lg bg-gray-100 text-gray-600 mr-2">
+          {icon}
+        </div>
+      )}
+      <span className="text-gray-600 font-medium text-sm">{label}</span>
+    </div>
+    <span className="text-gray-900 font-semibold text-right max-w-[60%] break-words text-sm">
+      {value || 'No especificado'}
+    </span>
+  </div>
+);
+
+// Componente Input personalizado con mejor styling
+interface CustomInputProps {
+  label: string;
+  type?: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  name: string;
+  placeholder?: string;
+  icon?: React.ReactNode;
+}
+
+const CustomInput: React.FC<CustomInputProps> = ({ 
+  label, 
+  type = 'text', 
+  value, 
+  onChange, 
+  name, 
+  placeholder,
+  icon 
+}) => (
+  <div className="space-y-1.5">
+    <label className="block text-gray-700 font-semibold text-sm">
+      {label}
+    </label>
+    <div className="relative">
+      {icon && (
+        <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+          {icon}
+        </div>
+      )}
+      <input
+        type={type}
+        name={name}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        className={`w-full ${icon ? 'pl-9' : 'pl-3'} pr-3 py-2.5 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200 text-gray-900 placeholder-gray-400 bg-white hover:border-gray-300 text-sm`}
+      />
+    </div>
+  </div>
+);
+
+// Componente Select personalizado
+interface CustomSelectProps {
+  label: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+  name: string;
+  options: { value: string; label: string }[];
+  placeholder?: string;
+  icon?: React.ReactNode;
+}
+
+const CustomSelect: React.FC<CustomSelectProps> = ({ 
+  label, 
+  value, 
+  onChange, 
+  name, 
+  options, 
+  placeholder,
+  icon 
+}) => (
+  <div className="space-y-1.5">
+    <label className="block text-gray-700 font-semibold text-sm">
+      {label}
+    </label>
+    <div className="relative">
+      {icon && (
+        <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 z-10">
+          {icon}
+        </div>
+      )}
+      <select
+        name={name}
+        value={value}
+        onChange={onChange}
+        className={`w-full ${icon ? 'pl-9' : 'pl-3'} pr-8 py-2.5 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200 text-gray-900 bg-white hover:border-gray-300 appearance-none cursor-pointer text-sm`}
+      >
+        <option value="">{placeholder || 'Seleccionar...'}</option>
+        {options.map(option => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+      <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+        <FiPlus className="text-gray-400" size={16} />
+      </div>
+    </div>
+  </div>
+);
 
 export default function PatientProfilePage() {
+  const router = useRouter();
+  const { logout } = useAuthStore();
+
   // Estado para almacenar los datos del perfil
   const [profile, setProfile] = useState<Patient | null>(null);
   const [formData, setFormData] = useState<PatientFormData>({
     name: '',
+    lastName: '',
     email: '',
-    phone: ''
+    phone: '',
+    documentType: '',
+    documentNumber: '',
+    birthDate: '',
+    gender: '',
+    emergencyContactName: '',
+    emergencyContactPhone: ''
   });
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState<ProfileTab>('personal');
-  const [documents, setDocuments] = useState<any[]>([]);
   const [appointments, setAppointments] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  
+  // Estado para controlar qué paneles están abiertos
+  const [openPanels, setOpenPanels] = useState<{[key: string]: boolean}>({
+    basic: false,
+    emergency: false,
+    password: false,
+    appointments: false,
+    faq: false
+  });
+
+  // Estado para cambio de contraseña
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
+
+  // Estado para manejo de foto de perfil
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
 
   // Cargar datos del perfil
   useEffect(() => {
     const loadProfile = async () => {
       setIsLoading(true);
       try {
-        // Simulación: obtener perfil del paciente con ID 1
         const data = await getPatientProfile('1');
         if (data) {
           setProfile(data);
           setFormData({
-            name: data.name,
-            email: data.email,
-            phone: data.phone,
-            bloodType: data.bloodType,
-            allergies: data.allergies?.join(', '),
-            chronicConditions: data.chronicConditions?.join(', '),
-            medications: data.medications?.join(', '),
-            emergencyContactName: data.emergencyContact?.name,
-            emergencyContactRelationship: data.emergencyContact?.relationship,
-            emergencyContactPhone: data.emergencyContact?.phone,
-            street: data.address?.street,
-            city: data.address?.city,
-            postalCode: data.address?.postalCode,
-            country: data.address?.country,
-            insuranceProvider: data.insurance?.provider,
-            insurancePolicyNumber: data.insurance?.policyNumber,
-            insuranceExpirationDate: data.insurance?.expirationDate,
-            insuranceCoverageDetails: data.insurance?.coverageDetails
+            name: data.name?.split(' ')[0] || '',
+            lastName: data.name?.split(' ').slice(1).join(' ') || '',
+            email: data.email || '',
+            phone: data.phone || '',
+            documentType: data.documentType || '',
+            documentNumber: data.documentNumber || '',
+            birthDate: data.birthDate || '',
+            gender: data.gender || '',
+            emergencyContactName: data.emergencyContact?.name || '',
+            emergencyContactPhone: data.emergencyContact?.phone || ''
           });
         }
       } catch (error) {
@@ -84,574 +310,515 @@ export default function PatientProfilePage() {
     loadProfile();
   }, []);
 
-  // Cargar documentos cuando se selecciona la pestaña correspondiente
+  // Cargar citas
   useEffect(() => {
-    if (activeTab === 'documents') {
-      const loadDocuments = async () => {
-        try {
-          const data = await getPatientDocuments('1');
-          setDocuments(data);
-        } catch (error) {
-          console.error('Error al cargar documentos:', error);
-        }
-      };
-      loadDocuments();
-    } else if (activeTab === 'appointments') {
-      const loadAppointments = async () => {
-        try {
-          const data = await getPatientAppointments('1');
-          setAppointments(data);
-        } catch (error) {
-          console.error('Error al cargar citas:', error);
-        }
-      };
-      loadAppointments();
-    }
-  }, [activeTab]);
+    const loadAppointments = async () => {
+      try {
+        const data = await getPatientAppointments('1');
+        setAppointments(data);
+      } catch (error) {
+        console.error('Error al cargar citas:', error);
+      }
+    };
+    loadAppointments();
+  }, []);
+
+  // Alternar panel abierto/cerrado
+  const togglePanel = (panelKey: string) => {
+    setOpenPanels(prev => ({
+      ...prev,
+      [panelKey]: !prev[panelKey]
+    }));
+  };
 
   // Manejar cambios en los campos del formulario
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
+    setFormData(prev => ({
+      ...prev,
       [name]: value
-    });
+    }));
+  };
+
+  // Manejar cambios en campos de contraseña
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setPasswordData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   // Guardar cambios del perfil
-  const handleSaveChanges = async () => {
+  const handleSaveChanges = async (section: string) => {
     setIsSaving(true);
     try {
       const updatedProfile = await updatePatientProfile('1', formData);
       setProfile(updatedProfile);
-      setIsEditing(false);
-      // Mostrar notificación de éxito (en una implementación real)
-      alert('Perfil actualizado con éxito');
+      setIsEditing(null);
+      // Success notification
+      console.log('Perfil actualizado con éxito');
     } catch (error) {
       console.error('Error al actualizar el perfil:', error);
-      // Mostrar notificación de error (en una implementación real)
-      alert('Error al actualizar el perfil');
     } finally {
       setIsSaving(false);
     }
   };
 
+  // Cambiar contraseña
+  const handlePasswordSave = async () => {
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      console.log('Las contraseñas no coinciden');
+      return;
+    }
+    
+    setIsSaving(true);
+    try {
+      console.log('Cambiar contraseña:', passwordData);
+      setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+      setIsEditing(null);
+    } catch (error) {
+      console.error('Error al cambiar contraseña:', error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Cerrar sesión
+  const handleLogout = () => {
+    if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
+      // Usar el método logout del store para limpiar todo el estado de autenticación
+      logout();
+      
+      // Limpiar cualquier dato adicional del localStorage
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('userSession');
+      
+      // Redirigir al login
+      router.push('/login');
+    }
+  };
+
+  // Manejar subida de foto de perfil
+  const handlePhotoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validar tipo de archivo
+    if (!file.type.startsWith('image/')) {
+      alert('Por favor selecciona un archivo de imagen válido');
+      return;
+    }
+
+    // Validar tamaño (máximo 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('La imagen debe ser menor a 5MB');
+      return;
+    }
+
+    setIsUploadingPhoto(true);
+    try {
+      // Aquí iría la lógica para subir la imagen al servidor
+      const formData = new FormData();
+      formData.append('photo', file);
+      
+      // Simular subida
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      console.log('Foto subida exitosamente');
+      // Actualizar el avatar en el estado del perfil
+      // setProfile(prev => ({ ...prev, avatar: newAvatarUrl }));
+    } catch (error) {
+      console.error('Error al subir la foto:', error);
+      alert('Error al subir la foto. Inténtalo de nuevo.');
+    } finally {
+      setIsUploadingPhoto(false);
+    }
+  };
+
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen p-4">
-        <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-        <p className="mt-4 text-medium-grey">Cargando perfil...</p>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex flex-col items-center justify-center p-4">
+        <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-6"></div>
+        <div className="text-center">
+          <h2 className="text-xl font-semibold text-gray-800 mb-2">Cargando tu perfil</h2>
+          <p className="text-gray-600">Esto solo tomará un momento...</p>
+        </div>
       </div>
     );
   }
 
   if (!profile) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen p-4">
-        <FiAlertTriangle size={48} className="text-accent-orange mb-4" />
-        <h2 className="text-xl font-semibold mb-2">No se pudo cargar el perfil</h2>
-        <p className="text-medium-grey mb-4">Por favor, inténtelo de nuevo más tarde.</p>
-        <Button type="primary" onClick={() => window.location.reload()}>
-          Reintentar
-        </Button>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex flex-col items-center justify-center p-4">
+        <div className="bg-white rounded-2xl shadow-xl p-8 text-center max-w-md w-full">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <FiAlertTriangle size={32} className="text-red-600" />
+          </div>
+          <h2 className="text-xl font-semibold text-gray-800 mb-2">Error al cargar</h2>
+          <p className="text-gray-600 mb-6">No se pudo cargar tu información de perfil.</p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="w-full bg-blue-600 text-white py-3 px-6 rounded-xl font-semibold hover:bg-blue-700 transition-colors duration-200"
+          >
+            Reintentar
+          </button>
+        </div>
       </div>
     );
   }
 
-    return (    <div className="pb-20" style={{ backgroundColor: '#F0F4F9' }}>
-            {/* Cabecera del perfil */}      <div className="p-6" style={{ backgroundColor: '#F0F4F9' }}>
-        <div className="flex items-center mb-4">
-          <div className="relative mr-4">
-            <div className="w-20 h-20 rounded-full bg-light-grey overflow-hidden border-2 border-white">
-              {profile.avatar ? (
-                <Image 
-                  src={profile.avatar} 
-                  alt={profile.name}
-                  width={80}
-                  height={80}
-                  className="object-cover w-full h-full"
+  return (
+    <div className="min-h-screen pb-24" style={{ backgroundColor: '#F0F4F9' }}>
+      {/* Animated Header with Profile Photo - Simplified */}
+      <div className="bg-white mx-4 pt-4 rounded-2xl shadow-lg overflow-hidden border border-gray-100">
+        {/* Animated gradient background */}
+        <div className="relative h-32 overflow-hidden">
+          {/* Base gradient */}
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-blue-800"></div>
+          
+          {/* Animated overlay gradients */}
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/80 via-transparent to-blue-700/60 animate-pulse"></div>
+          
+          {/* Floating animated shapes */}
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute top-4 left-4 w-12 h-12 bg-white/30 rounded-full animate-float"></div>
+            <div className="absolute top-8 right-8 w-8 h-8 bg-white/25 rounded-full animate-float-delayed"></div>
+            <div className="absolute bottom-6 left-1/3 w-6 h-6 bg-white/35 rounded-full animate-float-slow"></div>
+            <div className="absolute bottom-4 right-1/4 w-10 h-10 bg-white/20 rounded-full animate-bounce-slow"></div>
+          </div>
+
+          {/* Animated wave pattern */}
+          <svg 
+            className="absolute bottom-0 left-0 w-full h-8 opacity-30 text-white" 
+            viewBox="0 0 400 60" 
+            fill="currentColor"
+          >
+            <path d="M0,30 Q100,10 200,30 T400,30 L400,60 L0,60 Z" className="animate-wave" />
+          </svg>
+        </div>
+        
+        {/* Profile content */}
+        <div className="px-6 pb-6 -mt-16 relative">
+          <div className="flex flex-col items-center text-center">
+            {/* Profile photo with upload */}
+            <div className="relative mb-4">
+              <div className="w-24 h-24 rounded-full bg-white shadow-2xl overflow-hidden border-4 border-white">
+                {profile.avatar ? (
+                  <Image 
+                    src={profile.avatar} 
+                    alt={profile.name || ''}
+                    width={96}
+                    height={96}
+                    className="object-cover w-full h-full"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-100 to-purple-100">
+                    <FiUser size={40} className="text-blue-600" />
+                  </div>
+                )}
+                
+                {/* Upload overlay */}
+                {isUploadingPhoto && (
+                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-full">
+                    <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  </div>
+                )}
+              </div>
+              
+              {/* Upload button */}
+              <label className="absolute -bottom-2 -right-2 w-8 h-8 bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-full flex items-center justify-center shadow-lg hover:from-blue-700 hover:to-blue-900 transition-all duration-200 cursor-pointer hover:scale-110">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handlePhotoUpload}
+                  className="hidden"
+                  disabled={isUploadingPhoto}
                 />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center bg-primary/20 text-primary">
-                  <FiUser size={32} />
-                </div>
-              )}
+                <FiCamera size={14} />
+              </label>
             </div>
-            {isEditing && (
+            
+            {/* Name */}
+            <h1 className="text-2xl font-bold text-gray-900 mb-1">
+              {profile.name}
+            </h1>
+            
+            {/* Subtle animated accent */}
+            <div className="w-16 h-1 bg-gradient-to-r from-blue-600 to-blue-800 rounded-full animate-pulse"></div>
+          </div>
+        </div>
+      </div>
+
+      {/* Collapsible Panels */}
+      <div className="px-4 pt-4">
+        {/* Información Básica */}
+        <CollapsiblePanel
+          title="Información Básica"
+          icon={<FiUser size={18} />}
+          isOpen={openPanels.basic}
+          onToggle={() => togglePanel('basic')}
+          isEditable={true}
+          onEdit={() => setIsEditing('basic')}
+        >
+          {isEditing === 'basic' ? (
+            <div className="space-y-4 pt-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <CustomInput
+                  label="Nombre"
+                  name="name"
+                  value={formData.name || ''}
+                  onChange={handleChange}
+                  icon={<FiUser size={14} />}
+                  placeholder="Tu nombre"
+                />
+                <CustomInput
+                  label="Apellidos"
+                  name="lastName"
+                  value={formData.lastName || ''}
+                  onChange={handleChange}
+                  icon={<FiUser size={14} />}
+                  placeholder="Tus apellidos"
+                />
+              </div>
+              
+              <CustomSelect
+                label="Tipo de Documento"
+                name="documentType"
+                value={formData.documentType || ''}
+                onChange={handleChange}
+                options={DOCUMENT_TYPES}
+                icon={<FiFileText size={14} />}
+                placeholder="Selecciona el tipo de documento"
+              />
+
+              <CustomInput
+                label="Número de Documento"
+                name="documentNumber"
+                value={formData.documentNumber || ''}
+                onChange={handleChange}
+                icon={<FiShield size={14} />}
+                placeholder="Ingresa tu número de documento"
+              />
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <CustomInput
+                  label="Fecha de Nacimiento"
+                  name="birthDate"
+                  type="date"
+                  value={formData.birthDate || ''}
+                  onChange={handleChange}
+                  icon={<FiCalendar size={14} />}
+                />
+                
+                <CustomSelect
+                  label="Género"
+                  name="gender"
+                  value={formData.gender || ''}
+                  onChange={handleChange}
+                  options={GENDER_OPTIONS}
+                  icon={<FiUser size={14} />}
+                  placeholder="Selecciona tu género"
+                />
+              </div>
+
+              <CustomInput
+                label="Teléfono"
+                name="phone"
+                value={formData.phone || ''}
+                onChange={handleChange}
+                icon={<FiPhone size={14} />}
+                placeholder="Tu número de teléfono"
+              />
+
+              <div className="flex gap-3 pt-4 border-t border-gray-200">
+                <button
+                  onClick={() => setIsEditing(null)}
+                  className="flex-1 py-2 px-4 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition-colors duration-200 text-sm"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={() => handleSaveChanges('basic')}
+                  disabled={isSaving}
+                  className="flex-1 py-2 px-4 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 text-sm"
+                >
+                  {isSaving ? 'Guardando...' : 'Guardar'}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="pt-3">
+              <InfoRow 
+                label="Nombre completo" 
+                value={`${formData.name} ${formData.lastName}`.trim()}
+                icon={<FiUser size={14} />}
+              />
+              <InfoRow 
+                label="Tipo de documento" 
+                value={DOCUMENT_TYPES.find(t => t.value === formData.documentType)?.label || ''}
+                icon={<FiFileText size={14} />}
+              />
+              <InfoRow 
+                label="Número de documento" 
+                value={formData.documentNumber || ''}
+                icon={<FiShield size={14} />}
+              />
+              <InfoRow 
+                label="Fecha de nacimiento" 
+                value={formData.birthDate || ''}
+                icon={<FiCalendar size={14} />}
+              />
+              <InfoRow 
+                label="Teléfono" 
+                value={formData.phone || ''}
+                icon={<FiPhone size={14} />}
+              />
+              <InfoRow 
+                label="Género" 
+                value={GENDER_OPTIONS.find(g => g.value === formData.gender)?.label || ''}
+                icon={<FiUser size={14} />}
+              />
+            </div>
+          )}
+        </CollapsiblePanel>
+
+        {/* Contacto de Emergencia */}
+        <CollapsiblePanel
+          title="Contacto de Emergencia"
+          icon={<FiHeart size={18} />}
+          isOpen={openPanels.emergency}
+          onToggle={() => togglePanel('emergency')}
+          isEditable={true}
+          onEdit={() => setIsEditing('emergency')}
+        >
+          {isEditing === 'emergency' ? (
+            <div className="space-y-4 pt-4">
+              <CustomInput
+                label="Nombre del contacto"
+                name="emergencyContactName"
+                value={formData.emergencyContactName || ''}
+                onChange={handleChange}
+                icon={<FiUser size={14} />}
+                placeholder="Nombre completo del contacto"
+              />
+              <CustomInput
+                label="Teléfono celular"
+                name="emergencyContactPhone"
+                value={formData.emergencyContactPhone || ''}
+                onChange={handleChange}
+                icon={<FiPhone size={14} />}
+                placeholder="Número de teléfono del contacto"
+              />
+              <div className="flex gap-3 pt-4 border-t border-gray-200">
+                <button
+                  onClick={() => setIsEditing(null)}
+                  className="flex-1 py-2 px-4 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition-colors duration-200 text-sm"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={() => handleSaveChanges('emergency')}
+                  disabled={isSaving}
+                  className="flex-1 py-2 px-4 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 text-sm"
+                >
+                  {isSaving ? 'Guardando...' : 'Guardar'}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="pt-3">
+              <InfoRow 
+                label="Nombre del contacto" 
+                value={formData.emergencyContactName || ''}
+                icon={<FiUser size={14} />}
+              />
+              <InfoRow 
+                label="Teléfono celular" 
+                value={formData.emergencyContactPhone || ''}
+                icon={<FiPhone size={14} />}
+              />
+            </div>
+          )}
+        </CollapsiblePanel>
+
+        {/* Cambiar Contraseña */}
+        <CollapsiblePanel
+          title="Cambiar Contraseña"
+          icon={<FiLock size={18} />}
+          isOpen={openPanels.password}
+          onToggle={() => togglePanel('password')}
+        >
+          <div className="pt-4">
+            {isEditing === 'password' ? (
+              <div className="space-y-4">
+                <CustomInput
+                  label="Contraseña actual"
+                  name="currentPassword"
+                  type="password"
+                  value={passwordData.currentPassword}
+                  onChange={handlePasswordChange}
+                  icon={<FiLock size={14} />}
+                  placeholder="Tu contraseña actual"
+                />
+                <CustomInput
+                  label="Nueva contraseña"
+                  name="newPassword"
+                  type="password"
+                  value={passwordData.newPassword}
+                  onChange={handlePasswordChange}
+                  icon={<FiLock size={14} />}
+                  placeholder="Tu nueva contraseña"
+                />
+                <CustomInput
+                  label="Confirmar nueva contraseña"
+                  name="confirmPassword"
+                  type="password"
+                  value={passwordData.confirmPassword}
+                  onChange={handlePasswordChange}
+                  icon={<FiLock size={14} />}
+                  placeholder="Confirma tu nueva contraseña"
+                />
+                <div className="flex gap-3 pt-3 border-t border-gray-200">
+                  <button
+                    onClick={() => setIsEditing(null)}
+                    className="flex-1 py-2 px-4 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition-colors duration-200 text-sm"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    onClick={handlePasswordSave}
+                    disabled={isSaving}
+                    className="flex-1 py-2 px-4 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 text-sm"
+                  >
+                    {isSaving ? 'Cambiando...' : 'Cambiar'}
+                  </button>
+                </div>
+              </div>
+            ) : (
               <button 
-                className="absolute bottom-0 right-0 bg-primary text-white rounded-full p-1 border-2 border-white"
-                aria-label="Cambiar foto"
+                onClick={() => setIsEditing('password')}
+                className="w-full py-3 px-4 bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-lg font-medium hover:from-blue-700 hover:to-blue-900 transition-all duration-200 shadow-md hover:shadow-lg text-sm"
               >
-                <FiEdit size={14} />
+                Cambiar mi contraseña
               </button>
             )}
           </div>
-          <div>
-            <h1 className="text-xl font-bold text-dark-grey">{profile.name}</h1>
-            <p className="text-medium-grey text-sm">ID: {profile.id}</p>
-          </div>
-        </div>
-        
-        {isEditing ? (
-          <div className="flex gap-3">
-            <Button 
-              type="secondary" 
-              onClick={() => setIsEditing(false)}
-            >
-              Cancelar
-            </Button>
-            <Button 
-              type="primary" 
-              onClick={handleSaveChanges}
-              disabled={isSaving}
-              className="flex items-center"
-            >
-              {isSaving ? 'Guardando...' : (
-                <>
-                  <FiSave className="mr-2" /> Guardar Cambios
-                </>
-              )}
-            </Button>
-          </div>
-        ) : (
-          <Button 
-            type="primary" 
-            onClick={() => setIsEditing(true)}
-            className="flex items-center"
-          >
-            <FiEdit className="mr-2" /> Editar Perfil
-          </Button>
-        )}
-      </div>
+        </CollapsiblePanel>
 
-            {/* Navegación por pestañas */}      <div className="sticky top-0 z-10 border-b border-light-grey" style={{ backgroundColor: '#F0F4F9' }}>
-        <div className="flex overflow-x-auto no-scrollbar">
-          <button
-            className={`px-5 py-4 font-medium whitespace-nowrap ${
-              activeTab === 'personal' 
-                ? 'text-primary border-b-2 border-primary' 
-                : 'text-medium-grey'
-            }`}
-            onClick={() => setActiveTab('personal')}
-          >
-            Información Personal
-          </button>
-          <button
-            className={`px-5 py-4 font-medium whitespace-nowrap ${
-              activeTab === 'medical' 
-                ? 'text-primary border-b-2 border-primary' 
-                : 'text-medium-grey'
-            }`}
-            onClick={() => setActiveTab('medical')}
-          >
-            Datos Médicos
-          </button>
-          <button
-            className={`px-5 py-4 font-medium whitespace-nowrap ${
-              activeTab === 'appointments' 
-                ? 'text-primary border-b-2 border-primary' 
-                : 'text-medium-grey'
-            }`}
-            onClick={() => setActiveTab('appointments')}
-          >
-            Mis Citas
-          </button>
-          <button
-            className={`px-5 py-4 font-medium whitespace-nowrap ${
-              activeTab === 'documents' 
-                ? 'text-primary border-b-2 border-primary' 
-                : 'text-medium-grey'
-            }`}
-            onClick={() => setActiveTab('documents')}
-          >
-            Documentos
-          </button>
-        </div>
-      </div>
-
-            {/* Contenido principal */}      <div className="p-4" style={{ backgroundColor: '#F0F4F9' }}>
-        {activeTab === 'personal' && (
-          <>
-            {isEditing ? (
-              /* Formulario de edición */
-              <>
-                <ProfileSection title="Información de Contacto" isEditable={false}>
-                  <div className="space-y-4">
-                    <Input
-                      label="Nombre completo"
-                      id="name"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleChange}
-                    />
-                    <Input
-                      label="Correo electrónico"
-                      id="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                    />
-                    <Input
-                      label="Teléfono"
-                      id="phone"
-                      name="phone"
-                      value={formData.phone}
-                      onChange={handleChange}
-                    />
-                  </div>
-                </ProfileSection>
-
-                <ProfileSection title="Dirección" isEditable={false}>
-                  <div className="space-y-4">
-                    <Input
-                      label="Calle y número"
-                      id="street"
-                      name="street"
-                      value={formData.street || ''}
-                      onChange={handleChange}
-                    />
-                    <div className="grid grid-cols-2 gap-4">
-                      <Input
-                        label="Ciudad"
-                        id="city"
-                        name="city"
-                        value={formData.city || ''}
-                        onChange={handleChange}
-                      />
-                      <Input
-                        label="Código postal"
-                        id="postalCode"
-                        name="postalCode"
-                        value={formData.postalCode || ''}
-                        onChange={handleChange}
-                      />
-                    </div>
-                    <Input
-                      label="País"
-                      id="country"
-                      name="country"
-                      value={formData.country || ''}
-                      onChange={handleChange}
-                    />
-                  </div>
-                </ProfileSection>
-
-                <ProfileSection title="Contacto de emergencia" isEditable={false}>
-                  <div className="space-y-4">
-                    <Input
-                      label="Nombre del contacto"
-                      id="emergencyContactName"
-                      name="emergencyContactName"
-                      value={formData.emergencyContactName || ''}
-                      onChange={handleChange}
-                    />
-                    <Input
-                      label="Relación"
-                      id="emergencyContactRelationship"
-                      name="emergencyContactRelationship"
-                      value={formData.emergencyContactRelationship || ''}
-                      onChange={handleChange}
-                    />
-                    <Input
-                      label="Teléfono de emergencia"
-                      id="emergencyContactPhone"
-                      name="emergencyContactPhone"
-                      value={formData.emergencyContactPhone || ''}
-                      onChange={handleChange}
-                    />
-                  </div>
-                </ProfileSection>
-              </>
-            ) : (
-              /* Vista de información */
-              <>
-                <ProfileSection 
-                  title="Información de Contacto" 
-                  onEdit={() => setIsEditing(true)}
-                >
-                  <InfoField
-                    label="Nombre completo"
-                    value={profile.name}
-                    icon={<FiUser />}
-                  />
-                  <InfoField
-                    label="Correo electrónico"
-                    value={profile.email}
-                    icon={<FiMail />}
-                  />
-                  <InfoField
-                    label="Teléfono"
-                    value={profile.phone}
-                    icon={<FiPhone />}
-                  />
-                </ProfileSection>
-
-                <ProfileSection 
-                  title="Dirección" 
-                  onEdit={() => setIsEditing(true)}
-                >
-                  <InfoField
-                    label="Dirección completa"
-                    value={profile.address?.street}
-                    icon={<FiMapPin />}
-                  />
-                  <InfoField
-                    label="Ciudad"
-                    value={profile.address?.city}
-                  />
-                  <InfoField
-                    label="Código postal"
-                    value={profile.address?.postalCode}
-                  />
-                  <InfoField
-                    label="País"
-                    value={profile.address?.country}
-                  />
-                </ProfileSection>
-
-                <ProfileSection 
-                  title="Contacto de emergencia" 
-                  onEdit={() => setIsEditing(true)}
-                >
-                  <InfoField
-                    label="Nombre del contacto"
-                    value={profile.emergencyContact?.name}
-                    icon={<FiHeart />}
-                  />
-                  <InfoField
-                    label="Relación"
-                    value={profile.emergencyContact?.relationship}
-                  />
-                  <InfoField
-                    label="Teléfono de emergencia"
-                    value={profile.emergencyContact?.phone}
-                    icon={<FiPhone />}
-                  />
-                </ProfileSection>
-              </>
-            )}
-          </>
-        )}
-
-        {activeTab === 'medical' && (
-          <>
-            {isEditing ? (
-              /* Formulario de edición de datos médicos */
-              <>
-                <ProfileSection title="Información médica básica" isEditable={false}>
-                  <div className="space-y-4">
-                    <div className="mb-4">
-                      <label className="block text-dark-grey font-medium mb-1">
-                        Tipo de sangre
-                      </label>
-                      <select
-                        id="bloodType"
-                        name="bloodType"
-                        value={formData.bloodType || ''}
-                        onChange={handleChange}
-                        className="w-full px-4 py-3 rounded-lg border border-light-grey focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                      >
-                        <option value="">Seleccionar</option>
-                        <option value="A+">A+</option>
-                        <option value="A-">A-</option>
-                        <option value="B+">B+</option>
-                        <option value="B-">B-</option>
-                        <option value="AB+">AB+</option>
-                        <option value="AB-">AB-</option>
-                        <option value="O+">O+</option>
-                        <option value="O-">O-</option>
-                      </select>
-                    </div>
-
-                    <div className="mb-4">
-                      <label className="block text-dark-grey font-medium mb-1">
-                        Alergias (separadas por comas)
-                      </label>
-                      <textarea
-                        id="allergies"
-                        name="allergies"
-                        rows={3}
-                        value={formData.allergies || ''}
-                        onChange={handleChange}
-                        className="w-full px-4 py-3 rounded-lg border border-light-grey focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                        placeholder="Ejemplo: Penicilina, Polen, Frutos secos"
-                      />
-                    </div>
-
-                    <div className="mb-4">
-                      <label className="block text-dark-grey font-medium mb-1">
-                        Condiciones crónicas (separadas por comas)
-                      </label>
-                      <textarea
-                        id="chronicConditions"
-                        name="chronicConditions"
-                        rows={3}
-                        value={formData.chronicConditions || ''}
-                        onChange={handleChange}
-                        className="w-full px-4 py-3 rounded-lg border border-light-grey focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                        placeholder="Ejemplo: Asma, Diabetes, Hipertensión"
-                      />
-                    </div>
-
-                    <div className="mb-4">
-                      <label className="block text-dark-grey font-medium mb-1">
-                        Medicación actual (separada por comas)
-                      </label>
-                      <textarea
-                        id="medications"
-                        name="medications"
-                        rows={3}
-                        value={formData.medications || ''}
-                        onChange={handleChange}
-                        className="w-full px-4 py-3 rounded-lg border border-light-grey focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                        placeholder="Ejemplo: Salbutamol, Paracetamol"
-                      />
-                    </div>
-                  </div>
-                </ProfileSection>
-
-                <ProfileSection title="Información de seguro médico" isEditable={false}>
-                  <div className="space-y-4">
-                    <Input
-                      label="Proveedor de seguro"
-                      id="insuranceProvider"
-                      name="insuranceProvider"
-                      value={formData.insuranceProvider || ''}
-                      onChange={handleChange}
-                    />
-                    <Input
-                      label="Número de póliza"
-                      id="insurancePolicyNumber"
-                      name="insurancePolicyNumber"
-                      value={formData.insurancePolicyNumber || ''}
-                      onChange={handleChange}
-                    />
-                    <Input
-                      label="Fecha de expiración"
-                      id="insuranceExpirationDate"
-                      name="insuranceExpirationDate"
-                      type="date"
-                      value={formData.insuranceExpirationDate || ''}
-                      onChange={handleChange}
-                    />
-                    <div className="mb-4">
-                      <label className="block text-dark-grey font-medium mb-1">
-                        Detalles de cobertura
-                      </label>
-                      <textarea
-                        id="insuranceCoverageDetails"
-                        name="insuranceCoverageDetails"
-                        rows={3}
-                        value={formData.insuranceCoverageDetails || ''}
-                        onChange={handleChange}
-                        className="w-full px-4 py-3 rounded-lg border border-light-grey focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                      />
-                    </div>
-                  </div>
-                </ProfileSection>
-              </>
-            ) : (
-              /* Vista de información médica */
-              <>
-                <ProfileSection 
-                  title="Información médica básica" 
-                  onEdit={() => setIsEditing(true)}
-                >
-                  <InfoField
-                    label="Tipo de sangre"
-                    value={profile.bloodType}
-                    icon={<FiHeart />}
-                  />
-                  <InfoField
-                    label="Alergias"
-                    value={profile.allergies}
-                    icon={<FiAlertTriangle />}
-                    isList
-                  />
-                  <InfoField
-                    label="Condiciones crónicas"
-                    value={profile.chronicConditions}
-                    icon={<FiClock />}
-                    isList
-                  />
-                  <InfoField
-                    label="Medicación actual"
-                    value={profile.medications}
-                    icon={<FiPlus />}
-                    isList
-                  />
-                </ProfileSection>
-
-                <ProfileSection 
-                  title="Información de seguro médico" 
-                  onEdit={() => setIsEditing(true)}
-                >
-                  <InfoField
-                    label="Proveedor de seguro"
-                    value={profile.insurance?.provider}
-                    icon={<FiShield />}
-                  />
-                  <InfoField
-                    label="Número de póliza"
-                    value={profile.insurance?.policyNumber}
-                  />
-                  <InfoField
-                    label="Fecha de expiración"
-                    value={profile.insurance?.expirationDate}
-                  />
-                  <InfoField
-                    label="Detalles de cobertura"
-                    value={profile.insurance?.coverageDetails}
-                    multiline
-                  />
-                </ProfileSection>
-              </>
-            )}
-          </>
-        )}
-
-        {activeTab === 'documents' && (
-          <ProfileSection 
-            title="Mis documentos médicos" 
-            isEditable={false}
-          >
-            {documents.length > 0 ? (
-              <div>
-                {documents.map(doc => (
-                  <DocumentCard 
-                    key={doc.id}
-                    id={doc.id}
-                    title={doc.title}
-                    date={doc.date}
-                    type={doc.type}
-                    fileUrl={doc.fileUrl}
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <FiFileText size={48} className="mx-auto text-medium-grey mb-4" />
-                <p className="text-medium-grey mb-4">No tienes documentos guardados</p>
-                <Button type="primary">
-                  <span className="flex items-center">
-                    <FiPlus className="mr-2" /> Subir documento
-                  </span>
-                </Button>
-              </div>
-            )}
-          </ProfileSection>
-        )}
-
-        {activeTab === 'appointments' && (
-          <div>
-            <h3 className="font-semibold text-lg mb-4">Próximas citas</h3>
-            {appointments.filter(apt => new Date(`${apt.date}T${apt.time}`) >= new Date()).length > 0 ? (
-              <div className="mb-6">
-                {appointments
-                  .filter(apt => new Date(`${apt.date}T${apt.time}`) >= new Date())
-                  .map(appointment => (
+        {/* Mis Citas */}
+        <CollapsiblePanel
+          title="Mis Citas"
+          icon={<FiCalendar size={18} />}
+          isOpen={openPanels.appointments}
+          onToggle={() => togglePanel('appointments')}
+        >
+          <div className="pt-4">
+            {appointments.length > 0 ? (
+              <div className="space-y-3">
+                {appointments.slice(0, 3).map(appointment => (
+                  <div key={appointment.id} className="bg-white rounded-lg p-3 border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200">
                     <AppointmentCard
-                      key={appointment.id}
                       id={appointment.id}
                       doctorName={appointment.doctorName}
                       doctorSpecialty={appointment.doctorSpecialty}
@@ -660,50 +827,84 @@ export default function PatientProfilePage() {
                       status={appointment.status}
                       location={appointment.location}
                     />
-                  ))}
+                  </div>
+                ))}
+                {appointments.length > 3 && (
+                  <button className="w-full py-2 px-4 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors duration-200 text-sm">
+                    Ver todas mis citas ({appointments.length})
+                  </button>
+                )}
               </div>
             ) : (
-              <div className="text-center py-8 mb-6 bg-white rounded-xl shadow-sm">
-                <FiClock size={48} className="mx-auto text-medium-grey mb-4" />
-                <p className="text-medium-grey mb-4">No tienes citas programadas</p>
-                <Button type="primary">
-                  <span className="flex items-center">
-                    <FiPlus className="mr-2" /> Agendar cita
-                  </span>
-                </Button>
-              </div>
-            )}
-
-            <h3 className="font-semibold text-lg mb-4">Historial de citas</h3>
-            {appointments.filter(apt => new Date(`${apt.date}T${apt.time}`) < new Date()).length > 0 ? (
-              <div>
-                {appointments
-                  .filter(apt => new Date(`${apt.date}T${apt.time}`) < new Date())
-                  .map(appointment => (
-                    <AppointmentCard
-                      key={appointment.id}
-                      id={appointment.id}
-                      doctorName={appointment.doctorName}
-                      doctorSpecialty={appointment.doctorSpecialty}
-                      date={appointment.date}
-                      time={appointment.time}
-                      status="completed"
-                      location={appointment.location}
-                    />
-                  ))}
-              </div>
-            ) : (
-              <div className="text-center py-8 bg-white rounded-xl shadow-sm">
-                <p className="text-medium-grey">No hay historial de citas</p>
+              <div className="text-center py-8">
+                <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-3">
+                  <FiClock size={24} className="text-blue-600" />
+                </div>
+                <h3 className="text-base font-semibold text-gray-800 mb-1">Sin citas programadas</h3>
+                <p className="text-gray-600 mb-4 text-sm">Agenda tu primera cita médica</p>
+                <button className="bg-blue-600 text-white py-2 px-6 rounded-lg font-medium hover:bg-blue-700 transition-colors duration-200 shadow-md text-sm">
+                  Agendar cita
+                </button>
               </div>
             )}
           </div>
-        )}
+        </CollapsiblePanel>
+
+        {/* FAQ */}
+        <CollapsiblePanel
+          title="Preguntas Frecuentes"
+          icon={<FiHelpCircle size={18} />}
+          isOpen={openPanels.faq}
+          onToggle={() => togglePanel('faq')}
+        >
+          <div className="pt-4 space-y-4">
+            {[
+              {
+                question: "¿Cómo puedo cancelar una cita?",
+                answer: "Puedes cancelar una cita hasta 6 horas antes de la fecha programada desde la sección 'Mis Citas'."
+              },
+              {
+                question: "¿Qué documentos necesito llevar a mi cita?",
+                answer: "Debes llevar tu documento de identidad, tarjeta del seguro médico, órdenes médicas previas y lista de medicamentos actuales."
+              },
+              {
+                question: "¿Puedo agendar citas para familiares?",
+                answer: "Cada persona debe tener su propia cuenta para agendar citas médicas."
+              }
+            ].map((faq, index) => (
+              <div key={index} className="border-b border-gray-200 pb-3 last:border-b-0">
+                <h4 className="font-semibold text-gray-800 mb-1 flex items-center text-sm">
+                  <div className="w-5 h-5 bg-blue-100 rounded-full flex items-center justify-center mr-2 flex-shrink-0">
+                    <span className="text-blue-600 text-xs font-bold">?</span>
+                  </div>
+                  {faq.question}
+                </h4>
+                <p className="text-gray-600 ml-7 leading-relaxed text-sm">{faq.answer}</p>
+              </div>
+            ))}
+            <button className="w-full py-2 px-4 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors duration-200 text-sm">
+              Ver más preguntas frecuentes
+            </button>
+          </div>
+        </CollapsiblePanel>
+
+        {/* Custom logout button */}
+        <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-red-200 hover:shadow-md transition-all duration-300">
+          <button
+            onClick={handleLogout}
+            className="w-full px-4 py-3 flex items-center justify-center hover:bg-red-50 transition-colors duration-200 text-red-600"
+          >
+            <div className="p-1.5 rounded-lg bg-red-100 text-red-600 mr-3">
+              <FiLogOut size={18} />
+            </div>
+            <span className="font-semibold text-base">Cerrar Sesión</span>
+          </button>
+        </div>
       </div>
 
-      {/* Botón flotante para chat médico */}
-      <div className="fixed bottom-20 right-4">
-        <button className="bg-primary text-white p-4 rounded-full shadow-lg">
+      {/* Floating Chat Button */}
+      <div className="fixed bottom-24 right-6">
+        <button className="w-14 h-14 bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-2xl shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 flex items-center justify-center">
           <FiMessageSquare size={24} />
         </button>
       </div>
