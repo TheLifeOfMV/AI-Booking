@@ -220,8 +220,8 @@ const DoctorDashboardPage = () => {
       </div>
 
       <div className="container max-w-6xl mx-auto py-8 px-6">
-        {/* Header - Simplified without notification icon */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 pr-20">
+        {/* Header - Enhanced responsive design with proper spacing */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 pr-4 md:pr-24 lg:pr-32">
           <div>
             <h1 className="text-3xl font-bold text-dark-grey mb-2">Dashboard</h1>
             <p className="text-medium-grey text-lg">
@@ -268,14 +268,14 @@ const DoctorDashboardPage = () => {
           />
         </div>
         
-        {/* Citas del día */}
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-8" style={{ backgroundColor: '#FFFFFF' }}>
-          <div className="flex justify-between items-center p-6 border-b border-light-grey">
+        {/* Citas del día - Enhanced responsive design and proper spacing */}
+        <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-8 w-full" style={{ backgroundColor: '#FFFFFF' }}>
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center p-6 border-b border-light-grey gap-4 sm:gap-0">
             <h2 className="text-xl font-semibold text-dark-grey">Tus Citas</h2>
             
-            <div className="flex rounded-lg overflow-hidden border border-light-grey">
+            <div className="flex rounded-lg overflow-hidden border border-light-grey w-full sm:w-auto">
               <button 
-                className={`px-4 py-2 text-sm font-medium transition-colors ${
+                className={`flex-1 sm:flex-none px-4 py-2 text-sm font-medium transition-colors ${
                   dateFilter === 'today' 
                     ? 'text-white' 
                     : 'bg-white text-medium-grey hover:bg-light-grey'
@@ -286,7 +286,7 @@ const DoctorDashboardPage = () => {
                 Hoy
               </button>
               <button 
-                className={`px-4 py-2 text-sm font-medium transition-colors ${
+                className={`flex-1 sm:flex-none px-4 py-2 text-sm font-medium transition-colors ${
                   dateFilter === 'tomorrow' 
                     ? 'text-white' 
                     : 'bg-white text-medium-grey hover:bg-light-grey'
@@ -297,7 +297,7 @@ const DoctorDashboardPage = () => {
                 Mañana
               </button>
               <button 
-                className={`px-4 py-2 text-sm font-medium transition-colors ${
+                className={`flex-1 sm:flex-none px-4 py-2 text-sm font-medium transition-colors ${
                   dateFilter === 'week' 
                     ? 'text-white' 
                     : 'bg-white text-medium-grey hover:bg-light-grey'
@@ -313,10 +313,10 @@ const DoctorDashboardPage = () => {
           {MOCK_APPOINTMENTS.length > 0 ? (
             <div className="divide-y divide-light-grey">
               {MOCK_APPOINTMENTS.map(appointment => (
-                <div key={appointment.id} className="p-6 hover:bg-light-grey/30 transition-colors">
-                  <div className="flex items-center justify-between">
+                <div key={appointment.id} className="p-4 sm:p-6 hover:bg-light-grey/30 transition-colors">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div className="flex items-center">
-                      <div className="w-12 h-12 rounded-full overflow-hidden bg-light-grey mr-4">
+                      <div className="w-12 h-12 rounded-full overflow-hidden bg-light-grey mr-4 flex-shrink-0">
                         <Image 
                           src={appointment.patientAvatar} 
                           alt={appointment.patientName}
@@ -326,10 +326,10 @@ const DoctorDashboardPage = () => {
                         />
                       </div>
                       
-                      <div>
+                      <div className="min-w-0">
                         <h3 className="font-semibold text-dark-grey text-lg">{appointment.patientName}</h3>
                         <div className="flex items-center text-medium-grey mt-1">
-                          <FiClock className="mr-2" size={16} />
+                          <FiClock className="mr-2 flex-shrink-0" size={16} />
                           <span className="font-medium">{appointment.time}</span>
                           <span className="mx-2">•</span>
                           <span>Presencial</span>
@@ -337,7 +337,7 @@ const DoctorDashboardPage = () => {
                       </div>
                     </div>
                     
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-4 flex-shrink-0">
                       <span 
                         className={`inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium ${
                           appointment.status === 'confirmed' 
@@ -350,7 +350,7 @@ const DoctorDashboardPage = () => {
                       
                       <Link href={`/doctor/appointments/${appointment.id}`}>
                         <button 
-                          className="p-2 hover:bg-light-grey rounded-full transition-colors"
+                          className="p-2 hover:bg-light-grey rounded-full transition-colors flex-shrink-0"
                           style={{ color: '#007AFF' }}
                         >
                           <FiChevronRight size={20} />
