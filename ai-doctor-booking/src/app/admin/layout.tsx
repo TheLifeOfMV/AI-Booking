@@ -1,7 +1,7 @@
 'use client';
 
 import { PropsWithChildren } from 'react';
-import { redirect, useRouter } from 'next/navigation';
+import { redirect, useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useAuthStore } from '@/store/authStore';
 import { useEffect } from 'react';
@@ -40,13 +40,26 @@ const BookingsIcon = () => (
 );
 
 export default function AdminLayout({ children }: PropsWithChildren) {
+  const { isAuthenticated, user, logout } = useAuthStore();
   const router = useRouter();
-  const { isAdmin, isAuthenticated } = useAuthStore();
+  const pathname = usePathname();
+  
+  const isAdmin = () => {
+    return user?.role === 'admin' || user?.email?.includes('admin');
+  };
+
+  // Exclude login page from auth checks
+  const isLoginPage = pathname === '/admin/login';
   
   useEffect(() => {
-    // If not authenticated at all, redirect to login
+    // Skip auth checks for login page
+    if (isLoginPage) {
+      return;
+    }
+    
+    // If not authenticated at all, redirect to admin login
     if (!isAuthenticated) {
-      router.push('/login');
+      router.push('/admin/login');
       return;
     }
     
@@ -54,9 +67,14 @@ export default function AdminLayout({ children }: PropsWithChildren) {
     if (isAuthenticated && !isAdmin()) {
       router.push('/channel');
     }
-  }, [isAuthenticated, isAdmin, router]);
+  }, [isAuthenticated, isAdmin, router, isLoginPage]);
   
-  // Don't show any content until auth check is complete
+  // Show login page without authentication checks
+  if (isLoginPage) {
+    return <ToastProvider>{children}</ToastProvider>;
+  }
+  
+  // Don't show any content until auth check is complete for other admin pages
   if (!isAuthenticated || !isAdmin()) {
     return null;
   }

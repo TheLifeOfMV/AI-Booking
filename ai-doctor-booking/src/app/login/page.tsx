@@ -10,7 +10,7 @@ import { validateEmail, validatePhone, validateRequired, validatePassword } from
 
 type AuthMode = 'login' | 'signup';
 type IdentifierType = 'email' | 'phone';
-type UserRole = 'client' | 'doctor' | 'admin';
+type UserRole = 'client' | 'doctor';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -87,11 +87,6 @@ export default function LoginPage() {
     // Prepare identifier based on login mode
     let loginIdentifier = identifier;
     
-    // For demo, add admin to identifier if admin role is selected
-    if (userRole === 'admin') {
-      loginIdentifier = `admin-${identifier}`;
-    }
-    
     try {
       await login({
         identifier: loginIdentifier,
@@ -100,9 +95,7 @@ export default function LoginPage() {
       });
       
       // Redirigir basado en el rol seleccionado
-      if (userRole === 'admin') {
-        router.push('/admin');
-      } else if (userRole === 'doctor') {
+      if (userRole === 'doctor') {
         // Comprobación para determinar si el doctor necesita registrarse
         // En un caso real, esto debería venir del backend
         // Para propósitos de la demo, siempre lo enviamos a registrarse primero
@@ -131,13 +124,7 @@ export default function LoginPage() {
   };
   
   const toggleRole = () => {
-    if (userRole === 'admin') {
-      setUserRole('client');
-    } else if (userRole === 'client') {
-      setUserRole('doctor');
-    } else {
-      setUserRole('admin');
-    }
+    setUserRole(userRole === 'client' ? 'doctor' : 'client');
   };
   
   return (
@@ -145,98 +132,92 @@ export default function LoginPage() {
       {/* Main content */}
       <main className="flex-1 flex flex-col items-center justify-center p-6 overflow-y-auto">
         <div className="w-full max-w-sm">
-          <h1 className="text-2xl font-bold text-center mb-8">
+          {/* Title outside the card for visual hierarchy */}
+          <h1 className="text-3xl font-bold text-center mb-8 text-gray-800">
             Iniciar Sesión
           </h1>
           
-          {/* Role selection toggle */}
-          <div className="flex rounded-lg bg-light-grey p-1 mb-8">
-            <button 
-              className={`flex-1 py-2 text-sm font-medium rounded-md transition ${
-                userRole === 'client' 
-                  ? 'bg-white text-primary shadow-sm' 
-                  : 'text-medium-grey'
-              }`}
-              onClick={() => setUserRole('client')}
-            >
-              Paciente
-            </button>
-            <button 
-              className={`flex-1 py-2 text-sm font-medium rounded-md transition ${
-                userRole === 'doctor' 
-                  ? 'bg-white text-primary shadow-sm' 
-                  : 'text-medium-grey'
-              }`}
-              onClick={() => setUserRole('doctor')}
-            >
-              Doctor
-            </button>
-            <button 
-              className={`flex-1 py-2 text-sm font-medium rounded-md transition ${
-                userRole === 'admin' 
-                  ? 'bg-white text-primary shadow-sm' 
-                  : 'text-medium-grey'
-              }`}
-              onClick={() => setUserRole('admin')}
-            >
-              Admin
-            </button>
-          </div>
-          
-          {/* Login form */}
-          <form onSubmit={handleSubmit}>
-            <div className="space-y-4">
-              <Input
-                label="Email o teléfono"
-                value={identifier}
-                onChange={(e) => setIdentifier(e.target.value)}
-                required
-                placeholder={userRole === 'admin' ? "admin@example.com" : "email@ejemplo.com"}
-                error={identifierError}
-              />
-              
-              <Input
-                label="Contraseña"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                placeholder="••••••••"
-                error={passwordError}
-              />
-              
-              {error && (
-                <div className="py-2 px-3 bg-red-50 text-red-500 text-sm rounded-lg">
-                  {error}
-                </div>
-              )}
-              
-              <Button 
-                type="primary" 
-                className="w-full"
-                htmlType="submit"
-                disabled={isLoading}
+          {/* Main card container */}
+          <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 backdrop-blur-sm">
+            {/* Role selection toggle */}
+            <div className="flex rounded-lg bg-light-grey p-1 mb-6">
+              <button 
+                className={`flex-1 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
+                  userRole === 'client' 
+                    ? 'bg-white text-primary shadow-sm transform scale-[0.98]' 
+                    : 'text-medium-grey hover:text-gray-700'
+                }`}
+                onClick={() => setUserRole('client')}
               >
-                {isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
-              </Button>
-            </div>
-          </form>
-          
-          {userRole === 'doctor' && (
-            <div className="mt-4 text-center">
-              <Link 
-                href="/doctor/register" 
-                className="text-primary hover:underline"
+                Paciente
+              </button>
+              <button 
+                className={`flex-1 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
+                  userRole === 'doctor' 
+                    ? 'bg-white text-primary shadow-sm transform scale-[0.98]' 
+                    : 'text-medium-grey hover:text-gray-700'
+                }`}
+                onClick={() => setUserRole('doctor')}
               >
-                ¿Eres especialista? Regístrate aquí
-              </Link>
+                Doctor
+              </button>
             </div>
-          )}
-          
-          <div className="mt-6 text-center">
-            <p className="text-medium-grey text-sm">
-              ¿Necesitas ayuda? <a href="#" className="text-primary hover:underline">Contáctanos</a>
-            </p>
+            
+            {/* Login form */}
+            <form onSubmit={handleSubmit}>
+              <div className="space-y-5">
+                <Input
+                  label="Email o teléfono"
+                  value={identifier}
+                  onChange={(e) => setIdentifier(e.target.value)}
+                  required
+                  placeholder="email@ejemplo.com"
+                  error={identifierError}
+                />
+                
+                <Input
+                  label="Contraseña"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  placeholder="••••••••"
+                  error={passwordError}
+                />
+                
+                {error && (
+                  <div className="py-3 px-4 bg-red-50 text-red-600 text-sm rounded-lg border border-red-100">
+                    {error}
+                  </div>
+                )}
+                
+                <Button 
+                  type="primary" 
+                  className="w-full mt-6 py-3 text-base font-medium"
+                  htmlType="submit"
+                  disabled={isLoading}
+                >
+                  {isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
+                </Button>
+              </div>
+            </form>
+            
+            {userRole === 'doctor' && (
+              <div className="mt-6 text-center">
+                <Link 
+                  href="/doctor/register" 
+                  className="text-primary hover:text-primary-dark transition-colors duration-200 font-medium"
+                >
+                  ¿Eres especialista? Regístrate aquí
+                </Link>
+              </div>
+            )}
+            
+            <div className="mt-6 text-center">
+              <p className="text-medium-grey text-sm">
+                ¿Necesitas ayuda? <a href="#" className="text-primary hover:text-primary-dark transition-colors duration-200 font-medium">Contáctanos</a>
+              </p>
+            </div>
           </div>
         </div>
       </main>

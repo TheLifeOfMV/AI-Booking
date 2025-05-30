@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 
 // Routes that don't require authentication
-const publicRoutes = ['/login', '/intro', '/'];
+const publicRoutes = ['/login', '/intro', '/', '/admin/login'];
 
 // Routes that require specific roles
 const roleRestrictedRoutes = [
