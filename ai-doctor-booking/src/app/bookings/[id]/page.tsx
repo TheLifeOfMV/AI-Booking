@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useUserBookingsStore } from '@/store/userBookingsStore';
 import Image from 'next/image';
 import Link from 'next/link';
+import BookingsPage from '../page';
 
 export default function BookingDetailPage({ params }: { params: { id: string } }) {
   const router = useRouter();
@@ -21,9 +22,83 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
   const [cancelling, setCancelling] = useState(false);
   const [showRescheduleModal, setShowRescheduleModal] = useState(false);
   
+  // Swipe navigation state
+  const [touchStart, setTouchStart] = useState<{ x: number; y: number; time: number } | null>(null);
+  const [isSwipeActive, setIsSwipeActive] = useState(false);
+  
   useEffect(() => {
     fetchBookingById(params.id);
   }, [fetchBookingById, params.id]);
+  
+  // Swipe navigation for going back to previous page
+  useEffect(() => {
+    const handleTouchStart = (e: TouchEvent) => {
+      const touch = e.touches[0];
+      // Only start tracking if touch starts from the left edge (within 50px)
+      if (touch.clientX <= 50) {
+        setTouchStart({
+          x: touch.clientX,
+          y: touch.clientY,
+          time: Date.now()
+        });
+        setIsSwipeActive(true);
+      }
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!touchStart || !isSwipeActive) return;
+      
+      const touch = e.touches[0];
+      const deltaX = touch.clientX - touchStart.x;
+      const deltaY = touch.clientY - touchStart.y;
+      
+      // If user moves too much vertically, cancel the swipe
+      if (Math.abs(deltaY) > 100) {
+        setIsSwipeActive(false);
+        setTouchStart(null);
+      }
+    };
+
+    const handleTouchEnd = (e: TouchEvent) => {
+      if (!touchStart || !isSwipeActive) return;
+      
+      const touch = e.changedTouches[0];
+      const deltaX = touch.clientX - touchStart.x;
+      const deltaY = touch.clientY - touchStart.y;
+      const deltaTime = Date.now() - touchStart.time;
+      
+      // Check if it's a valid swipe gesture:
+      // - Started from left edge
+      // - Moved right at least 100px
+      // - Vertical movement less than 100px
+      // - Completed within 500ms
+      if (
+        deltaX > 100 && 
+        Math.abs(deltaY) < 100 && 
+        deltaTime < 500 &&
+        touchStart.x <= 50
+      ) {
+        // Navigate back to previous page
+        router.back();
+      }
+      
+      // Reset swipe state
+      setIsSwipeActive(false);
+      setTouchStart(null);
+    };
+
+    // Add event listeners
+    document.addEventListener('touchstart', handleTouchStart, { passive: true });
+    document.addEventListener('touchmove', handleTouchMove, { passive: true });
+    document.addEventListener('touchend', handleTouchEnd, { passive: true });
+
+    // Cleanup
+    return () => {
+      document.removeEventListener('touchstart', handleTouchStart);
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [router, touchStart, isSwipeActive]);
   
   const formatDate = (date: Date) => {
     // Format in Spanish and English
@@ -122,22 +197,6 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
     <div className="pb-24 bg-gray-50">
       {/* Header */}
       <div className="bg-dark-grey text-white p-6 relative">
-        <div className="absolute top-3 right-3 left-3 h-8 z-10">
-          <svg viewBox="0 0 200 20" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-            <path d="M0,10 Q20,20 40,10 T80,10 T120,10 T160,10 T200,10" stroke="rgba(255,255,255,0.2)" fill="none" strokeWidth="2"/>
-          </svg>
-        </div>
-        <button 
-          onClick={handleBack}
-          className="flex items-center text-white mb-4"
-        >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M19 12H5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            <path d="M12 19L5 12L12 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-          <span className="ml-2">Regresar</span>
-        </button>
-        
         <h1 className="text-xl font-semibold mb-4">Detalles de la Cita</h1>
         
         <div className="text-lg font-semibold mb-3">
@@ -192,27 +251,27 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
           <h2 className="font-semibold text-lg mb-3">Información de la Cita</h2>
           
           <div className="space-y-4">
-            <div className="flex justify-between py-2 border-b border-light-grey">
+            <div className="flex justify-between py-2">
               <span className="text-medium-grey">Fecha</span>
               <span className="font-medium">{formatDate(selectedBooking.date)}</span>
             </div>
             
-            <div className="flex justify-between py-2 border-b border-light-grey">
+            <div className="flex justify-between py-2">
               <span className="text-medium-grey">Hora</span>
               <span className="font-medium">{selectedBooking.slotTime}</span>
             </div>
             
-            <div className="flex justify-between py-2 border-b border-light-grey">
+            <div className="flex justify-between py-2">
               <span className="text-medium-grey">Doctor</span>
               <span className="font-medium">{selectedBooking.doctorName}</span>
             </div>
             
-            <div className="flex justify-between py-2 border-b border-light-grey">
+            <div className="flex justify-between py-2">
               <span className="text-medium-grey">Especialidad</span>
               <span className="font-medium">{selectedBooking.specialtyName}</span>
             </div>
             
-            <div className="flex justify-between py-2 border-b border-light-grey">
+            <div className="flex justify-between py-2">
               <span className="text-medium-grey">Ubicación</span>
               <span className="font-medium">{selectedBooking.location}</span>
             </div>
@@ -239,9 +298,9 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
         
         {/* Contact doctor */}
         <div className="bg-white rounded-xl p-4 shadow-sm mb-6">
-          <h2 className="font-semibold text-lg mb-3">Contactar al Doctor</h2>
+          <h2 className="font-semibold text-lg mb-3">Quieres reprogramar tu cita?</h2>
           <p className="text-medium-grey mb-3">
-            ¿Necesitas hacer una pregunta antes de tu cita? Puedes contactar a tu doctor directamente.
+            Si necesitas cambiar la fecha o hora de tu cita, puedes utilizar el asistente virtual o hacerlo manualmente en la app.
           </p>
           
           <div className="flex flex-col space-y-3">
@@ -249,98 +308,55 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
               href={`tel:+123456789`} 
               className="bg-light-grey text-dark-grey py-3 px-4 rounded-lg font-medium flex items-center justify-center"
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2">
-                <path d="M22 16.92V19.92C22 20.4704 21.7893 20.9996 21.4142 21.3746C21.0391 21.7497 20.5099 21.9604 19.9595 21.96C16.4275 21.6886 13.0149 20.346 10.0905 18.08C7.37456 16.0001 5.13092 13.7565 3.051 11.04C0.780377 8.1055 -0.562316 4.6805 0.0395304 1.14C0.0390863 0.589939 0.249685 0.061002 0.624749 -0.314058C0.999813 -0.689118 1.52902 -0.899891 2.08 -0.9H5.08C6.08866 -0.913677 6.9167 0.249001 7.08 1.23C7.23842 2.25478 7.52283 3.25824 7.931 4.22C8.24627 5.01723 8.08471 5.91214 7.59 6.51L6.39 7.71C8.33361 10.5381 10.6619 12.8664 13.49 14.81L14.69 13.61C15.2879 13.1153 16.1828 12.9537 16.98 13.27C17.9417 13.6782 18.9452 13.9626 19.97 14.12C20.9582 14.2851 21.5791 15.1132 21.565 16.12L22 16.92Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
               </svg>
-              Llamar al Doctor
-            </a>
-            
-            <a 
-              href={`mailto:doctor@example.com`} 
-              className="bg-light-grey text-dark-grey py-3 px-4 rounded-lg font-medium flex items-center justify-center"
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2">
-                <path d="M4 4H20C21.1 4 22 4.9 22 6V18C22 19.1 21.1 20 20 20H4C2.9 20 2 19.1 2 18V6C2 4.9 2.9 4 4 4Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M22 6L12 13L2 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              Enviar Email
+              Llamar Asistente Virtual
             </a>
 
             <a 
               href={`https://wa.me/123456789`} 
               className="bg-light-grey text-dark-grey py-3 px-4 rounded-lg font-medium flex items-center justify-center"
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2">
-                <path d="M20.572 3.429C19.272 2.112 17.704 1.061 15.971 0.334C14.238 -0.392 12.378 -0.781 10.5 -0.81C8.623 -0.781 6.762 -0.392 5.029 0.334C3.296 1.061 1.728 2.112 0.428 3.429C-0.143 4.047 -0.143 4.954 0.428 5.572C0.997 6.141 1.903 6.141 2.472 5.572C3.467 4.577 4.639 3.789 5.927 3.252C7.215 2.715 8.591 2.44 9.979 2.443C11.366 2.44 12.742 2.715 14.03 3.252C15.318 3.789 16.49 4.577 17.485 5.572C17.77 5.857 18.148 6 18.52 6C18.888 6 19.256 5.863 19.537 5.586C20.143 4.968 20.143 4.047 19.572 3.429H20.572Z" fill="currentColor"/>
-                <path d="M16.76 6.53C15.55 5.35 13.93 4.69 12.23 4.69C10.13 4.69 8.21 5.66 6.94 7.31C5.66 8.95 5.27 11.04 5.93 13.01L4 18.04L9.15 16.15C10.01 16.45 10.9 16.6 11.81 16.6C15.28 16.6 18.08 13.8 18.08 10.33C18.07 8.64 17.41 7.05 16.23 5.87L16.76 6.53Z" fill="currentColor"/>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-600 mr-2" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
               </svg>
               WhatsApp
             </a>
+            
+            {/* Reschedule and Cancel buttons */}
+            {canReschedule(selectedBooking) && (
+              <button 
+                onClick={handleRescheduleClick}
+                className="bg-primary text-white py-3 px-4 rounded-lg font-medium flex items-center justify-center"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2">
+                  <rect x="4" y="5" width="16" height="16" rx="2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M16 3V7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M8 3V7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M4 11H20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M10 16L12 14V19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                Reprogramar Cita
+              </button>
+            )}
+            
+            {canCancel(selectedBooking) && (
+              <button 
+                onClick={() => setShowCancelConfirm(true)}
+                className="border border-red-500 text-red-500 py-3 px-4 rounded-lg font-medium flex items-center justify-center"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M15 9L9 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M9 9L15 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                Cancelar Cita
+              </button>
+            )}
           </div>
         </div>
-        
-        {/* Action buttons */}
-        <div className="space-y-4">
-          {canReschedule(selectedBooking) && (
-            <button 
-              onClick={handleRescheduleClick}
-              className="bg-primary text-white w-full py-3 rounded-lg font-medium flex items-center justify-center"
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2">
-                <rect x="4" y="5" width="16" height="16" rx="2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M16 3V7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M8 3V7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M4 11H20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M10 16L12 14V19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              Reprogramar Cita
-            </button>
-          )}
-          
-          {canCancel(selectedBooking) && (
-            <button 
-              onClick={() => setShowCancelConfirm(true)}
-              className="border border-red-500 text-red-500 w-full py-3 rounded-lg font-medium flex items-center justify-center"
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2">
-                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M15 9L9 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M9 9L15 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              Cancelar Cita
-            </button>
-          )}
-          
-          <Link 
-            href="/bookings"
-            className="border border-dark-grey text-dark-grey w-full py-3 rounded-lg font-medium flex items-center justify-center"
-          >
-            Ver Todas las Citas
-          </Link>
-        </div>
       </div>
-      
-      {/* Add to Calendar Button */}
-      {selectedBooking.status === 'confirmed' && (
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-light-grey">
-          <button 
-            className="bg-primary text-white w-full py-3 rounded-lg font-medium flex items-center justify-center"
-            onClick={() => {
-              // In a real app, this would generate a calendar event file
-              alert('Esto añadiría la cita a tu calendario');
-            }}
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2">
-              <rect x="4" y="5" width="16" height="16" rx="2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M16 3V7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M8 3V7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M4 11H20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M12 16H12.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            Añadir al Calendario
-          </button>
-        </div>
-      )}
       
       {/* Cancel Confirmation Modal */}
       {showCancelConfirm && (

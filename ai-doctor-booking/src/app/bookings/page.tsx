@@ -61,8 +61,8 @@ export default function BookingsPage() {
   }
   
   return (
-    <div className="p-4 pb-24" style={{ backgroundColor: '#F0F4F9' }}>
-      <div className="flex justify-between items-center mb-6">
+    <div className="min-h-screen px-4 pb-24" style={{ backgroundColor: '#F0F4F9' }}>
+      <div className="flex justify-between items-center mb-6 pt-4">
         <h1 className="text-2xl font-semibold text-dark-grey">Mis Citas</h1>
       </div>
       
@@ -83,13 +83,6 @@ export default function BookingsPage() {
                 className="bg-dark-grey text-white rounded-xl overflow-hidden shadow-sm cursor-pointer"
                 onClick={() => handleBookingClick(booking.id)}
               >
-                <div className="relative">
-                  <div className="absolute top-3 right-3 left-3 h-8 z-10">
-                    <svg viewBox="0 0 200 20" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-                      <path d="M0,10 Q20,20 40,10 T80,10 T120,10 T160,10 T200,10" stroke="rgba(255,255,255,0.2)" fill="none" strokeWidth="2"/>
-                    </svg>
-                  </div>
-                </div>
                 <div className="p-4">
                   <div className="text-lg font-semibold mb-2">
                     {formatDate(booking.date)}, {booking.slotTime}
