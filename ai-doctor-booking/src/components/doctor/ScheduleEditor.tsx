@@ -28,20 +28,32 @@ const ScheduleEditor: React.FC<ScheduleEditorProps> = ({
   const [localSchedule, setLocalSchedule] = useState<DaySchedule[]>(schedule);
 
   const dayNames = [
-    'Domingo', 'Lunes', 'Martes', 'Miércoles', 
-    'Jueves', 'Viernes', 'Sábado'
+    'Lunes', 'Martes', 'Miércoles', 'Jueves', 
+    'Viernes', 'Sábado', 'Domingo'
   ];
+
+  // Mapeo para convertir índices de array a días de la semana reales
+  const arrayIndexToDayOfWeek = (arrayIndex: number): number => {
+    // Lunes=1, Martes=2, ..., Sábado=6, Domingo=0
+    return arrayIndex === 6 ? 0 : arrayIndex + 1;
+  };
+
+  const dayOfWeekToArrayIndex = (dayOfWeek: number): number => {
+    // Domingo=0 -> índice 6, Lunes=1 -> índice 0, etc.
+    return dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+  };
 
   const updateSchedule = (newSchedule: DaySchedule[]) => {
     setLocalSchedule(newSchedule);
     onChange(newSchedule);
   };
 
-  const toggleDayAvailability = (dayIndex: number) => {
+  const toggleDayAvailability = (arrayIndex: number) => {
     if (disabled) return;
     
+    const realDayOfWeek = arrayIndexToDayOfWeek(arrayIndex);
     const newSchedule = localSchedule.map(day => {
-      if (day.dayOfWeek === dayIndex) {
+      if (day.dayOfWeek === realDayOfWeek) {
         return {
           ...day,
           isAvailable: !day.isAvailable,
@@ -54,11 +66,12 @@ const ScheduleEditor: React.FC<ScheduleEditorProps> = ({
     updateSchedule(newSchedule);
   };
 
-  const addTimeSlot = (dayIndex: number) => {
+  const addTimeSlot = (arrayIndex: number) => {
     if (disabled) return;
     
+    const realDayOfWeek = arrayIndexToDayOfWeek(arrayIndex);
     const newSchedule = localSchedule.map(day => {
-      if (day.dayOfWeek === dayIndex) {
+      if (day.dayOfWeek === realDayOfWeek) {
         const newSlot = { start: '09:00', end: '17:00' };
         return {
           ...day,
@@ -71,11 +84,12 @@ const ScheduleEditor: React.FC<ScheduleEditorProps> = ({
     updateSchedule(newSchedule);
   };
 
-  const removeTimeSlot = (dayIndex: number, slotIndex: number) => {
+  const removeTimeSlot = (arrayIndex: number, slotIndex: number) => {
     if (disabled) return;
     
+    const realDayOfWeek = arrayIndexToDayOfWeek(arrayIndex);
     const newSchedule = localSchedule.map(day => {
-      if (day.dayOfWeek === dayIndex) {
+      if (day.dayOfWeek === realDayOfWeek) {
         const newSlots = day.slots.filter((_, index) => index !== slotIndex);
         return {
           ...day,
@@ -89,11 +103,12 @@ const ScheduleEditor: React.FC<ScheduleEditorProps> = ({
     updateSchedule(newSchedule);
   };
 
-  const updateTimeSlot = (dayIndex: number, slotIndex: number, field: 'start' | 'end', value: string) => {
+  const updateTimeSlot = (arrayIndex: number, slotIndex: number, field: 'start' | 'end', value: string) => {
     if (disabled) return;
     
+    const realDayOfWeek = arrayIndexToDayOfWeek(arrayIndex);
     const newSchedule = localSchedule.map(day => {
-      if (day.dayOfWeek === dayIndex) {
+      if (day.dayOfWeek === realDayOfWeek) {
         const newSlots = day.slots.map((slot, index) => {
           if (index === slotIndex) {
             return { ...slot, [field]: value };
@@ -124,28 +139,29 @@ const ScheduleEditor: React.FC<ScheduleEditorProps> = ({
         </p>
       </div>
 
-      {dayNames.map((dayName, dayIndex) => {
-        const daySchedule = localSchedule.find(d => d.dayOfWeek === dayIndex) || {
-          dayOfWeek: dayIndex,
+      {dayNames.map((dayName, arrayIndex) => {
+        const realDayOfWeek = arrayIndexToDayOfWeek(arrayIndex);
+        const daySchedule = localSchedule.find(d => d.dayOfWeek === realDayOfWeek) || {
+          dayOfWeek: realDayOfWeek,
           isAvailable: false,
           slots: []
         };
 
         return (
-          <div key={dayIndex} className="bg-white rounded-lg border border-light-grey p-4">
+          <div key={arrayIndex} className="bg-white rounded-lg border border-light-grey p-4">
             {/* Day Header */}
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center">
                 <input
                   type="checkbox"
-                  id={`day-${dayIndex}`}
+                  id={`day-${arrayIndex}`}
                   checked={daySchedule.isAvailable}
-                  onChange={() => toggleDayAvailability(dayIndex)}
+                  onChange={() => toggleDayAvailability(arrayIndex)}
                   disabled={disabled}
                   className="h-4 w-4 text-primary border-light-grey rounded focus:ring-primary mr-3"
                 />
                 <label 
-                  htmlFor={`day-${dayIndex}`}
+                  htmlFor={`day-${arrayIndex}`}
                   className={`font-medium ${daySchedule.isAvailable ? 'text-dark-grey' : 'text-medium-grey'}`}
                 >
                   {dayName}
@@ -154,7 +170,7 @@ const ScheduleEditor: React.FC<ScheduleEditorProps> = ({
               
               {daySchedule.isAvailable && !disabled && (
                 <button
-                  onClick={() => addTimeSlot(dayIndex)}
+                  onClick={() => addTimeSlot(arrayIndex)}
                   className="flex items-center text-primary hover:text-blue-600 text-sm"
                 >
                   <FiPlus className="w-4 h-4 mr-1" />
@@ -177,46 +193,50 @@ const ScheduleEditor: React.FC<ScheduleEditorProps> = ({
                     return (
                       <div 
                         key={slotIndex} 
-                        className={`flex items-center space-x-3 p-3 rounded-lg ${
+                        className={`p-3 rounded-lg ${
                           isValidSlot ? 'bg-light-grey/30' : 'bg-red-50 border border-red-200'
                         }`}
                       >
-                        <div className="flex items-center space-x-2">
-                          <label className="text-sm text-medium-grey">Desde:</label>
-                          <input
-                            type="time"
-                            value={slot.start}
-                            onChange={(e) => updateTimeSlot(dayIndex, slotIndex, 'start', e.target.value)}
-                            disabled={disabled}
-                            className="px-3 py-1 border border-light-grey rounded focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                          />
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex-1 max-w-xs">
+                            <label className="text-sm text-medium-grey block mb-1">Desde:</label>
+                            <input
+                              type="time"
+                              value={slot.start}
+                              onChange={(e) => updateTimeSlot(arrayIndex, slotIndex, 'start', e.target.value)}
+                              disabled={disabled}
+                              className="w-full px-3 py-2 border border-light-grey rounded focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                            />
+                          </div>
+                          
+                          {!disabled && (
+                            <button
+                              onClick={() => removeTimeSlot(arrayIndex, slotIndex)}
+                              className="text-red-500 hover:text-red-700 p-2 ml-3"
+                              title="Eliminar horario"
+                            >
+                              <FiTrash2 className="w-4 h-4" />
+                            </button>
+                          )}
                         </div>
                         
-                        <div className="flex items-center space-x-2">
-                          <label className="text-sm text-medium-grey">Hasta:</label>
+                        <div className="flex-1 max-w-xs">
+                          <label className="text-sm text-medium-grey block mb-1">Hasta:</label>
                           <input
                             type="time"
                             value={slot.end}
-                            onChange={(e) => updateTimeSlot(dayIndex, slotIndex, 'end', e.target.value)}
+                            onChange={(e) => updateTimeSlot(arrayIndex, slotIndex, 'end', e.target.value)}
                             disabled={disabled}
-                            className="px-3 py-1 border border-light-grey rounded focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                            className="w-full px-3 py-2 border border-light-grey rounded focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                           />
                         </div>
 
-                        {!disabled && (
-                          <button
-                            onClick={() => removeTimeSlot(dayIndex, slotIndex)}
-                            className="text-red-500 hover:text-red-700 p-1"
-                            title="Eliminar horario"
-                          >
-                            <FiTrash2 className="w-4 h-4" />
-                          </button>
-                        )}
-
                         {!isValidSlot && (
-                          <span className="text-red-600 text-xs">
-                            La hora de inicio debe ser menor que la hora de fin
-                          </span>
+                          <div className="mt-2">
+                            <span className="text-red-600 text-xs">
+                              La hora de inicio debe ser menor que la hora de fin
+                            </span>
+                          </div>
                         )}
                       </div>
                     );

@@ -63,7 +63,6 @@ interface DoctorProfile {
   location: {
     address: string;
     city: string;
-    postalCode: string;
     country: string;
   };
   
@@ -104,7 +103,6 @@ const MOCK_DOCTOR_PROFILE: DoctorProfile = {
   location: {
     address: 'Calle Principal 123',
     city: 'Madrid',
-    postalCode: '28001',
     country: 'España'
   },
   
@@ -228,7 +226,9 @@ const CollapsiblePanel: React.FC<CollapsiblePanelProps> = ({
       </div>
       {isOpen && (
         <div className="border-t border-gray-100">
-          {children}
+          <div className="p-6">
+            {children}
+          </div>
         </div>
       )}
     </div>
@@ -243,13 +243,34 @@ interface InfoRowProps {
 }
 
 const InfoRow: React.FC<InfoRowProps> = ({ label, value, icon }) => (
-  <div className="flex items-center py-2 border-b border-gray-50 last:border-b-0">
-    <div className="flex items-center text-blue-600 w-6 mr-3">
+  <div className="flex items-start py-4 px-6 border-b border-gray-100 last:border-b-0 hover:bg-gray-25 transition-colors duration-200 rounded-lg -mx-6">
+    <div className="flex items-center text-blue-600 w-5 h-5 mr-4 mt-0.5 flex-shrink-0">
       {icon}
     </div>
-    <div className="flex-1">
-      <span className="text-gray-600 text-sm">{label}:</span>
-      <span className="ml-2 text-gray-900 font-medium">{value}</span>
+    <div className="flex-1 min-w-0">
+      <div className="text-gray-500 text-sm font-medium mb-1 uppercase tracking-wide">
+        {label}
+      </div>
+      <div className="text-gray-900 font-semibold text-base leading-relaxed break-words">
+        {value}
+      </div>
+    </div>
+  </div>
+);
+
+// Componente InfoRow sin iconos para la sección básica
+const InfoRowNoIcon: React.FC<{ label: string; value: string }> = ({ label, value }) => (
+  <div className="flex items-start py-4 px-6 border-b border-gray-100 last:border-b-0 hover:bg-gray-25 transition-colors duration-200 rounded-lg -mx-6">
+    <div className="w-5 h-5 mr-4 mt-0.5 flex-shrink-0">
+      {/* Espacio reservado para mantener alineación */}
+    </div>
+    <div className="flex-1 min-w-0">
+      <div className="text-gray-500 text-sm font-medium mb-1 uppercase tracking-wide">
+        {label}
+      </div>
+      <div className="text-gray-900 font-semibold text-base leading-relaxed break-words">
+        {value}
+      </div>
     </div>
   </div>
 );
@@ -401,7 +422,7 @@ const DoctorProfilePage = () => {
       }));
     }
   };
-
+  
   // Manejar cambios en campos de contraseña
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -460,11 +481,11 @@ const DoctorProfilePage = () => {
   const handleSpecialtiesChange = (selectedIds: string[]) => {
     setProfile(prev => ({ ...prev, specialties: selectedIds }));
   };
-
+  
   const handleScheduleChange = (schedule: typeof MOCK_DOCTOR_PROFILE.availableTimes) => {
     setProfile(prev => ({ ...prev, availableTimes: schedule }));
   };
-
+  
   // Handlers for blocked days
   const handleAddBlockedDate = (e: React.FormEvent) => {
     e.preventDefault();
@@ -488,7 +509,7 @@ const DoctorProfilePage = () => {
   const handleRemoveBlockedDate = (dateToRemove: string) => {
     setBlockedDates(blockedDates.filter(item => item.date !== dateToRemove));
   };
-
+  
   const handlePlanChanged = (newSubscription: any) => {
     setProfile(prev => ({
       ...prev,
@@ -496,7 +517,7 @@ const DoctorProfilePage = () => {
     }));
     setShowPlanChangeModal(false);
   };
-
+  
   const currentPlanData = SUBSCRIPTION_PLANS[profile.subscription.planType];
 
   if (isLoading) {
@@ -512,8 +533,8 @@ const DoctorProfilePage = () => {
       </div>
     );
   }
-  
-  return (
+    
+    return (
     <div className="min-h-screen pb-24" style={{ backgroundColor: '#F0F4F9' }}>
       {/* Animated Header with Profile Photo - Similar to patient profile */}
       <div className="bg-white mx-4 pt-4 rounded-2xl shadow-lg overflow-hidden border border-gray-100">
@@ -550,9 +571,9 @@ const DoctorProfilePage = () => {
             <div className="relative mb-4">
               <div className="w-24 h-24 rounded-full bg-white shadow-2xl overflow-hidden border-4 border-white">
                 {profile.avatar ? (
-                  <Image 
+                <Image 
                     src={profile.avatar} 
-                    alt={profile.fullName}
+                  alt={profile.fullName}
                     width={96}
                     height={96}
                     className="object-cover w-full h-full"
@@ -560,7 +581,7 @@ const DoctorProfilePage = () => {
                 ) : (
                   <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-green-100 to-blue-100">
                     <FiUser size={40} className="text-green-600" />
-                  </div>
+                    </div>
                 )}
                 
                 {/* Upload overlay */}
@@ -573,32 +594,32 @@ const DoctorProfilePage = () => {
               
               {/* Upload button */}
               <label className="absolute -bottom-2 -right-2 w-8 h-8 bg-gradient-to-r from-green-600 to-blue-800 text-white rounded-full flex items-center justify-center shadow-lg hover:from-green-700 hover:to-blue-900 transition-all duration-200 cursor-pointer hover:scale-110">
-                <input
-                  type="file"
+                <input 
+                  type="file" 
                   accept="image/*"
                   onChange={handlePhotoUpload}
-                  className="hidden"
+                  className="hidden" 
                   disabled={isUploadingPhoto}
                 />
                 <FiCamera size={14} />
               </label>
-            </div>
-            
+              </div>
+              
             {/* Name and specialty */}
             <h1 className="text-2xl font-bold text-gray-900 mb-1">
               {profile.fullName}
             </h1>
             <p className="text-green-600 font-medium mb-3">
-              {profile.specialties.map(id => 
-                SAMPLE_SPECIALTIES.find(s => s.id === id)?.name
-              ).join(', ')}
-            </p>
-            
+                {profile.specialties.map(id => 
+                  SAMPLE_SPECIALTIES.find(s => s.id === id)?.name
+                ).join(', ')}
+              </p>
+              
             {/* Subtle animated accent */}
             <div className="w-16 h-1 bg-gradient-to-r from-green-600 to-blue-800 rounded-full animate-pulse"></div>
-          </div>
-        </div>
-      </div>
+                </div>
+                </div>
+                </div>
         
       {/* Collapsible Panels */}
       <div className="px-4 pt-4">
@@ -630,8 +651,8 @@ const DoctorProfilePage = () => {
                   icon={<FiMail size={14} />}
                   placeholder="doctor@ejemplo.com"
                 />
-              </div>
-              
+            </div>
+            
               <CustomInput
                 label="Teléfono"
                 name="phone"
@@ -642,37 +663,34 @@ const DoctorProfilePage = () => {
               />
 
               <div className="flex gap-3 pt-4">
-                <button
+                  <button
                   onClick={() => setIsEditing(null)}
                   className="flex-1 bg-gray-200 text-gray-700 py-3 px-6 rounded-xl font-semibold hover:bg-gray-300 transition-colors duration-200"
                 >
                   Cancelar
-                </button>
-                <button
+                  </button>
+                  <button
                   onClick={() => handleSave('basic')}
                   disabled={isSaving}
                   className="flex-1 bg-gradient-to-r from-green-600 to-blue-800 text-white py-3 px-6 rounded-xl font-semibold hover:from-green-700 hover:to-blue-900 transition-all duration-200 disabled:opacity-50"
                 >
                   {isSaving ? 'Guardando...' : 'Guardar'}
-                </button>
+                  </button>
+                </div>
               </div>
-            </div>
           ) : (
-            <div className="pt-3">
-              <InfoRow 
+            <div className="-m-6">
+              <InfoRowNoIcon 
                 label="Nombre completo" 
                 value={profile.fullName}
-                icon={<FiUser size={14} />}
               />
-              <InfoRow 
+              <InfoRowNoIcon 
                 label="Email" 
                 value={profile.email}
-                icon={<FiMail size={14} />}
               />
-              <InfoRow 
+              <InfoRowNoIcon 
                 label="Teléfono" 
                 value={profile.phone}
-                icon={<FiPhone size={14} />}
               />
             </div>
           )}
@@ -689,46 +707,46 @@ const DoctorProfilePage = () => {
         >
           {isEditing === 'professional' ? (
             <div className="space-y-4 pt-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <CustomInput
                   label="Número de Licencia"
-                  name="licenseNumber"
-                  value={profile.licenseNumber}
+                      name="licenseNumber"
+                      value={profile.licenseNumber}
                   onChange={handleChange}
                   icon={<FiShield size={14} />}
                   placeholder="12345-MD"
-                />
+                    />
                 <CustomInput
                   label="Años de Experiencia"
-                  name="experience"
-                  value={profile.experience}
+                      name="experience"
+                      value={profile.experience}
                   onChange={handleChange}
                   icon={<FiClock size={14} />}
                   placeholder="10 años"
-                />
-              </div>
-              
-              <div className="mb-4">
+                    />
+                  </div>
+                  
+                    <div className="mb-4">
                 <label className="block text-gray-700 font-medium mb-2">Especialidades</label>
-                <SpecialtySelector
-                  specialties={SAMPLE_SPECIALTIES}
-                  selectedSpecialties={profile.specialties}
-                  onChange={handleSpecialtiesChange}
-                />
-              </div>
-
-              <div className="mb-4">
+                      <SpecialtySelector
+                        specialties={SAMPLE_SPECIALTIES}
+                        selectedSpecialties={profile.specialties}
+                        onChange={handleSpecialtiesChange}
+                      />
+                    </div>
+                  
+                  <div className="mb-4">
                 <label className="block text-gray-700 font-medium mb-2">Biografía Profesional</label>
-                <textarea
-                  name="bio"
-                  value={profile.bio}
+                    <textarea
+                      name="bio"
+                      value={profile.bio}
                   onChange={handleChange}
-                  rows={4}
+                      rows={4}
                   className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                   placeholder="Describe tu experiencia y especialización..."
-                />
-              </div>
-
+                    />
+                  </div>
+                  
               <div className="flex gap-3 pt-4">
                 <button
                   onClick={() => setIsEditing(null)}
@@ -746,33 +764,25 @@ const DoctorProfilePage = () => {
               </div>
             </div>
           ) : (
-            <div className="pt-3">
-              <InfoRow 
+            <div className="-m-6">
+              <InfoRowNoIcon 
                 label="Número de Licencia" 
                 value={profile.licenseNumber}
-                icon={<FiShield size={14} />}
               />
-              <InfoRow 
+              <InfoRowNoIcon 
                 label="Años de Experiencia" 
                 value={profile.experience}
-                icon={<FiClock size={14} />}
               />
-              <InfoRow 
+              <InfoRowNoIcon 
                 label="Especialidades" 
                 value={profile.specialties.map(id => 
                   SAMPLE_SPECIALTIES.find(s => s.id === id)?.name
                 ).join(', ')}
-                icon={<FiActivity size={14} />}
               />
-              <div className="py-2 border-b border-gray-50 last:border-b-0">
-                <div className="flex items-start text-blue-600 w-6 mr-3">
-                  <FiFileText size={14} />
-                </div>
-                <div className="flex-1">
-                  <span className="text-gray-600 text-sm">Biografía:</span>
-                  <p className="ml-2 text-gray-900 font-medium text-sm leading-relaxed">{profile.bio}</p>
-                </div>
-              </div>
+              <InfoRowNoIcon 
+                label="Biografía Profesional" 
+                value={profile.bio}
+              />
             </div>
           )}
         </CollapsiblePanel>
@@ -789,37 +799,27 @@ const DoctorProfilePage = () => {
           {isEditing === 'location' ? (
             <div className="space-y-4 pt-4">
               <CustomInput
-                label="Dirección"
-                name="location.address"
-                value={profile.location.address}
+                        label="Dirección"
+                        name="location.address"
+                        value={profile.location.address}
                 onChange={handleChange}
                 icon={<FiMapPin size={14} />}
                 placeholder="Calle Principal 123"
+                      />
+                      
+              <CustomInput
+                        label="Ciudad"
+                        name="location.city"
+                        value={profile.location.city}
+                onChange={handleChange}
+                icon={<FiMapPin size={14} />}
+                placeholder="Madrid"
               />
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <CustomInput
-                  label="Ciudad"
-                  name="location.city"
-                  value={profile.location.city}
-                  onChange={handleChange}
-                  icon={<FiMapPin size={14} />}
-                  placeholder="Madrid"
-                />
-                <CustomInput
-                  label="Código Postal"
-                  name="location.postalCode"
-                  value={profile.location.postalCode}
-                  onChange={handleChange}
-                  icon={<FiMapPin size={14} />}
-                  placeholder="28001"
-                />
-              </div>
 
               <CustomInput
-                label="País"
-                name="location.country"
-                value={profile.location.country}
+                        label="País"
+                        name="location.country"
+                        value={profile.location.country}
                 onChange={handleChange}
                 icon={<FiMapPin size={14} />}
                 placeholder="España"
@@ -839,32 +839,24 @@ const DoctorProfilePage = () => {
                 >
                   {isSaving ? 'Guardando...' : 'Guardar'}
                 </button>
-              </div>
-            </div>
+                    </div>
+                  </div>
           ) : (
-            <div className="pt-3">
-              <InfoRow 
+            <div className="-m-6">
+              <InfoRowNoIcon 
                 label="Dirección" 
                 value={profile.location.address}
-                icon={<FiMapPin size={14} />}
               />
-              <InfoRow 
+              <InfoRowNoIcon 
                 label="Ciudad" 
                 value={profile.location.city}
-                icon={<FiMapPin size={14} />}
               />
-              <InfoRow 
-                label="Código Postal" 
-                value={profile.location.postalCode}
-                icon={<FiMapPin size={14} />}
-              />
-              <InfoRow 
+              <InfoRowNoIcon 
                 label="País" 
                 value={profile.location.country}
-                icon={<FiMapPin size={14} />}
               />
-            </div>
-          )}
+                </div>
+              )}
                 </CollapsiblePanel>
 
         {/* Horarios de Atención */}
@@ -878,10 +870,10 @@ const DoctorProfilePage = () => {
         >
           {isEditing === 'schedule' ? (
             <div className="pt-4">
-              <ScheduleEditor
-                schedule={profile.availableTimes}
-                onChange={handleScheduleChange}
-              />
+                      <ScheduleEditor
+                        schedule={profile.availableTimes}
+                        onChange={handleScheduleChange}
+                      />
               
               {/* Días Bloqueados - Editable */}
               <div className="mt-6 bg-gray-50 rounded-xl p-4">
@@ -890,53 +882,53 @@ const DoctorProfilePage = () => {
                   Días Bloqueados
                 </h3>
                 
-                <form onSubmit={handleAddBlockedDate} className="mb-4">
+                          <form onSubmit={handleAddBlockedDate} className="mb-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <CustomInput
                       label="Fecha"
                       name="block-date"
-                      type="date"
-                      value={newBlockDate}
-                      onChange={(e) => setNewBlockDate(e.target.value)}
+                                type="date"
+                                value={newBlockDate}
+                                onChange={(e) => setNewBlockDate(e.target.value)}
                       icon={<FiCalendar size={14} />}
                       placeholder=""
                     />
                     <CustomInput
                       label="Motivo"
                       name="block-reason"
-                      value={newBlockReason}
-                      onChange={(e) => setNewBlockReason(e.target.value)}
+                                value={newBlockReason}
+                                onChange={(e) => setNewBlockReason(e.target.value)}
                       icon={<FiFileText size={14} />}
-                      placeholder="Vacaciones, conferencia, etc."
-                    />
-                  </div>
+                                placeholder="Vacaciones, conferencia, etc."
+                              />
+                            </div>
                   <button
                     type="submit"
                     className="w-full bg-yellow-500 text-white py-2 px-4 rounded-xl font-medium hover:bg-yellow-600 transition-colors duration-200"
-                  >
-                    Añadir Día Bloqueado
+                            >
+                              Añadir Día Bloqueado
                   </button>
-                </form>
+                          </form>
 
                 {blockedDates.length > 0 && (
                   <div className="space-y-2">
                     {blockedDates.map((blockedDate, index) => (
                       <div key={index} className="bg-white rounded-lg p-3 flex justify-between items-center shadow-sm">
-                        <div>
+                                      <div>
                           <p className="font-medium text-gray-900">{new Date(blockedDate.date).toLocaleDateString('es-ES')}</p>
                           <p className="text-sm text-gray-600">{blockedDate.reason}</p>
-                        </div>
-                        <button
-                          onClick={() => handleRemoveBlockedDate(blockedDate.date)}
+                                      </div>
+                                      <button
+                                        onClick={() => handleRemoveBlockedDate(blockedDate.date)}
                           className="text-red-500 hover:text-red-700 transition-colors duration-200"
-                        >
+                                      >
                           <FiAlertTriangle size={16} />
-                        </button>
+                                      </button>
                       </div>
                     ))}
                   </div>
-                )}
-              </div>
+                            )}
+                          </div>
 
               <div className="flex gap-3 pt-6">
                 <button
@@ -952,52 +944,68 @@ const DoctorProfilePage = () => {
                 >
                   {isSaving ? 'Guardando...' : 'Guardar'}
                 </button>
-              </div>
-            </div>
-          ) : (
-            <div className="pt-3">
-              <div className="space-y-3 mb-4">
-                {['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'].map((day, index) => {
-                  const daySchedule = profile.availableTimes.find(t => t.dayOfWeek === index);
-                  return (
-                    <div key={index} className="flex justify-between items-center py-2 border-b border-gray-50 last:border-b-0">
-                      <span className="font-medium text-gray-900">{day}</span>
-                      {daySchedule?.isAvailable ? (
-                        <div className="flex flex-wrap gap-1">
-                          {daySchedule.slots.map((slot, slotIndex) => (
-                            <span key={slotIndex} className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
-                              {slot.start} - {slot.end}
-                            </span>
-                          ))}
                         </div>
-                      ) : (
-                        <span className="text-gray-500 text-sm">No disponible</span>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
+                      </div>
+          ) : (
+            <div className="-m-6">
+              <div className="space-y-1">
+                          {['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'].map((day, index) => {
+                            const daySchedule = profile.availableTimes.find(t => t.dayOfWeek === index);
+                            return (
+                    <div key={index} className="flex justify-between items-center py-4 px-6 border-b border-gray-100 last:border-b-0 hover:bg-gray-25 transition-colors duration-200">
+                      <div className="flex-1">
+                        <span className="font-semibold text-gray-900 text-base">{day}</span>
+                                </div>
+                      <div className="flex-1 flex justify-end">
+                        {daySchedule?.isAvailable ? (
+                          <div className="flex flex-wrap gap-2 justify-end">
+                                    {daySchedule.slots.map((slot, slotIndex) => (
+                              <span key={slotIndex} className="text-sm bg-green-100 text-green-800 px-3 py-1.5 rounded-full font-medium">
+                                        {slot.start} - {slot.end}
+                              </span>
+                                    ))}
+                                  </div>
+                        ) : (
+                          <span className="text-gray-500 text-sm font-medium bg-gray-100 px-3 py-1.5 rounded-full">No disponible</span>
+                                )}
+                      </div>
+                              </div>
+                            );
+                          })}
+                        </div>
               
               {blockedDates.length > 0 && (
-                <div className="border-t border-gray-100 pt-3">
-                  <h4 className="font-medium text-gray-900 mb-2 flex items-center">
-                    <FiAlertTriangle className="mr-2 text-yellow-600" size={14} />
-                    Días Bloqueados
-                  </h4>
-                  <div className="space-y-1">
-                    {blockedDates.slice(0, 3).map((blockedDate, index) => (
-                      <div key={index} className="text-sm text-gray-600">
-                        {new Date(blockedDate.date).toLocaleDateString('es-ES')} - {blockedDate.reason}
+                <div className="border-t border-gray-100 mt-2 pt-4">
+                  <div className="px-6">
+                    <h4 className="font-semibold text-gray-900 mb-4 flex items-center text-sm uppercase tracking-wide">
+                      <FiAlertTriangle className="mr-2 text-yellow-600" size={14} />
+                      Días Bloqueados
+                    </h4>
+                    <div className="space-y-3">
+                      {blockedDates.slice(0, 3).map((blockedDate, index) => (
+                        <div key={index} className="flex items-center justify-between bg-yellow-50 p-4 rounded-xl border border-yellow-100">
+                          <div className="flex-1">
+                            <span className="font-semibold text-gray-900 text-base block">
+                              {new Date(blockedDate.date).toLocaleDateString('es-ES')}
+                            </span>
+                            <p className="text-sm text-gray-600 mt-1">{blockedDate.reason}</p>
                       </div>
-                    ))}
-                    {blockedDates.length > 3 && (
-                      <p className="text-xs text-gray-500">Y {blockedDates.length - 3} más...</p>
-                    )}
-                  </div>
+                          <div className="text-yellow-600 ml-4">
+                            <FiAlertTriangle size={16} />
+                        </div>
+                                    </div>
+                      ))}
+                      {blockedDates.length > 3 && (
+                        <div className="text-center py-2">
+                          <p className="text-sm text-gray-500 font-medium">Y {blockedDates.length - 3} día(s) más...</p>
+                        </div>
+                          )}
+                        </div>
+                      </div>
+                </div>
+                  )}
                 </div>
               )}
-            </div>
-          )}
         </CollapsiblePanel>
 
         {/* Suscripción */}
@@ -1014,62 +1022,67 @@ const DoctorProfilePage = () => {
                 <h4 className="font-semibold text-gray-900 flex items-center">
                   <div 
                     className="w-3 h-3 rounded-full mr-2"
-                    style={{ backgroundColor: currentPlanData?.color }}
-                  />
-                  Plan {currentPlanData?.name}
-                </h4>
+                            style={{ backgroundColor: currentPlanData?.color }}
+                          />
+                            Plan {currentPlanData?.name}
+                          </h4>
                 <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                   profile.subscription.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
                 }`}>
                   {profile.subscription.status === 'active' ? 'Activo' : 'Pendiente'}
                 </span>
-              </div>
+                        </div>
               
               <p className="text-gray-700 text-sm mb-3">{currentPlanData?.description}</p>
               
               <div className="flex justify-between items-center">
                 <div>
                   <span className="text-2xl font-bold text-gray-900">
-                    {formatCurrency(profile.subscription.monthlyFee)}
+                          {formatCurrency(profile.subscription.monthlyFee)}
                   </span>
                   <span className="text-gray-500 text-sm">/mes</span>
-                </div>
-                
+                      </div>
+                      
                 <button
                   onClick={() => setShowPlanChangeModal(true)}
                   className="bg-gradient-to-r from-green-600 to-blue-800 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-green-700 hover:to-blue-900 transition-all duration-200"
                 >
                   Cambiar Plan
                 </button>
-              </div>
-            </div>
+                        </div>
+                        </div>
 
             {/* Información de Pago */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <InfoRow 
-                label="Estado del pago" 
-                value={profile.subscription.paymentStatus === 'paid' ? 'Pagado' : 'Pendiente'}
-                icon={<FiCreditCard size={14} />}
-              />
-              <InfoRow 
-                label="Próximo pago" 
-                value={new Date(profile.subscription.nextPaymentDate).toLocaleDateString('es-ES')}
-                icon={<FiCalendar size={14} />}
-              />
-            </div>
-
-            {/* Características del Plan */}
-            <div className="border-t border-gray-100 pt-4">
-              <h5 className="font-medium text-gray-900 mb-3">Características incluidas:</h5>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                {currentPlanData?.features.map((feature, index) => (
-                  <div key={index} className="flex items-start text-sm">
-                    <FiCheck className="w-3 h-3 text-green-500 mt-0.5 mr-2 flex-shrink-0" />
-                    <span className="text-gray-700">{feature}</span>
+            <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
+              <div className="px-6 py-4 border-b border-gray-100">
+                <h5 className="font-semibold text-gray-900 text-sm uppercase tracking-wide">Información de Pago</h5>
+                        </div>
+              <div className="-m-0">
+                <InfoRow 
+                  label="Estado del pago" 
+                  value={profile.subscription.paymentStatus === 'paid' ? 'Pagado' : 'Pendiente'}
+                  icon={<FiCreditCard size={14} />}
+                />
+                <InfoRow 
+                  label="Próximo pago" 
+                  value={new Date(profile.subscription.nextPaymentDate).toLocaleDateString('es-ES')}
+                  icon={<FiCalendar size={14} />}
+                />
+                    </div>
                   </div>
-                ))}
-              </div>
-            </div>
+
+                  {/* Características del Plan */}
+            <div className="bg-white rounded-xl border border-gray-100 p-4">
+              <h5 className="font-semibold text-gray-900 mb-4 text-sm uppercase tracking-wide">Características Incluidas</h5>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {currentPlanData?.features.map((feature, index) => (
+                  <div key={index} className="flex items-start p-3 bg-green-50 rounded-lg border border-green-100">
+                    <FiCheck className="w-4 h-4 text-green-600 mt-0.5 mr-3 flex-shrink-0" />
+                    <span className="text-gray-800 font-medium text-sm leading-relaxed">{feature}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
           </div>
         </CollapsiblePanel>
 
@@ -1120,21 +1133,21 @@ const DoctorProfilePage = () => {
                   className="flex-1 bg-gray-200 text-gray-700 py-3 px-6 rounded-xl font-semibold hover:bg-gray-300 transition-colors duration-200"
                 >
                   Cancelar
-                </button>
+                            </button>
                 <button
                   onClick={() => handleSave('password')}
                   disabled={isSaving}
                   className="flex-1 bg-gradient-to-r from-green-600 to-blue-800 text-white py-3 px-6 rounded-xl font-semibold hover:from-green-700 hover:to-blue-900 transition-all duration-200 disabled:opacity-50"
                 >
                   {isSaving ? 'Guardando...' : 'Cambiar Contraseña'}
-                </button>
-              </div>
-            </div>
+                            </button>
+                          </div>
+                        </div>
           ) : (
             <div className="pt-3">
               <p className="text-gray-600 text-sm">Por seguridad, actualiza tu contraseña regularmente.</p>
-            </div>
-          )}
+                    </div>
+                  )}
         </CollapsiblePanel>
 
         {/* Preguntas Frecuentes */}
@@ -1148,18 +1161,18 @@ const DoctorProfilePage = () => {
             <div className="border-b border-gray-100 pb-3">
               <h5 className="font-medium text-gray-900 mb-1">¿Cómo cambio mi horario de atención?</h5>
               <p className="text-gray-600 text-sm">Puedes modificar tus horarios en la sección "Horarios de Atención" haciendo clic en editar.</p>
-            </div>
+                        </div>
             
             <div className="border-b border-gray-100 pb-3">
               <h5 className="font-medium text-gray-900 mb-1">¿Cómo actualizo mi plan de suscripción?</h5>
               <p className="text-gray-600 text-sm">Ve a la sección "Plan de Suscripción" y haz clic en "Cambiar Plan" para ver las opciones disponibles.</p>
-            </div>
+                        </div>
             
-            <div>
+                        <div>
               <h5 className="font-medium text-gray-900 mb-1">¿Necesitas más ayuda?</h5>
               <p className="text-gray-600 text-sm">Contacta con nuestro equipo de soporte para recibir asistencia personalizada.</p>
-            </div>
-          </div>
+                        </div>
+                        </div>
         </CollapsiblePanel>
 
         {/* Cerrar Sesión */}
@@ -1172,15 +1185,15 @@ const DoctorProfilePage = () => {
               <FiLogOut size={18} />
             </div>
             <span className="font-semibold text-base">Cerrar Sesión</span>
-          </button>
-        </div>
-      </div>
+                      </button>
+                    </div>
+                  </div>
 
       {/* Floating Chat Button */}
       <div className="fixed bottom-24 right-6">
         <button className="w-14 h-14 bg-gradient-to-r from-green-600 to-blue-800 text-white rounded-2xl shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 flex items-center justify-center">
           <FiMessageSquare size={24} />
-        </button>
+                      </button>
       </div>
 
       {/* Plan Change Modal */}
