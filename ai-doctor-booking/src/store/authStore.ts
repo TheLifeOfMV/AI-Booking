@@ -32,7 +32,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   isAuthenticated: false,
   error: null,
 
-  // Initialize authentication state from localStorage
+  // Initialize authentication state from localStorage - ONLY when explicitly called
   initializeAuth: () => {
     console.log('AuthStore: Initializing authentication...');
     
@@ -51,10 +51,17 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         userData: storedUser ? 'present' : 'missing'
       });
       
+      // FIXED: Only restore session if both user and token exist AND are valid
       if (storedUser && storedToken) {
         const user = parseStoredUser(storedUser);
-        if (user) {
-          console.log('AuthStore: Restoring user session -', { 
+        // Add token expiration check
+        const tokenTimestamp = localStorage.getItem('auth_token_timestamp');
+        const now = Date.now();
+        const tokenAge = tokenTimestamp ? now - parseInt(tokenTimestamp) : Infinity;
+        const MAX_TOKEN_AGE = 24 * 60 * 60 * 1000; // 24 hours
+        
+        if (user && tokenAge < MAX_TOKEN_AGE) {
+          console.log('AuthStore: Restoring valid user session -', { 
             email: user.email, 
             role: user.role 
           });
@@ -68,9 +75,16 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           
           console.log('AuthStore: User session restored successfully');
         } else {
-          console.log('AuthStore: Invalid stored user data, clearing localStorage');
+          console.log('AuthStore: Token expired or invalid, clearing localStorage');
           localStorage.removeItem('auth_user');
           localStorage.removeItem('auth_token');
+          localStorage.removeItem('auth_token_timestamp');
+          set({ 
+            user: null, 
+            isAuthenticated: false, 
+            isLoading: false,
+            error: null 
+          });
         }
       } else {
         console.log('AuthStore: No stored session found');
@@ -83,6 +97,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       }
     } catch (error) {
       console.error('AuthStore: Error during initialization:', error);
+      // Clear potentially corrupted data
+      localStorage.removeItem('auth_user');
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('auth_token_timestamp');
       set({ 
         user: null, 
         isAuthenticated: false, 
@@ -114,11 +132,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       
       console.log('AuthStore: Login successful, creating user -', mockUser);
       
-      // Store in localStorage
+      // Store in localStorage with timestamp
       if (isBrowser) {
         localStorage.setItem('auth_token', 'demo_token');
+        localStorage.setItem('auth_token_timestamp', Date.now().toString());
         localStorage.setItem('auth_user', JSON.stringify(mockUser));
-        console.log('AuthStore: Data saved to localStorage');
+        console.log('AuthStore: Data saved to localStorage with timestamp');
       }
       
       // Update state
@@ -145,6 +164,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   logout: () => {
     if (isBrowser) {
       localStorage.removeItem('auth_token');
+      localStorage.removeItem('auth_token_timestamp');
       localStorage.removeItem('auth_user');
     }
     set({ 
@@ -161,7 +181,5 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 }));
 
-// Initialize auth state on store creation (client-side only)
-if (isBrowser) {
-  useAuthStore.getState().initializeAuth();
-} 
+// FIXED: Remove automatic initialization - only initialize when AuthInitializer component mounts
+// This allows users to manually choose their login role 

@@ -14,7 +14,7 @@ type UserRole = 'client' | 'doctor';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, isLoading, error, clearError } = useAuthStore();
+  const { login, isLoading, error, clearError, logout } = useAuthStore();
   
   const [mode, setMode] = useState<AuthMode>('login');
   const [identifierType, setIdentifierType] = useState<IdentifierType>('email');
@@ -29,6 +29,13 @@ export default function LoginPage() {
   const [identifierError, setIdentifierError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [passwordConfirmError, setPasswordConfirmError] = useState('');
+  
+  // FIXED: Clear any existing session when component mounts to ensure clean login
+  useEffect(() => {
+    console.log('LoginPage: Ensuring clean login state');
+    logout(); // Clear any existing session
+    clearError();
+  }, [logout, clearError]);
   
   // Clear errors on unmount
   useEffect(() => {
@@ -84,35 +91,35 @@ export default function LoginPage() {
       return;
     }
     
-    // Prepare identifier based on login mode
-    let loginIdentifier = identifier;
-    
     try {
       await login({
-        identifier: loginIdentifier,
+        identifier: identifier,
         password,
-        role: userRole // Añadimos el rol para saber a dónde redirigir
+        role: userRole
       });
       
-      // Redirigir basado en el rol seleccionado y estado de registro
+      // FIXED: Explicit redirection based on selected role
+      console.log('LoginPage: Login successful, redirecting based on role:', userRole);
       if (userRole === 'doctor') {
-        // Para doctores, revisar si han completado el registro
-        // En un caso real, esto vendría del backend
-        // Por ahora, redirigimos al dashboard directamente después del login
-        console.log('Redirecting doctor to dashboard after login');
+        console.log('LoginPage: Redirecting doctor to dashboard');
         router.push('/doctor/dashboard');
       } else {
+        console.log('LoginPage: Redirecting client to channel');
         router.push('/channel');
       }
     } catch (err) {
-      // Error handling is managed by the store
-      console.error('Error durante el login:', err);
+      console.error('LoginPage: Error durante el login:', err);
     }
+  };
+
+  // FIXED: Add specialist registration handler
+  const handleSpecialistRegistration = () => {
+    console.log('LoginPage: Redirecting to specialist registration');
+    router.push('/doctor/register');
   };
   
   const toggleMode = () => {
     setMode(mode === 'login' ? 'signup' : 'login');
-    // Clear form errors when switching modes
     setIdentifierError('');
     setPasswordError('');
     setPasswordConfirmError('');
@@ -120,12 +127,7 @@ export default function LoginPage() {
   
   const toggleIdentifierType = () => {
     setIdentifierType(identifierType === 'email' ? 'phone' : 'email');
-    // Don't clear the field when switching - better UX
     setIdentifierError('');
-  };
-  
-  const toggleRole = () => {
-    setUserRole(userRole === 'client' ? 'doctor' : 'client');
   };
   
   return (
@@ -140,7 +142,7 @@ export default function LoginPage() {
           
           {/* Main card container */}
           <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 backdrop-blur-sm">
-            {/* Role selection toggle */}
+            {/* ENHANCED: Role selection toggle with better UX */}
             <div className="flex rounded-lg bg-light-grey p-1 mb-6">
               <button 
                 className={`flex-1 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
@@ -202,22 +204,21 @@ export default function LoginPage() {
                 </Button>
               </div>
             </form>
-            
-            {userRole === 'doctor' && (
-              <div className="mt-6 text-center">
-                <Link 
-                  href="/doctor/register" 
-                  className="text-primary hover:text-primary-dark transition-colors duration-200 font-medium"
+
+            {/* FIXED: Enhanced specialist registration section */}
+            <div className="mt-6 pt-6 border-t border-gray-200">
+              <div className="text-center">
+                <p className="text-sm text-medium-grey mb-3">
+                  ¿Eres un especialista médico?
+                </p>
+                <Button
+                  type="secondary"
+                  className="w-full py-3 text-base font-medium border-2 border-primary text-primary hover:bg-primary hover:text-white transition-all duration-200"
+                  onClick={handleSpecialistRegistration}
                 >
-                  ¿Eres especialista? Regístrate aquí
-                </Link>
+                  Registrarse como Especialista
+                </Button>
               </div>
-            )}
-            
-            <div className="mt-6 text-center">
-              <p className="text-medium-grey text-sm">
-                ¿Necesitas ayuda? <a href="#" className="text-primary hover:text-primary-dark transition-colors duration-200 font-medium">Contáctanos</a>
-              </p>
             </div>
           </div>
         </div>

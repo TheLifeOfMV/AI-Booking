@@ -91,7 +91,7 @@ export default function BottomNavigation() {
       </Link>
       
       <Link 
-        href={isDoctorSection ? "/doctor/availability" : "/bookings"}
+        href={isDoctorSection ? "/doctor/appointments" : "/bookings"}
         className={`flex flex-col items-center ${
           (isDoctorSection && (isActive('/doctor/appointments') || isActive('/doctor/availability'))) || 
           (isActive('/bookings') && !isDoctorSection) 
