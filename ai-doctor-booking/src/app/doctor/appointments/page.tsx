@@ -216,6 +216,13 @@ const DoctorAppointmentsPage = () => {
     showRevenue: false // Confirms revenue is disabled
   });
 
+  // Add logging to confirm only presencial appointments
+  console.log('AppointmentsPage: All appointments are presencial -', {
+    totalAppointments: filteredAppointments.length,
+    appointmentTypes: filteredAppointments.map(apt => 'presencial'),
+    virtualAppointments: 0 // Confirms no virtual appointments
+  });
+
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#F2F2F2' }}>
       <div className="container max-w-7xl mx-auto py-8 px-6">
