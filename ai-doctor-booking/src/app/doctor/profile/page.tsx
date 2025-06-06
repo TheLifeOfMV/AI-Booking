@@ -1,13 +1,40 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { useAuthStore } from '@/store/authStore';
 import Input from '@/components/Input';
 import Button from '@/components/Button';
 import ScheduleEditor from '@/components/doctor/ScheduleEditor';
 import SpecialtySelector from '@/components/doctor/SpecialtySelector';
 import PlanChangeModal from '@/components/doctor/PlanChangeModal';
-import { FiUser, FiMapPin, FiSave, FiClock, FiFileText, FiCreditCard, FiAlertTriangle, FiCheck, FiSettings, FiEdit } from 'react-icons/fi';
+import { 
+  FiUser, 
+  FiMapPin, 
+  FiSave, 
+  FiClock, 
+  FiFileText, 
+  FiCreditCard, 
+  FiAlertTriangle, 
+  FiCheck, 
+  FiSettings, 
+  FiEdit,
+  FiPhone,
+  FiMail,
+  FiHeart,
+  FiPlus,
+  FiMessageSquare,
+  FiChevronDown,
+  FiChevronUp,
+  FiLock,
+  FiHelpCircle,
+  FiLogOut,
+  FiCalendar,
+  FiShield,
+  FiCamera,
+  FiActivity
+} from 'react-icons/fi';
 import { formatCurrency, SUBSCRIPTION_PLANS } from '@/constants/subscriptionPlans';
 
 // Datos de muestra para las especialidades
@@ -150,11 +177,166 @@ const MOCK_BLOCKED_DATES: BlockedDate[] = [
   { date: '2023-08-05', reason: 'Conferencia Médica' }
 ];
 
+// Componente para panel colapsable con diseño profesional
+interface CollapsiblePanelProps {
+  title: string;
+  icon: React.ReactNode;
+  isOpen: boolean;
+  onToggle: () => void;
+  children: React.ReactNode;
+  isEditable?: boolean;
+  onEdit?: () => void;
+  variant?: 'default' | 'danger';
+}
+
+const CollapsiblePanel: React.FC<CollapsiblePanelProps> = ({
+  title,
+  icon,
+  isOpen,
+  onToggle,
+  children,
+  isEditable = false,
+  onEdit,
+  variant = 'default'
+}) => {
+  const borderColor = variant === 'danger' ? 'border-red-200' : 'border-gray-100';
+  const iconColor = variant === 'danger' ? 'text-red-600' : 'text-blue-600';
+  
+  return (
+    <div className={`bg-white rounded-xl shadow-sm mb-4 overflow-hidden border ${borderColor} hover:shadow-md transition-all duration-300`}>
+      <div className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 transition-colors duration-200" onClick={onToggle}>
+        <div className="flex items-center">
+          <div className={`p-2 rounded-lg ${variant === 'danger' ? 'bg-red-100' : 'bg-blue-100'} ${iconColor} mr-3`}>
+            {icon}
+          </div>
+          <h3 className="font-semibold text-gray-900 text-base">{title}</h3>
+        </div>
+        <div className="flex items-center space-x-3">
+          {isEditable && onEdit && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit();
+              }}
+              className="text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors duration-200"
+            >
+              <FiEdit size={16} />
+            </button>
+          )}
+          {isOpen ? <FiChevronUp size={20} className="text-gray-400" /> : <FiChevronDown size={20} className="text-gray-400" />}
+        </div>
+      </div>
+      {isOpen && (
+        <div className="border-t border-gray-100">
+          {children}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Componente para fila de información
+interface InfoRowProps {
+  label: string;
+  value: string;
+  icon: React.ReactNode;
+}
+
+const InfoRow: React.FC<InfoRowProps> = ({ label, value, icon }) => (
+  <div className="flex items-center py-2 border-b border-gray-50 last:border-b-0">
+    <div className="flex items-center text-blue-600 w-6 mr-3">
+      {icon}
+    </div>
+    <div className="flex-1">
+      <span className="text-gray-600 text-sm">{label}:</span>
+      <span className="ml-2 text-gray-900 font-medium">{value}</span>
+    </div>
+  </div>
+);
+
+// Componente para input personalizado
+interface CustomInputProps {
+  label: string;
+  name: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  icon: React.ReactNode;
+  placeholder?: string;
+  type?: string;
+}
+
+const CustomInput: React.FC<CustomInputProps> = ({ label, name, value, onChange, icon, placeholder, type = "text" }) => (
+  <div>
+    <label className="block text-gray-700 font-medium mb-2">{label}</label>
+    <div className="relative">
+      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-blue-600">
+        {icon}
+      </div>
+      <input
+        type={type}
+        name={name}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+      />
+    </div>
+  </div>
+);
+
+// Componente para select personalizado
+interface CustomSelectProps {
+  label: string;
+  name: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+  options: { value: string; label: string }[];
+  icon: React.ReactNode;
+  placeholder?: string;
+}
+
+const CustomSelect: React.FC<CustomSelectProps> = ({ label, name, value, onChange, options, icon, placeholder }) => (
+  <div>
+    <label className="block text-gray-700 font-medium mb-2">{label}</label>
+    <div className="relative">
+      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-blue-600">
+        {icon}
+      </div>
+      <select
+        name={name}
+        value={value}
+        onChange={onChange}
+        className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 appearance-none bg-white"
+      >
+        <option value="">{placeholder}</option>
+        {options.map(option => (
+          <option key={option.value} value={option.value}>{option.label}</option>
+        ))}
+      </select>
+    </div>
+  </div>
+);
+
 const DoctorProfilePage = () => {
+  const router = useRouter();
+  const { logout } = useAuthStore();
+  
   const [profile, setProfile] = useState<DoctorProfile>(MOCK_DOCTOR_PROFILE);
-  const [activeTab, setActiveTab] = useState('profile');
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  // Estado para controlar qué paneles están abiertos
+  const [openPanels, setOpenPanels] = useState<{[key: string]: boolean}>({
+    basic: false,
+    professional: false,
+    location: false,
+    schedule: false,
+    subscription: false,
+    password: false,
+    faq: false
+  });
+  
   // Blocked days state
   const [blockedDates, setBlockedDates] = useState<BlockedDate[]>(MOCK_BLOCKED_DATES);
   const [newBlockDate, setNewBlockDate] = useState('');
@@ -162,7 +344,44 @@ const DoctorProfilePage = () => {
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [showPlanChangeModal, setShowPlanChangeModal] = useState(false);
   
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  // Estado para cambio de contraseña
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
+
+  // Estado para manejo de foto de perfil
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
+
+  // Cargar datos del perfil
+  useEffect(() => {
+    const loadProfile = async () => {
+      setIsLoading(true);
+      try {
+        // Simular carga de datos
+        await new Promise(resolve => setTimeout(resolve, 800));
+        // Aquí iría la llamada real al servicio
+      } catch (error) {
+        console.error('Error al cargar el perfil:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadProfile();
+  }, []);
+
+  // Alternar panel abierto/cerrado
+  const togglePanel = (panelKey: string) => {
+    setOpenPanels(prev => ({
+      ...prev,
+      [panelKey]: !prev[panelKey]
+    }));
+  };
+  
+  // Manejar cambios en los campos del formulario
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     
     if (name.includes('.')) {
@@ -182,15 +401,70 @@ const DoctorProfilePage = () => {
       }));
     }
   };
+
+  // Manejar cambios en campos de contraseña
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setPasswordData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  // Manejar carga de foto de perfil
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploadingPhoto(true);
+    try {
+      // Simular carga de archivo
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Crear URL temporal para mostrar la imagen
+      const imageUrl = URL.createObjectURL(file);
+      setProfile(prev => ({ ...prev, avatar: imageUrl }));
+      
+      console.log('Foto subida correctamente');
+    } catch (error) {
+      console.error('Error al subir la foto:', error);
+    } finally {
+      setIsUploadingPhoto(false);
+    }
+  };
+
+  // Manejar guardar cambios
+  const handleSave = async (section: string) => {
+    setIsSaving(true);
+    try {
+      // Simular guardado
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      setIsEditing(null);
+      setSavedSuccess(true);
+      setTimeout(() => setSavedSuccess(false), 3000);
+      console.log(`Sección ${section} guardada correctamente`);
+    } catch (error) {
+      console.error('Error al guardar:', error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Manejar logout
+  const handleLogout = () => {
+    logout();
+    router.push('/auth/login');
+  };
   
+  // Keep these handlers as they're needed for specific functionality
   const handleSpecialtiesChange = (selectedIds: string[]) => {
     setProfile(prev => ({ ...prev, specialties: selectedIds }));
   };
-  
+
   const handleScheduleChange = (schedule: typeof MOCK_DOCTOR_PROFILE.availableTimes) => {
     setProfile(prev => ({ ...prev, availableTimes: schedule }));
   };
-  
+
   // Handlers for blocked days
   const handleAddBlockedDate = (e: React.FormEvent) => {
     e.preventDefault();
@@ -210,10 +484,11 @@ const DoctorProfilePage = () => {
     setNewBlockDate('');
     setNewBlockReason('');
   };
+  
   const handleRemoveBlockedDate = (dateToRemove: string) => {
     setBlockedDates(blockedDates.filter(item => item.date !== dateToRemove));
   };
-  
+
   const handlePlanChanged = (newSubscription: any) => {
     setProfile(prev => ({
       ...prev,
@@ -221,596 +496,691 @@ const DoctorProfilePage = () => {
     }));
     setShowPlanChangeModal(false);
   };
-  
-  const handleSaveChanges = () => {
-    setIsSaving(true);
-    // Simulación de guardado
-    setTimeout(() => {
-      setIsSaving(false);
-      setIsEditing(false);
-      setSavedSuccess(true);
-      setTimeout(() => setSavedSuccess(false), 3000);
-      // Aquí iría el código para guardar en el backend
-      alert('Perfil actualizado correctamente');
-    }, 1000);
-  };
-  
-  const getPaymentStatusBadge = (status: string) => {
-    const statusConfig = {
-      paid: { color: 'bg-green-100 text-green-800', label: 'Pagado' },
-      pending: { color: 'bg-yellow-100 text-yellow-800', label: 'Pendiente' },
-      failed: { color: 'bg-red-100 text-red-800', label: 'Fallido' },
-      refunded: { color: 'bg-blue-100 text-blue-800', label: 'Reembolsado' }
-    };
-    
-    const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.pending;
-    
-    return (
-      <span className={`px-2 py-1 rounded-full text-xs font-medium ${config.color}`}>
-        {config.label}
-      </span>
-    );
-  };
-
-  const getSubscriptionStatusBadge = (status: string) => {
-    const statusConfig = {
-      active: { color: 'bg-green-100 text-green-800', label: 'Activa' },
-      pending: { color: 'bg-yellow-100 text-yellow-800', label: 'Pendiente' },
-      expired: { color: 'bg-red-100 text-red-800', label: 'Expirada' },
-      cancelled: { color: 'bg-gray-100 text-gray-800', label: 'Cancelada' }
-    };
-    
-    const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.pending;
-    
-    return (
-      <span className={`px-2 py-1 rounded-full text-xs font-medium ${config.color}`}>
-        {config.label}
-      </span>
-    );
-  };
 
   const currentPlanData = SUBSCRIPTION_PLANS[profile.subscription.planType];
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex flex-col items-center justify-center p-4">
+        <div className="bg-white rounded-2xl shadow-xl p-8 text-center max-w-md w-full">
+          <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
+            <FiUser size={32} className="text-blue-600" />
+          </div>
+          <h2 className="text-xl font-semibold text-gray-800 mb-2">Cargando perfil...</h2>
+          <p className="text-gray-600">Un momento por favor</p>
+        </div>
+      </div>
+    );
+  }
   
   return (
-    <div style={{ backgroundColor: '#F0F4F9', minHeight: '100vh' }}>
-      <div className="container max-w-4xl mx-auto py-8 px-4">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">Perfil Profesional</h1>
+    <div className="min-h-screen pb-24" style={{ backgroundColor: '#F0F4F9' }}>
+      {/* Animated Header with Profile Photo - Similar to patient profile */}
+      <div className="bg-white mx-4 pt-4 rounded-2xl shadow-lg overflow-hidden border border-gray-100">
+        {/* Animated gradient background */}
+        <div className="relative h-32 overflow-hidden">
+          {/* Base gradient - doctor theme */}
+          <div className="absolute inset-0 bg-gradient-to-r from-green-600 to-blue-800"></div>
           
-          {isEditing ? (
-            <div className="flex gap-3">
-              <Button 
-                type="secondary" 
-                onClick={() => setIsEditing(false)}
-              >
-                Cancelar
-              </Button>
-              <Button 
-                type="primary" 
-                onClick={handleSaveChanges}
-                disabled={isSaving}
-                className="flex items-center"
-              >
-                {isSaving ? 'Guardando...' : (
-                  <>
-                    <FiSave className="mr-2" /> Guardar Cambios
-                  </>
-                )}
-              </Button>
-            </div>
-          ) : (
-            <Button 
-              type="primary" 
-              onClick={() => setIsEditing(true)}
-              className="flex items-center"
-            >
-              <FiEdit className="mr-2" /> Editar Perfil
-            </Button>
-          )}
+          {/* Animated overlay gradients */}
+          <div className="absolute inset-0 bg-gradient-to-br from-green-500/80 via-transparent to-blue-700/60 animate-pulse"></div>
+          
+          {/* Floating animated shapes */}
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute top-4 left-4 w-12 h-12 bg-white/30 rounded-full animate-float"></div>
+            <div className="absolute top-8 right-8 w-8 h-8 bg-white/25 rounded-full animate-float-delayed"></div>
+            <div className="absolute bottom-6 left-1/3 w-6 h-6 bg-white/35 rounded-full animate-float-slow"></div>
+            <div className="absolute bottom-4 right-1/4 w-10 h-10 bg-white/20 rounded-full animate-bounce-slow"></div>
+          </div>
+
+          {/* Animated wave pattern */}
+          <svg 
+            className="absolute bottom-0 left-0 w-full h-8 opacity-30 text-white" 
+            viewBox="0 0 400 60" 
+            fill="currentColor"
+          >
+            <path d="M0,30 Q100,10 200,30 T400,30 L400,60 L0,60 Z" className="animate-wave" />
+          </svg>
         </div>
         
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-6">
-          <div className="flex flex-col md:flex-row">
-            <div className="md:w-1/3 p-6 bg-primary/5 flex flex-col items-center">
-              <div className="relative w-40 h-40 rounded-full overflow-hidden border-4 border-white shadow-md mb-4">
-                <Image 
-                  src={profile.avatar || 'https://via.placeholder.com/150'} 
-                  alt={profile.fullName}
-                  width={160}
-                  height={160}
-                  className="object-cover"
-                />
-                {isEditing && (
-                  <label 
-                    htmlFor="avatar-upload"
-                    className="absolute inset-0 bg-black/30 opacity-0 hover:opacity-100 flex items-center justify-center cursor-pointer transition-opacity"
-                  >
-                    <div className="text-white text-sm font-medium">
-                      Cambiar foto
-                    </div>
-                  </label>
+        {/* Profile content */}
+        <div className="px-6 pb-6 -mt-16 relative">
+          <div className="flex flex-col items-center text-center">
+            {/* Profile photo with upload */}
+            <div className="relative mb-4">
+              <div className="w-24 h-24 rounded-full bg-white shadow-2xl overflow-hidden border-4 border-white">
+                {profile.avatar ? (
+                  <Image 
+                    src={profile.avatar} 
+                    alt={profile.fullName}
+                    width={96}
+                    height={96}
+                    className="object-cover w-full h-full"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-green-100 to-blue-100">
+                    <FiUser size={40} className="text-green-600" />
+                  </div>
                 )}
-                <input 
-                  type="file" 
-                  id="avatar-upload" 
-                  className="hidden" 
-                  disabled={!isEditing}
+                
+                {/* Upload overlay */}
+                {isUploadingPhoto && (
+                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-full">
+                    <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  </div>
+                )}
+              </div>
+              
+              {/* Upload button */}
+              <label className="absolute -bottom-2 -right-2 w-8 h-8 bg-gradient-to-r from-green-600 to-blue-800 text-white rounded-full flex items-center justify-center shadow-lg hover:from-green-700 hover:to-blue-900 transition-all duration-200 cursor-pointer hover:scale-110">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handlePhotoUpload}
+                  className="hidden"
+                  disabled={isUploadingPhoto}
                 />
-              </div>
-              
-              <h2 className="text-xl font-semibold text-center mb-1">{profile.fullName}</h2>
-              <p className="text-primary font-medium mb-4">
-                {profile.specialties.map(id => 
-                  SAMPLE_SPECIALTIES.find(s => s.id === id)?.name
-                ).join(', ')}
-              </p>
-              
-              <div className="w-full space-y-3 text-medium-grey">
-                <div className="flex items-center">
-                  <FiMapPin className="mr-2 text-primary" /> 
-                  <span>{profile.location.city}, {profile.location.country}</span>
-                </div>
-                <div className="flex items-center">
-                  <FiClock className="mr-2 text-primary" /> 
-                  <span>{profile.experience} de experiencia</span>
-                </div>
-                <div className="flex items-center">
-                  <FiFileText className="mr-2 text-primary" /> 
-                  <span>Licencia: {profile.licenseNumber}</span>
-                </div>
-              </div>
+                <FiCamera size={14} />
+              </label>
             </div>
             
-            <div className="md:w-2/3 p-6">
-              {/* Tabs de navegación */}
-              <div className="border-b border-light-grey mb-6">
-                <div className="flex space-x-6">
-                  <button
-                    className={`pb-3 font-medium ${activeTab === 'profile' 
-                      ? 'text-primary border-b-2 border-primary' 
-                      : 'text-medium-grey'}`}
-                    onClick={() => setActiveTab('profile')}
-                  >
-                    Información Personal
-                  </button>
-                  <button
-                    className={`pb-3 font-medium ${activeTab === 'schedule' 
-                      ? 'text-primary border-b-2 border-primary' 
-                      : 'text-medium-grey'}`}
-                    onClick={() => setActiveTab('schedule')}
-                  >
-                    Horarios
-                  </button>
-                  <button
-                    className={`pb-3 font-medium ${activeTab === 'subscription' 
-                      ? 'text-primary border-b-2 border-primary' 
-                      : 'text-medium-grey'}`}
-                    onClick={() => setActiveTab('subscription')}
-                  >
-                    Suscripción
-                  </button>
-                </div>
+            {/* Name and specialty */}
+            <h1 className="text-2xl font-bold text-gray-900 mb-1">
+              {profile.fullName}
+            </h1>
+            <p className="text-green-600 font-medium mb-3">
+              {profile.specialties.map(id => 
+                SAMPLE_SPECIALTIES.find(s => s.id === id)?.name
+              ).join(', ')}
+            </p>
+            
+            {/* Subtle animated accent */}
+            <div className="w-16 h-1 bg-gradient-to-r from-green-600 to-blue-800 rounded-full animate-pulse"></div>
+          </div>
+        </div>
+      </div>
+        
+      {/* Collapsible Panels */}
+      <div className="px-4 pt-4">
+        {/* Información Básica */}
+        <CollapsiblePanel
+          title="Información Básica"
+          icon={<FiUser size={18} />}
+          isOpen={openPanels.basic}
+          onToggle={() => togglePanel('basic')}
+          isEditable={true}
+          onEdit={() => setIsEditing('basic')}
+        >
+          {isEditing === 'basic' ? (
+            <div className="space-y-4 pt-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <CustomInput
+                  label="Nombre completo"
+                  name="fullName"
+                  value={profile.fullName}
+                  onChange={handleChange}
+                  icon={<FiUser size={14} />}
+                  placeholder="Dr. Juan Pérez"
+                />
+                <CustomInput
+                  label="Email"
+                  name="email"
+                  value={profile.email}
+                  onChange={handleChange}
+                  icon={<FiMail size={14} />}
+                  placeholder="doctor@ejemplo.com"
+                />
               </div>
               
-              {/* Tab de información personal */}
-              {activeTab === 'profile' && (
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Input
-                      label="Número de colegiado/licencia"
-                      name="licenseNumber"
-                      value={profile.licenseNumber}
-                      onChange={handleInputChange}
-                      disabled={!isEditing}
-                    />
-                    
-                    <Input
-                      label="Años de experiencia"
-                      name="experience"
-                      value={profile.experience}
-                      onChange={handleInputChange}
-                      disabled={!isEditing}
-                    />
-                  </div>
-                  
-                  {isEditing && (
-                    <div className="mb-4">
-                      <label className="block text-dark-grey font-medium mb-2">
-                        Especialidad(es)
-                      </label>
-                      <SpecialtySelector
-                        specialties={SAMPLE_SPECIALTIES}
-                        selectedSpecialties={profile.specialties}
-                        onChange={handleSpecialtiesChange}
-                      />
-                    </div>
-                  )}
-                  
-                  <div className="mb-4">
-                    <label className="block text-dark-grey font-medium mb-2">
-                      Biografía profesional
-                    </label>
-                    <textarea
-                      name="bio"
-                      value={profile.bio}
-                      onChange={handleInputChange}
-                      disabled={!isEditing}
-                      rows={4}
-                      className="w-full px-4 py-3 rounded-lg border border-light-grey focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary disabled:bg-light-grey/30 disabled:text-medium-grey"
-                    />
-                  </div>
-                  
-                  <div className="mb-4">
-                    <h3 className="font-medium mb-2">Dirección del consultorio</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <Input
-                        label="Dirección"
-                        name="location.address"
-                        value={profile.location.address}
-                        onChange={handleInputChange}
-                        disabled={!isEditing}
-                      />
-                      
-                      <Input
-                        label="Ciudad"
-                        name="location.city"
-                        value={profile.location.city}
-                        onChange={handleInputChange}
-                        disabled={!isEditing}
-                      />
-                      
-                      <Input
-                        label="Código Postal"
-                        name="location.postalCode"
-                        value={profile.location.postalCode}
-                        onChange={handleInputChange}
-                        disabled={!isEditing}
-                      />
-                      
-                      <Input
-                        label="País"
-                        name="location.country"
-                        value={profile.location.country}
-                        onChange={handleInputChange}
-                        disabled={!isEditing}
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
+              <CustomInput
+                label="Teléfono"
+                name="phone"
+                value={profile.phone}
+                onChange={handleChange}
+                icon={<FiPhone size={14} />}
+                placeholder="Tu número de teléfono"
+              />
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  onClick={() => setIsEditing(null)}
+                  className="flex-1 bg-gray-200 text-gray-700 py-3 px-6 rounded-xl font-semibold hover:bg-gray-300 transition-colors duration-200"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={() => handleSave('basic')}
+                  disabled={isSaving}
+                  className="flex-1 bg-gradient-to-r from-green-600 to-blue-800 text-white py-3 px-6 rounded-xl font-semibold hover:from-green-700 hover:to-blue-900 transition-all duration-200 disabled:opacity-50"
+                >
+                  {isSaving ? 'Guardando...' : 'Guardar'}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="pt-3">
+              <InfoRow 
+                label="Nombre completo" 
+                value={profile.fullName}
+                icon={<FiUser size={14} />}
+              />
+              <InfoRow 
+                label="Email" 
+                value={profile.email}
+                icon={<FiMail size={14} />}
+              />
+              <InfoRow 
+                label="Teléfono" 
+                value={profile.phone}
+                icon={<FiPhone size={14} />}
+              />
+            </div>
+          )}
+        </CollapsiblePanel>
+
+        {/* Información Profesional */}
+        <CollapsiblePanel
+          title="Información Profesional"
+          icon={<FiFileText size={18} />}
+          isOpen={openPanels.professional}
+          onToggle={() => togglePanel('professional')}
+          isEditable={true}
+          onEdit={() => setIsEditing('professional')}
+        >
+          {isEditing === 'professional' ? (
+            <div className="space-y-4 pt-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <CustomInput
+                  label="Número de Licencia"
+                  name="licenseNumber"
+                  value={profile.licenseNumber}
+                  onChange={handleChange}
+                  icon={<FiShield size={14} />}
+                  placeholder="12345-MD"
+                />
+                <CustomInput
+                  label="Años de Experiencia"
+                  name="experience"
+                  value={profile.experience}
+                  onChange={handleChange}
+                  icon={<FiClock size={14} />}
+                  placeholder="10 años"
+                />
+              </div>
               
-              {/* Tab de horarios */}
-              {activeTab === 'schedule' && (
-                <div>
-                  {isEditing ? (
-                    <>
-                      <ScheduleEditor
-                        schedule={profile.availableTimes}
-                        onChange={handleScheduleChange}
-                      />
-                      {/* Editable Blocked Days UI */}
-                      <div className="bg-white rounded-xl shadow-sm overflow-hidden mt-8 mb-6">
-                        <div className="p-4 border-b border-light-grey bg-light-grey/20">
-                          <h2 className="text-lg font-semibold flex items-center">
-                            <FiClock className="mr-2" /> Días Bloqueados
-                          </h2>
-                          <p className="text-sm text-medium-grey">
-                            Añade días específicos en los que no estarás disponible.
-                          </p>
-                        </div>
-                        <div className="p-4">
-                          <form onSubmit={handleAddBlockedDate} className="mb-4">
-                            <div className="mb-4">
-                              <label htmlFor="block-date" className="block text-dark-grey font-medium mb-1">
-                                Fecha
-                              </label>
-                              <input
-                                type="date"
-                                id="block-date"
-                                value={newBlockDate}
-                                onChange={(e) => setNewBlockDate(e.target.value)}
-                                className="w-full px-4 py-2 rounded-lg border border-light-grey focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                                min={new Date().toISOString().split('T')[0]}
-                                required
-                              />
-                            </div>
-                            <div className="mb-4">
-                              <label htmlFor="block-reason" className="block text-dark-grey font-medium mb-1">
-                                Motivo
-                              </label>
-                              <input
-                                type="text"
-                                id="block-reason"
-                                value={newBlockReason}
-                                onChange={(e) => setNewBlockReason(e.target.value)}
-                                placeholder="Vacaciones, conferencia, etc."
-                                className="w-full px-4 py-2 rounded-lg border border-light-grey focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                                required
-                              />
-                            </div>
-                            <Button
-                              type="primary"
-                              htmlType="submit"
-                              fullWidth
-                            >
-                              Añadir Día Bloqueado
-                            </Button>
-                          </form>
-                          <div className="border-t border-light-grey pt-4">
-                            <h3 className="font-medium mb-2">Días Bloqueados Programados</h3>
-                            {blockedDates.length > 0 ? (
-                              <ul className="space-y-2 max-h-80 overflow-y-auto">
-                                {blockedDates.map((blockedDate, index) => {
-                                  const date = new Date(blockedDate.date);
-                                  const formattedDate = date.toLocaleDateString('es-ES', {
-                                    weekday: 'long',
-                                    year: 'numeric',
-                                    month: 'long',
-                                    day: 'numeric'
-                                  });
-                                  return (
-                                    <li
-                                      key={index}
-                                      className="bg-light-grey/30 rounded-lg p-3 flex justify-between items-center"
-                                    >
-                                      <div>
-                                        <p className="font-medium capitalize">{formattedDate}</p>
-                                        <p className="text-sm text-medium-grey">{blockedDate.reason}</p>
-                                      </div>
-                                      <button
-                                        onClick={() => handleRemoveBlockedDate(blockedDate.date)}
-                                        className="text-red-500 hover:text-red-700"
-                                        title="Eliminar"
-                                        type="button"
-                                      >
-                                        ✕
-                                      </button>
-                                    </li>
-                                  );
-                                })}
-                              </ul>
-                            ) : (
-                              <p className="text-medium-grey text-center p-4">
-                                No tienes días bloqueados configurados.
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <div className="space-y-4">
-                        <div className="bg-light-grey p-4 rounded-lg mb-4">
-                          <h3 className="font-medium mb-2 flex items-center">
-                            <FiClock className="mr-2" /> Horario de Atención
-                          </h3>
-                          <p className="text-sm text-medium-grey">
-                            Estos son los horarios en los que ofreces consultas. Para modificarlos, haz clic en "Editar Perfil".
-                          </p>
-                        </div>
-                        <div className="space-y-3">
-                          {['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'].map((day, index) => {
-                            const daySchedule = profile.availableTimes.find(t => t.dayOfWeek === index);
-                            return (
-                              <div
-                                key={index}
-                                className={`p-3 rounded-lg ${daySchedule?.isAvailable ? 'bg-white border border-light-grey' : 'bg-light-grey/30'}`}
-                              >
-                                <div className="flex justify-between items-center">
-                                  <span className={`font-medium ${daySchedule?.isAvailable ? 'text-dark-grey' : 'text-medium-grey'}`}>{day}</span>
-                                  {daySchedule?.isAvailable ? (
-                                    <span className="text-primary text-sm bg-primary/10 px-2 py-1 rounded-full">Disponible</span>
-                                  ) : (
-                                    <span className="text-medium-grey text-sm">No disponible</span>
-                                  )}
-                                </div>
-                                {daySchedule?.isAvailable && daySchedule.slots.length > 0 && (
-                                  <div className="mt-2 flex flex-wrap gap-2">
-                                    {daySchedule.slots.map((slot, slotIndex) => (
-                                      <div key={slotIndex} className="text-sm bg-light-grey px-3 py-1 rounded-full">
-                                        {slot.start} - {slot.end}
-                                      </div>
-                                    ))}
-                                  </div>
-                                )}
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                      {/* Read-only Blocked Days List */}
-                      <div className="bg-white rounded-xl shadow-sm overflow-hidden mt-8 mb-6">
-                        <div className="p-4 border-b border-light-grey bg-light-grey/20">
-                          <h2 className="text-lg font-semibold flex items-center">
-                            <FiClock className="mr-2" /> Días Bloqueados
-                          </h2>
-                        </div>
-                        <div className="p-4">
-                          <h3 className="font-medium mb-2">Días Bloqueados Programados</h3>
-                          {blockedDates.length > 0 ? (
-                            <ul className="space-y-2 max-h-80 overflow-y-auto">
-                              {blockedDates.map((blockedDate, index) => {
-                                const date = new Date(blockedDate.date);
-                                const formattedDate = date.toLocaleDateString('es-ES', {
-                                  weekday: 'long',
-                                  year: 'numeric',
-                                  month: 'long',
-                                  day: 'numeric'
-                                });
-                                return (
-                                  <li
-                                    key={index}
-                                    className="bg-light-grey/30 rounded-lg p-3 flex justify-between items-center"
-                                  >
-                                    <div>
-                                      <p className="font-medium capitalize">{formattedDate}</p>
-                                      <p className="text-sm text-medium-grey">{blockedDate.reason}</p>
-                                    </div>
-                                  </li>
-                                );
-                              })}
-                            </ul>
-                          ) : (
-                            <p className="text-medium-grey text-center p-4">
-                              No tienes días bloqueados configurados.
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    </>
-                  )}
+              <div className="mb-4">
+                <label className="block text-gray-700 font-medium mb-2">Especialidades</label>
+                <SpecialtySelector
+                  specialties={SAMPLE_SPECIALTIES}
+                  selectedSpecialties={profile.specialties}
+                  onChange={handleSpecialtiesChange}
+                />
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-gray-700 font-medium mb-2">Biografía Profesional</label>
+                <textarea
+                  name="bio"
+                  value={profile.bio}
+                  onChange={handleChange}
+                  rows={4}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                  placeholder="Describe tu experiencia y especialización..."
+                />
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  onClick={() => setIsEditing(null)}
+                  className="flex-1 bg-gray-200 text-gray-700 py-3 px-6 rounded-xl font-semibold hover:bg-gray-300 transition-colors duration-200"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={() => handleSave('professional')}
+                  disabled={isSaving}
+                  className="flex-1 bg-gradient-to-r from-green-600 to-blue-800 text-white py-3 px-6 rounded-xl font-semibold hover:from-green-700 hover:to-blue-900 transition-all duration-200 disabled:opacity-50"
+                >
+                  {isSaving ? 'Guardando...' : 'Guardar'}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="pt-3">
+              <InfoRow 
+                label="Número de Licencia" 
+                value={profile.licenseNumber}
+                icon={<FiShield size={14} />}
+              />
+              <InfoRow 
+                label="Años de Experiencia" 
+                value={profile.experience}
+                icon={<FiClock size={14} />}
+              />
+              <InfoRow 
+                label="Especialidades" 
+                value={profile.specialties.map(id => 
+                  SAMPLE_SPECIALTIES.find(s => s.id === id)?.name
+                ).join(', ')}
+                icon={<FiActivity size={14} />}
+              />
+              <div className="py-2 border-b border-gray-50 last:border-b-0">
+                <div className="flex items-start text-blue-600 w-6 mr-3">
+                  <FiFileText size={14} />
                 </div>
-              )}
+                <div className="flex-1">
+                  <span className="text-gray-600 text-sm">Biografía:</span>
+                  <p className="ml-2 text-gray-900 font-medium text-sm leading-relaxed">{profile.bio}</p>
+                </div>
+              </div>
+            </div>
+          )}
+        </CollapsiblePanel>
+
+        {/* Información de Ubicación */}
+        <CollapsiblePanel
+          title="Dirección del Consultorio"
+          icon={<FiMapPin size={18} />}
+          isOpen={openPanels.location}
+          onToggle={() => togglePanel('location')}
+          isEditable={true}
+          onEdit={() => setIsEditing('location')}
+        >
+          {isEditing === 'location' ? (
+            <div className="space-y-4 pt-4">
+              <CustomInput
+                label="Dirección"
+                name="location.address"
+                value={profile.location.address}
+                onChange={handleChange}
+                icon={<FiMapPin size={14} />}
+                placeholder="Calle Principal 123"
+              />
               
-              {/* Tab de suscripción */}
-              {activeTab === 'subscription' && (
-                <div className="space-y-6">
-                  {/* Plan Actual */}
-                  <div className="bg-white border border-light-grey rounded-lg p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-semibold text-dark-grey">Plan Actual</h3>
-                      <button
-                        onClick={() => setShowPlanChangeModal(true)}
-                        className="flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors"
-                      >
-                        <FiSettings className="w-4 h-4 mr-2" />
-                        Cambiar Plan
-                      </button>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                        <div className="flex items-center mb-2">
-                          <div 
-                            className="w-4 h-4 rounded-full mr-3"
-                            style={{ backgroundColor: currentPlanData?.color }}
-                          />
-                          <h4 className="text-xl font-bold text-dark-grey">
-                            Plan {currentPlanData?.name}
-                          </h4>
-                        </div>
-                        <p className="text-medium-grey mb-3">{currentPlanData?.description}</p>
-                        <div className="text-2xl font-bold text-dark-grey">
-                          {formatCurrency(profile.subscription.monthlyFee)}
-                          <span className="text-sm font-normal text-medium-grey">/mes</span>
-                        </div>
-                      </div>
-                      
-                      <div className="space-y-3">
-                        <div className="flex justify-between">
-                          <span className="text-medium-grey">Estado:</span>
-                          {getSubscriptionStatusBadge(profile.subscription.status)}
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-medium-grey">Pago:</span>
-                          {getPaymentStatusBadge(profile.subscription.paymentStatus)}
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-medium-grey">Próximo pago:</span>
-                          <span className="font-medium">
-                            {new Date(profile.subscription.nextPaymentDate).toLocaleDateString('es-ES')}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <CustomInput
+                  label="Ciudad"
+                  name="location.city"
+                  value={profile.location.city}
+                  onChange={handleChange}
+                  icon={<FiMapPin size={14} />}
+                  placeholder="Madrid"
+                />
+                <CustomInput
+                  label="Código Postal"
+                  name="location.postalCode"
+                  value={profile.location.postalCode}
+                  onChange={handleChange}
+                  icon={<FiMapPin size={14} />}
+                  placeholder="28001"
+                />
+              </div>
+
+              <CustomInput
+                label="País"
+                name="location.country"
+                value={profile.location.country}
+                onChange={handleChange}
+                icon={<FiMapPin size={14} />}
+                placeholder="España"
+              />
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  onClick={() => setIsEditing(null)}
+                  className="flex-1 bg-gray-200 text-gray-700 py-3 px-6 rounded-xl font-semibold hover:bg-gray-300 transition-colors duration-200"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={() => handleSave('location')}
+                  disabled={isSaving}
+                  className="flex-1 bg-gradient-to-r from-green-600 to-blue-800 text-white py-3 px-6 rounded-xl font-semibold hover:from-green-700 hover:to-blue-900 transition-all duration-200 disabled:opacity-50"
+                >
+                  {isSaving ? 'Guardando...' : 'Guardar'}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="pt-3">
+              <InfoRow 
+                label="Dirección" 
+                value={profile.location.address}
+                icon={<FiMapPin size={14} />}
+              />
+              <InfoRow 
+                label="Ciudad" 
+                value={profile.location.city}
+                icon={<FiMapPin size={14} />}
+              />
+              <InfoRow 
+                label="Código Postal" 
+                value={profile.location.postalCode}
+                icon={<FiMapPin size={14} />}
+              />
+              <InfoRow 
+                label="País" 
+                value={profile.location.country}
+                icon={<FiMapPin size={14} />}
+              />
+            </div>
+          )}
+                </CollapsiblePanel>
+
+        {/* Horarios de Atención */}
+        <CollapsiblePanel
+          title="Horarios de Atención"
+          icon={<FiClock size={18} />}
+          isOpen={openPanels.schedule}
+          onToggle={() => togglePanel('schedule')}
+          isEditable={true}
+          onEdit={() => setIsEditing('schedule')}
+        >
+          {isEditing === 'schedule' ? (
+            <div className="pt-4">
+              <ScheduleEditor
+                schedule={profile.availableTimes}
+                onChange={handleScheduleChange}
+              />
+              
+              {/* Días Bloqueados - Editable */}
+              <div className="mt-6 bg-gray-50 rounded-xl p-4">
+                <h3 className="font-semibold text-gray-900 mb-4 flex items-center">
+                  <FiAlertTriangle className="mr-2 text-yellow-600" size={16} />
+                  Días Bloqueados
+                </h3>
+                
+                <form onSubmit={handleAddBlockedDate} className="mb-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <CustomInput
+                      label="Fecha"
+                      name="block-date"
+                      type="date"
+                      value={newBlockDate}
+                      onChange={(e) => setNewBlockDate(e.target.value)}
+                      icon={<FiCalendar size={14} />}
+                      placeholder=""
+                    />
+                    <CustomInput
+                      label="Motivo"
+                      name="block-reason"
+                      value={newBlockReason}
+                      onChange={(e) => setNewBlockReason(e.target.value)}
+                      icon={<FiFileText size={14} />}
+                      placeholder="Vacaciones, conferencia, etc."
+                    />
                   </div>
+                  <button
+                    type="submit"
+                    className="w-full bg-yellow-500 text-white py-2 px-4 rounded-xl font-medium hover:bg-yellow-600 transition-colors duration-200"
+                  >
+                    Añadir Día Bloqueado
+                  </button>
+                </form>
 
-                  {/* Características del Plan */}
-                  <div className="bg-white border border-light-grey rounded-lg p-6">
-                    <h3 className="text-lg font-semibold text-dark-grey mb-4">Características Incluidas</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {currentPlanData?.features.map((feature, index) => (
-                        <div key={index} className="flex items-start">
-                          <FiCheck className="w-4 h-4 text-green-500 mt-0.5 mr-3 flex-shrink-0" />
-                          <span className="text-sm text-dark-grey">{feature}</span>
+                {blockedDates.length > 0 && (
+                  <div className="space-y-2">
+                    {blockedDates.map((blockedDate, index) => (
+                      <div key={index} className="bg-white rounded-lg p-3 flex justify-between items-center shadow-sm">
+                        <div>
+                          <p className="font-medium text-gray-900">{new Date(blockedDate.date).toLocaleDateString('es-ES')}</p>
+                          <p className="text-sm text-gray-600">{blockedDate.reason}</p>
                         </div>
-                      ))}
-                    </div>
+                        <button
+                          onClick={() => handleRemoveBlockedDate(blockedDate.date)}
+                          className="text-red-500 hover:text-red-700 transition-colors duration-200"
+                        >
+                          <FiAlertTriangle size={16} />
+                        </button>
+                      </div>
+                    ))}
                   </div>
+                )}
+              </div>
 
-                  {/* Alertas de Pago */}
-                  {profile.subscription.paymentStatus === 'failed' && (
-                    <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                      <div className="flex items-start">
-                        <FiAlertTriangle className="w-5 h-5 text-red-600 mt-0.5 mr-3" />
-                        <div>
-                          <h4 className="font-medium text-red-900">Pago Fallido</h4>
-                          <p className="text-red-700 text-sm mt-1">
-                            Tu último pago no pudo ser procesado. Por favor, actualiza tu método de pago 
-                            para evitar la suspensión de tu cuenta.
-                          </p>
-                          <div className="mt-3 space-x-3">
-                            <button className="text-sm bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700">
-                              Reintentar Pago
-                            </button>
-                            <button className="text-sm text-red-600 hover:text-red-800">
-                              Actualizar Método de Pago
-                            </button>
-                          </div>
+              <div className="flex gap-3 pt-6">
+                <button
+                  onClick={() => setIsEditing(null)}
+                  className="flex-1 bg-gray-200 text-gray-700 py-3 px-6 rounded-xl font-semibold hover:bg-gray-300 transition-colors duration-200"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={() => handleSave('schedule')}
+                  disabled={isSaving}
+                  className="flex-1 bg-gradient-to-r from-green-600 to-blue-800 text-white py-3 px-6 rounded-xl font-semibold hover:from-green-700 hover:to-blue-900 transition-all duration-200 disabled:opacity-50"
+                >
+                  {isSaving ? 'Guardando...' : 'Guardar'}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="pt-3">
+              <div className="space-y-3 mb-4">
+                {['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'].map((day, index) => {
+                  const daySchedule = profile.availableTimes.find(t => t.dayOfWeek === index);
+                  return (
+                    <div key={index} className="flex justify-between items-center py-2 border-b border-gray-50 last:border-b-0">
+                      <span className="font-medium text-gray-900">{day}</span>
+                      {daySchedule?.isAvailable ? (
+                        <div className="flex flex-wrap gap-1">
+                          {daySchedule.slots.map((slot, slotIndex) => (
+                            <span key={slotIndex} className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                              {slot.start} - {slot.end}
+                            </span>
+                          ))}
                         </div>
+                      ) : (
+                        <span className="text-gray-500 text-sm">No disponible</span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+              
+              {blockedDates.length > 0 && (
+                <div className="border-t border-gray-100 pt-3">
+                  <h4 className="font-medium text-gray-900 mb-2 flex items-center">
+                    <FiAlertTriangle className="mr-2 text-yellow-600" size={14} />
+                    Días Bloqueados
+                  </h4>
+                  <div className="space-y-1">
+                    {blockedDates.slice(0, 3).map((blockedDate, index) => (
+                      <div key={index} className="text-sm text-gray-600">
+                        {new Date(blockedDate.date).toLocaleDateString('es-ES')} - {blockedDate.reason}
                       </div>
-                    </div>
-                  )}
-
-                  {/* Historial de Pagos */}
-                  <div className="bg-white border border-light-grey rounded-lg p-6">
-                    <h3 className="text-lg font-semibold text-dark-grey mb-4">Historial de Pagos</h3>
-                    <div className="space-y-3">
-                      <div className="flex justify-between items-center py-2 border-b border-light-grey">
-                        <div>
-                          <span className="font-medium">Enero 2024</span>
-                          <span className="text-medium-grey ml-2">Plan Premium</span>
-                        </div>
-                        <div className="flex items-center">
-                          <span className="font-medium mr-3">{formatCurrency(150000)}</span>
-                          {getPaymentStatusBadge('paid')}
-                        </div>
-                      </div>
-                      <div className="flex justify-between items-center py-2 border-b border-light-grey">
-                        <div>
-                          <span className="font-medium">Diciembre 2023</span>
-                          <span className="text-medium-grey ml-2">Plan Premium</span>
-                        </div>
-                        <div className="flex items-center">
-                          <span className="font-medium mr-3">{formatCurrency(150000)}</span>
-                          {getPaymentStatusBadge('paid')}
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="mt-4 pt-4 border-t border-light-grey">
-                      <button className="text-primary hover:text-blue-600 text-sm font-medium">
-                        Ver historial completo
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Acciones de Suscripción */}
-                  <div className="bg-white border border-light-grey rounded-lg p-6">
-                    <h3 className="text-lg font-semibold text-dark-grey mb-4">Gestión de Suscripción</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <button className="flex items-center justify-center px-4 py-3 border border-light-grey rounded-lg hover:bg-light-grey/50 transition-colors">
-                        <FiCreditCard className="w-4 h-4 mr-2" />
-                        Actualizar Método de Pago
-                      </button>
-                      <button className="flex items-center justify-center px-4 py-3 border border-light-grey rounded-lg hover:bg-light-grey/50 transition-colors">
-                        <FiFileText className="w-4 h-4 mr-2" />
-                        Descargar Facturas
-                      </button>
-                    </div>
-                    
-                    <div className="mt-4 pt-4 border-t border-light-grey">
-                      <button className="text-red-600 hover:text-red-800 text-sm font-medium">
-                        Cancelar Suscripción
-                      </button>
-                    </div>
+                    ))}
+                    {blockedDates.length > 3 && (
+                      <p className="text-xs text-gray-500">Y {blockedDates.length - 3} más...</p>
+                    )}
                   </div>
                 </div>
               )}
             </div>
+          )}
+        </CollapsiblePanel>
+
+        {/* Suscripción */}
+        <CollapsiblePanel
+          title="Plan de Suscripción"
+          icon={<FiCreditCard size={18} />}
+          isOpen={openPanels.subscription}
+          onToggle={() => togglePanel('subscription')}
+        >
+          <div className="pt-4 space-y-4">
+            {/* Plan Actual */}
+            <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-xl p-4">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="font-semibold text-gray-900 flex items-center">
+                  <div 
+                    className="w-3 h-3 rounded-full mr-2"
+                    style={{ backgroundColor: currentPlanData?.color }}
+                  />
+                  Plan {currentPlanData?.name}
+                </h4>
+                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                  profile.subscription.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                }`}>
+                  {profile.subscription.status === 'active' ? 'Activo' : 'Pendiente'}
+                </span>
+              </div>
+              
+              <p className="text-gray-700 text-sm mb-3">{currentPlanData?.description}</p>
+              
+              <div className="flex justify-between items-center">
+                <div>
+                  <span className="text-2xl font-bold text-gray-900">
+                    {formatCurrency(profile.subscription.monthlyFee)}
+                  </span>
+                  <span className="text-gray-500 text-sm">/mes</span>
+                </div>
+                
+                <button
+                  onClick={() => setShowPlanChangeModal(true)}
+                  className="bg-gradient-to-r from-green-600 to-blue-800 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-green-700 hover:to-blue-900 transition-all duration-200"
+                >
+                  Cambiar Plan
+                </button>
+              </div>
+            </div>
+
+            {/* Información de Pago */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <InfoRow 
+                label="Estado del pago" 
+                value={profile.subscription.paymentStatus === 'paid' ? 'Pagado' : 'Pendiente'}
+                icon={<FiCreditCard size={14} />}
+              />
+              <InfoRow 
+                label="Próximo pago" 
+                value={new Date(profile.subscription.nextPaymentDate).toLocaleDateString('es-ES')}
+                icon={<FiCalendar size={14} />}
+              />
+            </div>
+
+            {/* Características del Plan */}
+            <div className="border-t border-gray-100 pt-4">
+              <h5 className="font-medium text-gray-900 mb-3">Características incluidas:</h5>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                {currentPlanData?.features.map((feature, index) => (
+                  <div key={index} className="flex items-start text-sm">
+                    <FiCheck className="w-3 h-3 text-green-500 mt-0.5 mr-2 flex-shrink-0" />
+                    <span className="text-gray-700">{feature}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
+        </CollapsiblePanel>
+
+        {/* Cambio de Contraseña */}
+        <CollapsiblePanel
+          title="Cambiar Contraseña"
+          icon={<FiLock size={18} />}
+          isOpen={openPanels.password}
+          onToggle={() => togglePanel('password')}
+          isEditable={true}
+          onEdit={() => setIsEditing('password')}
+        >
+          {isEditing === 'password' ? (
+            <div className="space-y-4 pt-4">
+              <CustomInput
+                label="Contraseña actual"
+                name="currentPassword"
+                type="password"
+                value={passwordData.currentPassword}
+                onChange={handlePasswordChange}
+                icon={<FiLock size={14} />}
+                placeholder="Ingresa tu contraseña actual"
+              />
+              
+              <CustomInput
+                label="Nueva contraseña"
+                name="newPassword"
+                type="password"
+                value={passwordData.newPassword}
+                onChange={handlePasswordChange}
+                icon={<FiLock size={14} />}
+                placeholder="Ingresa tu nueva contraseña"
+              />
+              
+              <CustomInput
+                label="Confirmar contraseña"
+                name="confirmPassword"
+                type="password"
+                value={passwordData.confirmPassword}
+                onChange={handlePasswordChange}
+                icon={<FiLock size={14} />}
+                placeholder="Confirma tu nueva contraseña"
+              />
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  onClick={() => setIsEditing(null)}
+                  className="flex-1 bg-gray-200 text-gray-700 py-3 px-6 rounded-xl font-semibold hover:bg-gray-300 transition-colors duration-200"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={() => handleSave('password')}
+                  disabled={isSaving}
+                  className="flex-1 bg-gradient-to-r from-green-600 to-blue-800 text-white py-3 px-6 rounded-xl font-semibold hover:from-green-700 hover:to-blue-900 transition-all duration-200 disabled:opacity-50"
+                >
+                  {isSaving ? 'Guardando...' : 'Cambiar Contraseña'}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="pt-3">
+              <p className="text-gray-600 text-sm">Por seguridad, actualiza tu contraseña regularmente.</p>
+            </div>
+          )}
+        </CollapsiblePanel>
+
+        {/* Preguntas Frecuentes */}
+        <CollapsiblePanel
+          title="Preguntas Frecuentes"
+          icon={<FiHelpCircle size={18} />}
+          isOpen={openPanels.faq}
+          onToggle={() => togglePanel('faq')}
+        >
+          <div className="pt-4 space-y-4">
+            <div className="border-b border-gray-100 pb-3">
+              <h5 className="font-medium text-gray-900 mb-1">¿Cómo cambio mi horario de atención?</h5>
+              <p className="text-gray-600 text-sm">Puedes modificar tus horarios en la sección "Horarios de Atención" haciendo clic en editar.</p>
+            </div>
+            
+            <div className="border-b border-gray-100 pb-3">
+              <h5 className="font-medium text-gray-900 mb-1">¿Cómo actualizo mi plan de suscripción?</h5>
+              <p className="text-gray-600 text-sm">Ve a la sección "Plan de Suscripción" y haz clic en "Cambiar Plan" para ver las opciones disponibles.</p>
+            </div>
+            
+            <div>
+              <h5 className="font-medium text-gray-900 mb-1">¿Necesitas más ayuda?</h5>
+              <p className="text-gray-600 text-sm">Contacta con nuestro equipo de soporte para recibir asistencia personalizada.</p>
+            </div>
+          </div>
+        </CollapsiblePanel>
+
+        {/* Cerrar Sesión */}
+        <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-red-200 hover:shadow-md transition-all duration-300">
+          <button
+            onClick={handleLogout}
+            className="w-full px-4 py-3 flex items-center justify-center hover:bg-red-50 transition-colors duration-200 text-red-600"
+          >
+            <div className="p-1.5 rounded-lg bg-red-100 text-red-600 mr-3">
+              <FiLogOut size={18} />
+            </div>
+            <span className="font-semibold text-base">Cerrar Sesión</span>
+          </button>
         </div>
+      </div>
+
+      {/* Floating Chat Button */}
+      <div className="fixed bottom-24 right-6">
+        <button className="w-14 h-14 bg-gradient-to-r from-green-600 to-blue-800 text-white rounded-2xl shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 flex items-center justify-center">
+          <FiMessageSquare size={24} />
+        </button>
       </div>
 
       {/* Plan Change Modal */}
@@ -822,9 +1192,11 @@ const DoctorProfilePage = () => {
         onPlanChanged={handlePlanChanged}
       />
 
+      {/* Success notification */}
       {savedSuccess && (
-        <div className="fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg">
-          ¡Perfil actualizado correctamente!
+        <div className="fixed bottom-4 left-4 bg-green-500 text-white px-6 py-3 rounded-xl shadow-lg flex items-center animate-slide-in-left">
+          <FiCheck className="mr-2" size={16} />
+          ¡Información actualizada correctamente!
         </div>
       )}
     </div>
