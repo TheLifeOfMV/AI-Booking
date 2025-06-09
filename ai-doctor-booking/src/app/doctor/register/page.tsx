@@ -7,7 +7,7 @@ import Input from '@/components/Input';
 import Button from '@/components/Button';
 import CredentialUpload from '@/components/doctor/CredentialUpload';
 import SpecialtySelector from '@/components/doctor/SpecialtySelector';
-import { FiUpload, FiCheckCircle, FiUser } from 'react-icons/fi';
+import { FiUpload, FiCheckCircle, FiUser, FiChevronDown, FiChevronUp } from 'react-icons/fi';
 import { useAuthStore } from '@/store/authStore';
 
 // Datos de muestra para las especialidades
@@ -22,6 +22,16 @@ const SAMPLE_SPECIALTIES = [
   { id: '8', name: 'Psiquiatría' }
 ];
 
+// Agregar datos de entidades de salud
+const HEALTH_ENTITIES = [
+  { id: '1', name: 'SURA' },
+  { id: '2', name: 'Colsanitas' },
+  { id: '3', name: 'Compensar' },
+  { id: '4', name: 'Aliansalud' },
+  { id: '5', name: 'Commeva' },
+  { id: '6', name: 'Particular' }
+];
+
 const DoctorRegisterPage = () => {
   const router = useRouter();
   const { login } = useAuthStore();
@@ -34,6 +44,7 @@ const DoctorRegisterPage = () => {
     email: '',
     phone: '',
     specialties: [] as string[],
+    healthEntities: [] as string[],
     licenseNumber: '',
     experienceYears: '',
     profilePicture: null as File | null,
@@ -42,6 +53,7 @@ const DoctorRegisterPage = () => {
     termsAccepted: false
   });
   const [profilePreview, setProfilePreview] = useState<string | null>(null);
+  const [isEntitiesDropdownOpen, setIsEntitiesDropdownOpen] = useState(false);
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target as HTMLInputElement;
@@ -56,6 +68,10 @@ const DoctorRegisterPage = () => {
   
   const handleSpecialtiesChange = (selectedIds: string[]) => {
     setFormData(prev => ({ ...prev, specialties: selectedIds }));
+  };
+  
+  const handleHealthEntitiesChange = (selectedIds: string[]) => {
+    setFormData(prev => ({ ...prev, healthEntities: selectedIds }));
   };
   
   const handleCredentialsChange = (files: File[]) => {
@@ -86,6 +102,20 @@ const DoctorRegisterPage = () => {
     setCurrentStep(prev => prev - 1);
   };
   
+  const toggleEntitiesDropdown = () => {
+    setIsEntitiesDropdownOpen(!isEntitiesDropdownOpen);
+  };
+  
+  const handleEntityToggle = (entityId: string) => {
+    const currentEntities = formData.healthEntities;
+    const updatedEntities = currentEntities.includes(entityId)
+      ? currentEntities.filter(id => id !== entityId)
+      : [...currentEntities, entityId];
+    
+    console.log('[DoctorRegister] Entity selection changed:', { entityId, updatedEntities });
+    handleHealthEntitiesChange(updatedEntities);
+  };
+  
   const validateCurrentStep = () => {
     console.log('[DoctorRegister] Validating step:', currentStep);
     
@@ -97,8 +127,8 @@ const DoctorRegisterPage = () => {
           console.log('[DoctorRegister] Step 1 validation:', { step1Valid, formData: { fullName: !!formData.fullName, email: !!formData.email, phone: !!formData.phone } });
           return step1Valid;
         case 2:
-          const step2Valid = formData.specialties.length > 0 && formData.licenseNumber && formData.experienceYears;
-          console.log('[DoctorRegister] Step 2 validation:', { step2Valid, specialties: formData.specialties.length, licenseNumber: !!formData.licenseNumber, experienceYears: !!formData.experienceYears });
+          const step2Valid = formData.specialties.length > 0 && formData.healthEntities.length > 0 && formData.licenseNumber && formData.experienceYears;
+          console.log('[DoctorRegister] Step 2 validation:', { step2Valid, specialties: formData.specialties.length, healthEntities: formData.healthEntities.length, licenseNumber: !!formData.licenseNumber, experienceYears: !!formData.experienceYears });
           return step2Valid;
         case 3:
           const step3Valid = formData.credentials.length > 0;
@@ -317,6 +347,73 @@ const DoctorRegisterPage = () => {
                     onChange={handleSpecialtiesChange}
                   />
                 </div>
+
+                <div className="mb-4">
+                  <label className="block text-dark-grey font-medium mb-2">
+                    Entidades de salud con las que trabaja
+                  </label>
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={toggleEntitiesDropdown}
+                      className="w-full px-4 py-3 rounded-lg border border-light-grey bg-white text-left focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary flex items-center justify-between"
+                    >
+                      <span className={formData.healthEntities.length === 0 ? 'text-medium-grey' : 'text-dark-grey'}>
+                        {formData.healthEntities.length === 0 
+                          ? 'Selecciona las entidades' 
+                          : `${formData.healthEntities.length} entidad(es) seleccionada(s)`
+                        }
+                      </span>
+                      {isEntitiesDropdownOpen ? (
+                        <FiChevronUp className="text-medium-grey" />
+                      ) : (
+                        <FiChevronDown className="text-medium-grey" />
+                      )}
+                    </button>
+                    
+                    {isEntitiesDropdownOpen && (
+                      <div className="absolute z-10 w-full mt-1 bg-white border border-light-grey rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                        {HEALTH_ENTITIES.map((entity) => (
+                          <label
+                            key={entity.id}
+                            className="flex items-center px-4 py-3 hover:bg-light-grey/30 cursor-pointer"
+                          >
+                            <input
+                              type="checkbox"
+                              checked={formData.healthEntities.includes(entity.id)}
+                              onChange={() => handleEntityToggle(entity.id)}
+                              className="h-4 w-4 text-primary border-light-grey rounded focus:ring-primary mr-3"
+                            />
+                            <span className="text-dark-grey">{entity.name}</span>
+                          </label>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  
+                  {formData.healthEntities.length > 0 && (
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {formData.healthEntities.map(entityId => {
+                        const entity = HEALTH_ENTITIES.find(e => e.id === entityId);
+                        return (
+                          <span 
+                            key={entityId}
+                            className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-primary/10 text-primary"
+                          >
+                            {entity?.name}
+                            <button
+                              type="button"
+                              onClick={() => handleEntityToggle(entityId)}
+                              className="ml-2 text-primary hover:text-primary/70"
+                            >
+                              ×
+                            </button>
+                          </span>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
                 
                 <Input
                   label="Número de licencia profesional"
@@ -398,6 +495,12 @@ const DoctorRegisterPage = () => {
                       <strong>Especialidades:</strong> {' '}
                       {formData.specialties.map(id => 
                         SAMPLE_SPECIALTIES.find(s => s.id === id)?.name
+                      ).join(', ')}
+                    </li>
+                    <li>
+                      <strong>Entidades:</strong> {' '}
+                      {formData.healthEntities.map(id => 
+                        HEALTH_ENTITIES.find(e => e.id === id)?.name
                       ).join(', ')}
                     </li>
                     <li><strong>Licencia:</strong> {formData.licenseNumber}</li>
