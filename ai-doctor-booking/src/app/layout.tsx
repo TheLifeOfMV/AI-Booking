@@ -3,6 +3,7 @@ import "./globals.css";
 import RouteGuardProvider from "@/components/RouteGuardProvider";
 import BottomNavigation from "@/components/BottomNavigation";
 import AuthInitializer from "@/components/AuthInitializer";
+import ConditionalLayout from "@/components/ConditionalLayout";
 
 export const metadata: Metadata = {
   title: "AI Doctor Booking",
@@ -19,9 +20,9 @@ export default function RootLayout({
       <body className="antialiased">
         <AuthInitializer>
           <RouteGuardProvider>
-            <main className="min-h-screen pb-16">
+            <ConditionalLayout>
               {children}
-            </main>
+            </ConditionalLayout>
             <BottomNavigation />
           </RouteGuardProvider>
         </AuthInitializer>
