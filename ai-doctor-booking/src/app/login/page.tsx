@@ -205,21 +205,23 @@ export default function LoginPage() {
               </div>
             </form>
 
-            {/* FIXED: Enhanced specialist registration section */}
-            <div className="mt-6 pt-6 border-t border-gray-200">
-              <div className="text-center">
-                <p className="text-sm text-medium-grey mb-3">
-                  ¿Eres un especialista médico?
-                </p>
-                <Button
-                  type="secondary"
-                  className="w-full py-3 text-base font-medium border-2 border-primary text-primary hover:bg-primary hover:text-white transition-all duration-200"
-                  onClick={handleSpecialistRegistration}
-                >
-                  Registrarse como Especialista
-                </Button>
+            {/* FIXED: Enhanced specialist registration section - Only visible for doctor role */}
+            {userRole === 'doctor' && (
+              <div className="mt-6 pt-6 border-t border-gray-200">
+                <div className="text-center">
+                  <p className="text-sm text-medium-grey mb-3">
+                    ¿Eres especialista médico?
+                  </p>
+                  <button
+                    type="button"
+                    className="py-2 px-4 text-sm font-medium text-primary hover:bg-gray-50 transition-all duration-200 rounded-md"
+                    onClick={handleSpecialistRegistration}
+                  >
+                    Registrarse como Especialista
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </main>
