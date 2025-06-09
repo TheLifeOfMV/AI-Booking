@@ -63,8 +63,6 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({
             <div className="flex items-center text-medium-grey mt-1">
               <FiClock className="mr-2 flex-shrink-0" size={16} />
               <span className="font-medium">{appointment.time}</span>
-              <span className="mx-2">•</span>
-              <span>Presencial</span>
             </div>
           </div>
         </div>
