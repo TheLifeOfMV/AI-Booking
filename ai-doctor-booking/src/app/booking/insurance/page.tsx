@@ -8,12 +8,9 @@ import Image from 'next/image';
 const insuranceProviders = [
   { id: '1', name: 'Colsanitas', logoUrl: '/insurance/colsanitas.jpg' },
   { id: '2', name: 'SURA', logoUrl: '/insurance/sura.jpg' },
-  { id: '3', name: 'Nueva EPS', logoUrl: '/insurance/nueva-eps.jpg' },
   { id: '4', name: 'Compensar', logoUrl: '/insurance/compensar.jpg' },
   { id: '5', name: 'Aliansalud', logoUrl: '/insurance/famisanar.jpg' },
   { id: '6', name: 'Coomeva', logoUrl: '/insurance/medimas.jpg' },
-  { id: '7', name: 'Sanitas', logoUrl: '/insurance/sanitas.jpg' },
-  { id: '8', name: 'Salud Total', logoUrl: '/insurance/salud-total.jpg' },
 ];
 
 export default function InsurancePage() {
@@ -124,7 +121,7 @@ export default function InsurancePage() {
                     <path d="m9 12 2 2 4-4" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 </div>
-                <h3 className="font-bold text-lg text-dark-grey">Tarjeta de seguro</h3>
+                <h3 className="font-bold text-lg text-dark-grey">Información</h3>
               </div>
               <button
                 onClick={closeModal}
