@@ -336,10 +336,24 @@ const DoctorDashboardPage = () => {
                           </div>
                           
                           <div className="min-w-0">
-                            <h3 className="font-bold text-dark-grey text-xl mb-1 group-hover:text-blue-700 transition-colors duration-300">{appointment.patientName}</h3>
-                            <div className="flex items-center text-medium-grey">
-                              <FiClock className="mr-2 flex-shrink-0" size={18} />
-                              <span className="font-semibold text-lg">{appointment.time}</span>
+                            <h3 className="font-bold text-dark-grey text-xl mb-2 group-hover:text-blue-700 transition-colors duration-300">{appointment.patientName}</h3>
+                            
+                            {/* Date and Time Info */}
+                            <div className="flex items-center gap-4 text-medium-grey">
+                              <div className="flex items-center">
+                                <FiCalendar className="mr-2 flex-shrink-0" size={16} />
+                                <span className="font-medium text-sm">
+                                  {new Date(appointment.date).toLocaleDateString('es-ES', {
+                                    weekday: 'short',
+                                    day: 'numeric',
+                                    month: 'short'
+                                  })}
+                                </span>
+                              </div>
+                              <div className="flex items-center">
+                                <FiClock className="mr-2 flex-shrink-0" size={16} />
+                                <span className="font-semibold text-lg">{appointment.time}</span>
+                              </div>
                             </div>
                           </div>
                         </div>

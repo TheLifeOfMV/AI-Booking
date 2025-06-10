@@ -3,7 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { FiClock, FiCheck, FiX, FiEye } from 'react-icons/fi';
+import { FiClock, FiCheck, FiX, FiEye, FiCalendar } from 'react-icons/fi';
 
 interface AppointmentCardProps {
   appointment: {
@@ -47,6 +47,16 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({
     }
   };
 
+  // Format date for display
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('es-ES', {
+      weekday: 'short',
+      day: 'numeric',
+      month: 'short'
+    });
+  };
+
   // If we have action buttons, don't make the card clickable
   if (showActions || onViewDetails) {
     return (
@@ -68,10 +78,18 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({
               </div>
               
               <div className="min-w-0">
-                <h3 className="font-bold text-dark-grey text-xl mb-1">{appointment.patientName}</h3>
-                <div className="flex items-center text-medium-grey">
-                  <FiClock className="mr-2 flex-shrink-0" size={18} />
-                  <span className="font-semibold text-lg">{appointment.time}</span>
+                <h3 className="font-bold text-dark-grey text-xl mb-2">{appointment.patientName}</h3>
+                
+                {/* Date and Time Info */}
+                <div className="flex items-center gap-4 text-medium-grey">
+                  <div className="flex items-center">
+                    <FiCalendar className="mr-2 flex-shrink-0" size={16} />
+                    <span className="font-medium text-sm">{formatDate(appointment.date)}</span>
+                  </div>
+                  <div className="flex items-center">
+                    <FiClock className="mr-2 flex-shrink-0" size={16} />
+                    <span className="font-semibold text-lg">{appointment.time}</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -137,10 +155,18 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({
               </div>
               
               <div className="min-w-0">
-                <h3 className="font-bold text-dark-grey text-xl mb-1 group-hover:text-blue-700 transition-colors duration-300">{appointment.patientName}</h3>
-                <div className="flex items-center text-medium-grey">
-                  <FiClock className="mr-2 flex-shrink-0" size={18} />
-                  <span className="font-semibold text-lg">{appointment.time}</span>
+                <h3 className="font-bold text-dark-grey text-xl mb-2 group-hover:text-blue-700 transition-colors duration-300">{appointment.patientName}</h3>
+                
+                {/* Date and Time Info */}
+                <div className="flex items-center gap-4 text-medium-grey">
+                  <div className="flex items-center">
+                    <FiCalendar className="mr-2 flex-shrink-0" size={16} />
+                    <span className="font-medium text-sm">{formatDate(appointment.date)}</span>
+                  </div>
+                  <div className="flex items-center">
+                    <FiClock className="mr-2 flex-shrink-0" size={16} />
+                    <span className="font-semibold text-lg">{appointment.time}</span>
+                  </div>
                 </div>
               </div>
             </div>

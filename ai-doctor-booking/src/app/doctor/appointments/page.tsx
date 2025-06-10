@@ -43,14 +43,80 @@ const DoctorAppointmentsPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [showAllAppointments, setShowAllAppointments] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState<FilterState>({
     timeRange: 'all',
     status: 'all'
   });
 
-  // Filter appointments based on current filters
+  // Helper function to search by date with multiple formats
+  const searchByDate = (appointmentDate: string, searchTerm: string) => {
+    const aptDate = new Date(appointmentDate);
+    const searchLower = searchTerm.toLowerCase().trim();
+    
+    // Format appointment date in different ways for comparison
+    const formats = {
+      // ISO format: 2023-07-15
+      iso: appointmentDate,
+      // Spanish date format: 15/07/2023
+      spanishSlash: aptDate.toLocaleDateString('es-ES'),
+      // Spanish date format with dashes: 15-07-2023
+      spanishDash: aptDate.toLocaleDateString('es-ES').replace(/\//g, '-'),
+      // Full Spanish date: "sábado, 15 de julio de 2023"
+      fullSpanish: aptDate.toLocaleDateString('es-ES', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      }),
+      // Short Spanish date: "15 de julio"
+      shortSpanish: aptDate.toLocaleDateString('es-ES', {
+        day: 'numeric',
+        month: 'long'
+      }),
+      // Weekday only: "sábado"
+      weekday: aptDate.toLocaleDateString('es-ES', { weekday: 'long' }),
+      // Month only: "julio"
+      month: aptDate.toLocaleDateString('es-ES', { month: 'long' }),
+      // Year only: "2023"
+      year: aptDate.getFullYear().toString(),
+      // Day only: "15"
+      day: aptDate.getDate().toString(),
+      // Month number: "07" or "7"
+      monthNumber: (aptDate.getMonth() + 1).toString(),
+      monthNumberPadded: (aptDate.getMonth() + 1).toString().padStart(2, '0')
+    };
+
+    // Check if search term matches any of the date formats
+    return Object.values(formats).some(format => 
+      format.toLowerCase().includes(searchLower)
+    );
+  };
+
+  // Filter appointments based on current filters and search
   const filteredAppointments = useMemo(() => {
     let filtered = [...ALL_MOCK_APPOINTMENTS];
+    
+    // Search filter
+    if (searchTerm.trim()) {
+      const searchLower = searchTerm.toLowerCase().trim();
+      
+      filtered = filtered.filter(apt => {
+        // Text-based searches
+        const textMatch = 
+          apt.patientName.toLowerCase().includes(searchLower) ||
+          apt.reason.toLowerCase().includes(searchLower) ||
+          apt.patientEmail.toLowerCase().includes(searchLower) ||
+          apt.patientPhone.includes(searchTerm.trim()) ||
+          apt.location.toLowerCase().includes(searchLower) ||
+          (apt.insuranceProvider && apt.insuranceProvider.toLowerCase().includes(searchLower));
+
+        // Date-based searches
+        const dateMatch = searchByDate(apt.date, searchTerm);
+
+        return textMatch || dateMatch;
+      });
+    }
     
     // Time range filter
     if (filters.timeRange !== 'all') {
@@ -91,7 +157,7 @@ const DoctorAppointmentsPage = () => {
       const dateB = new Date(`${b.date}T${b.time}`);
       return dateA.getTime() - dateB.getTime();
     });
-  }, [filters]);
+  }, [filters, searchTerm]);
 
   // Calculate appointment counts for filters
   const appointmentCounts = useMemo(() => {
@@ -217,6 +283,11 @@ const DoctorAppointmentsPage = () => {
     ? filteredAppointments 
     : filteredAppointments.slice(0, 5);
 
+  // Clear search function
+  const clearSearch = () => {
+    setSearchTerm('');
+  };
+
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#F2F2F2' }}>
       <div className="container max-w-7xl mx-auto py-8 px-6">
@@ -229,8 +300,41 @@ const DoctorAppointmentsPage = () => {
               Organiza y gestiona todas tus citas médicas
             </p>
           </div>
-          
-          <div className="mt-4 md:mt-0 flex items-center gap-4">
+        </div>
+
+        {/* Search Bar */}
+        <div className="bg-white rounded-xl shadow-sm mb-6 p-6">
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <FiSearch className="h-5 w-5 text-medium-grey" />
+            </div>
+            <input
+              type="text"
+              placeholder="Buscar por nombre, motivo, email, teléfono, ubicación, fecha (ej: 15/07/2023, julio, lunes)..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-12 pr-12 py-4 border border-light-grey rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 text-dark-grey placeholder-medium-grey text-lg"
+              style={{ fontSize: '16px' }}
+            />
+            {searchTerm && (
+              <button
+                onClick={clearSearch}
+                className="absolute inset-y-0 right-0 pr-4 flex items-center text-medium-grey hover:text-dark-grey transition-colors"
+              >
+                <FiX className="h-5 w-5" />
+              </button>
+            )}
+          </div>
+          {searchTerm && (
+            <div className="mt-3 text-sm text-medium-grey">
+              {filteredAppointments.length} resultado{filteredAppointments.length !== 1 ? 's' : ''} para "{searchTerm}"
+            </div>
+          )}
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex flex-col md:flex-row justify-end items-start md:items-center mb-8 gap-4">
+          <div className="flex items-center gap-4">
             <button
               onClick={() => setShowFilters(!showFilters)}
               className={`flex items-center font-medium px-6 py-3 rounded-full transition-all duration-200 hover:shadow-md border ${
@@ -284,19 +388,36 @@ const DoctorAppointmentsPage = () => {
               No se encontraron citas
             </h3>
             <p className="text-medium-grey mb-8 max-w-md mx-auto">
-              No hay citas que coincidan con los filtros seleccionados. 
-              Prueba ajustando los criterios de búsqueda.
+              {searchTerm 
+                ? `No hay citas que coincidan con "${searchTerm}". Prueba con otro término de búsqueda.`
+                : 'No hay citas que coincidan con los filtros seleccionados. Prueba ajustando los criterios de búsqueda.'
+              }
             </p>
-            <button
-              onClick={() => setFilters({
-                timeRange: 'all',
-                status: 'all'
-              })}
-              className="inline-flex items-center px-6 py-3 rounded-lg font-medium transition-colors text-white mr-4"
-              style={{ backgroundColor: '#007AFF' }}
-            >
-              Limpiar Filtros
-            </button>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              {searchTerm && (
+                <button
+                  onClick={clearSearch}
+                  className="inline-flex items-center px-6 py-3 rounded-lg font-medium transition-colors text-white"
+                  style={{ backgroundColor: '#007AFF' }}
+                >
+                  <FiX className="mr-2" size={16} />
+                  Limpiar Búsqueda
+                </button>
+              )}
+              <button
+                onClick={() => {
+                  setFilters({
+                    timeRange: 'all',
+                    status: 'all'
+                  });
+                  clearSearch();
+                }}
+                className="inline-flex items-center px-6 py-3 rounded-lg font-medium transition-colors border border-gray-300 text-gray-700 bg-white hover:bg-gray-50"
+              >
+                <FiFilter className="mr-2" size={16} />
+                Limpiar Todo
+              </button>
+            </div>
           </div>
         ) : (
           <div className="space-y-4">
