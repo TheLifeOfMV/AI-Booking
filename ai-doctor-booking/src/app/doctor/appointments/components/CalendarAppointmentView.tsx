@@ -1,17 +1,14 @@
 "use client";
 
 import React from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { 
   FiClock, 
-  FiMapPin, 
-  FiVideo, 
-  FiUser,
-  FiChevronRight 
+  FiChevronRight,
+  FiCalendar
 } from 'react-icons/fi';
 import { ExtendedAppointment } from '../mockAppointments';
-import AppointmentActions from './AppointmentActions';
+import AppointmentCard from '../../dashboard/AppointmentCard';
 
 interface CalendarAppointmentViewProps {
   date: Date;
@@ -31,30 +28,16 @@ const CalendarAppointmentView: React.FC<CalendarAppointmentViewProps> = ({
     });
   };
 
-  const getStatusBadge = (status: ExtendedAppointment['status']) => {
-    const statusConfig = {
-      confirmed: { bg: 'bg-green-100', text: 'text-green-700', label: 'Confirmada' },
-      pending: { bg: 'bg-yellow-100', text: 'text-yellow-700', label: 'Pendiente' },
-      completed: { bg: 'bg-blue-100', text: 'text-blue-700', label: 'Completada' },
-      cancelled: { bg: 'bg-red-100', text: 'text-red-700', label: 'Cancelada' },
-      'no-show': { bg: 'bg-gray-100', text: 'text-gray-700', label: 'No asistió' }
+  // Convert ExtendedAppointment to AppointmentCard format
+  const convertToAppointmentCardFormat = (appointment: ExtendedAppointment) => {
+    return {
+      id: appointment.id,
+      patientName: appointment.patientName,
+      patientAvatar: appointment.patientAvatar,
+      date: appointment.date,
+      time: appointment.time,
+      status: appointment.status as 'confirmed' | 'pending' | 'cancelled'
     };
-
-    const config = statusConfig[status];
-    return (
-      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${config.bg} ${config.text}`}>
-        {config.label}
-      </span>
-    );
-  };
-
-  const getUrgencyColor = (urgency: 'low' | 'medium' | 'high') => {
-    switch (urgency) {
-      case 'high': return 'border-l-red-500';
-      case 'medium': return 'border-l-yellow-500';
-      case 'low': return 'border-l-green-500';
-      default: return 'border-l-gray-300';
-    }
   };
 
   if (appointments.length === 0) {
@@ -106,138 +89,15 @@ const CalendarAppointmentView: React.FC<CalendarAppointmentViewProps> = ({
         </div>
       </div>
 
-      <div className="divide-y divide-light-grey">
-        {appointments.map(appointment => (
-          <div 
-            key={appointment.id}
-            className={`p-6 border-l-4 ${getUrgencyColor(appointment.urgency)}`}
-          >
-            <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
-              
-              {/* Appointment Info */}
-              <div className="flex-1">
-                <div className="flex items-start gap-4">
-                  {/* Patient Avatar */}
-                  <div className="w-12 h-12 rounded-full overflow-hidden bg-light-grey flex-shrink-0">
-                    <Image 
-                      src={appointment.patientAvatar} 
-                      alt={appointment.patientName}
-                      width={48}
-                      height={48}
-                      className="object-cover"
-                    />
-                  </div>
-
-                  {/* Details */}
-                  <div className="flex-1">
-                    {/* Time and Status */}
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center text-dark-grey font-semibold">
-                        <FiClock className="mr-2" size={16} />
-                        <span>{appointment.time} - {appointment.endTime}</span>
-                      </div>
-                      {getStatusBadge(appointment.status)}
-                    </div>
-
-                    {/* Patient Name */}
-                    <h4 className="text-lg font-semibold text-dark-grey mb-2">
-                      {appointment.patientName}
-                    </h4>
-
-                    {/* Location */}
-                    <div className="flex items-center text-medium-grey mb-2">
-                      {appointment.consultationType === 'virtual' ? (
-                        <FiVideo className="mr-2 flex-shrink-0" size={16} />
-                      ) : (
-                        <FiMapPin className="mr-2 flex-shrink-0" size={16} />
-                      )}
-                      <span>{appointment.location}</span>
-                      {appointment.roomNumber && (
-                        <>
-                          <span className="mx-2">•</span>
-                          <span>Sala {appointment.roomNumber}</span>
-                        </>
-                      )}
-                    </div>
-
-                    {/* Reason */}
-                    <p className="text-dark-grey font-medium mb-2">
-                      {appointment.reason}
-                    </p>
-
-                    {/* Symptoms */}
-                    {appointment.symptoms && appointment.symptoms.length > 0 && (
-                      <div className="flex flex-wrap gap-1 mb-2">
-                        {appointment.symptoms.map((symptom, index) => (
-                          <span 
-                            key={index}
-                            className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-light-grey text-medium-grey"
-                          >
-                            {symptom}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Additional Info */}
-                    <div className="flex items-center gap-4 text-sm text-medium-grey">
-                      <span>€{appointment.fees}</span>
-                      {appointment.insuranceProvider && (
-                        <>
-                          <span>•</span>
-                          <span>{appointment.insuranceProvider}</span>
-                        </>
-                      )}
-                      <span>•</span>
-                      <span className="capitalize">{appointment.appointmentType}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Actions */}
-              <div className="lg:ml-4">
-                <AppointmentActions 
-                  appointment={appointment}
-                  onConfirm={async (id) => console.log('Confirm', id)}
-                  onCancel={async (id) => console.log('Cancel', id)}
-                  onViewDetails={(id) => window.open(`/doctor/appointments/${id}`, '_blank')}
-                  onReschedule={(id) => console.log('Reschedule', id)}
-                  compact={false}
-                />
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Day Summary */}
-      <div className="p-6 bg-light-grey/30 border-t border-light-grey">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-          <div>
-            <div className="text-2xl font-bold text-dark-grey">
-              {appointments.filter(apt => apt.status === 'confirmed').length}
-            </div>
-            <div className="text-sm text-medium-grey">Confirmadas</div>
-          </div>
-          <div>
-            <div className="text-2xl font-bold text-dark-grey">
-              {appointments.filter(apt => apt.status === 'pending').length}
-            </div>
-            <div className="text-sm text-medium-grey">Pendientes</div>
-          </div>
-          <div>
-            <div className="text-2xl font-bold text-dark-grey">
-              {appointments.reduce((sum, apt) => sum + apt.fees, 0)}€
-            </div>
-            <div className="text-sm text-medium-grey">Total Ingresos</div>
-          </div>
-          <div>
-            <div className="text-2xl font-bold text-dark-grey">
-              {appointments.reduce((sum, apt) => sum + apt.duration, 0)}min
-            </div>
-            <div className="text-sm text-medium-grey">Tiempo Total</div>
-          </div>
+      <div className="p-6">
+        <div className="space-y-4">
+          {appointments.map(appointment => (
+            <AppointmentCard
+              key={appointment.id}
+              appointment={convertToAppointmentCardFormat(appointment)}
+              href={`/doctor/appointments/${appointment.id}`}
+            />
+          ))}
         </div>
       </div>
     </div>

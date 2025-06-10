@@ -6,9 +6,7 @@ import {
   FiChevronLeft, 
   FiChevronRight, 
   FiCalendar, 
-  FiList,
-  FiFilter,
-  FiPlus
+  FiList
 } from 'react-icons/fi';
 import { ALL_MOCK_APPOINTMENTS, ExtendedAppointment } from '../mockAppointments';
 import CalendarAppointmentView from '../components/CalendarAppointmentView';
@@ -17,9 +15,20 @@ const DoctorCalendarPage = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [viewMode, setViewMode] = useState<'month' | 'week'>('month');
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Structured logging for debugging (MONOCODE principle)
+  const logCalendarAction = (action: string, data?: any) => {
+    console.log(`[Calendar] ${action}:`, { timestamp: new Date().toISOString(), ...data });
+  };
 
   // Get calendar data
   const calendarData = useMemo(() => {
+    logCalendarAction('Calculating calendar data', { 
+      month: currentDate.getMonth(), 
+      year: currentDate.getFullYear() 
+    });
+    
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
     
@@ -69,6 +78,11 @@ const DoctorCalendarPage = () => {
       grouped[date].sort((a, b) => a.time.localeCompare(b.time));
     });
     
+    logCalendarAction('Appointments grouped by date', { 
+      datesWithAppointments: Object.keys(grouped).length,
+      totalAppointments: ALL_MOCK_APPOINTMENTS.length 
+    });
+    
     return grouped;
   }, []);
 
@@ -89,7 +103,13 @@ const DoctorCalendarPage = () => {
     return date1.toDateString() === date2.toDateString();
   };
 
-  const navigateMonth = (direction: 'prev' | 'next') => {
+  const navigateMonth = async (direction: 'prev' | 'next') => {
+    setIsLoading(true);
+    logCalendarAction('Month navigation', { direction });
+    
+    // Simulate loading for smooth UX
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
     setCurrentDate(prev => {
       const newDate = new Date(prev);
       if (direction === 'prev') {
@@ -99,9 +119,12 @@ const DoctorCalendarPage = () => {
       }
       return newDate;
     });
+    
+    setIsLoading(false);
   };
 
   const goToToday = () => {
+    logCalendarAction('Navigate to today');
     setCurrentDate(new Date());
     setSelectedDate(new Date());
   };
@@ -111,7 +134,7 @@ const DoctorCalendarPage = () => {
     'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
   ];
 
-  const dayNames = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+  const dayNames = ['LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB', 'DOM'];
 
   const getAppointmentCount = (date: Date): number => {
     const dateKey = formatDateKey(date);
@@ -123,109 +146,130 @@ const DoctorCalendarPage = () => {
     return appointmentsByDate[dateKey] || [];
   };
 
+  const getAppointmentIndicators = (appointments: ExtendedAppointment[]): JSX.Element[] => {
+    return appointments.slice(0, 3).map((apt, index) => {
+      const statusColors = {
+        confirmed: 'bg-emerald-400',
+        pending: 'bg-amber-400',
+        completed: 'bg-blue-400',
+        cancelled: 'bg-gray-400',
+        'no-show': 'bg-red-400'
+      };
+
+      return (
+        <div
+          key={index}
+          className={`h-1 rounded-full ${statusColors[apt.status]}`}
+          title={`${apt.time} - ${apt.patientName} (${apt.status})`}
+        />
+      );
+    });
+  };
+
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#F0F4F9' }}>
-      <div className="container max-w-7xl mx-auto py-8 px-6">
+    <div className="min-h-screen bg-gray-50">
+      <div className="container max-w-6xl mx-auto py-6 px-4">
         
-        {/* Header */}
+        {/* Clean Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-dark-grey mb-2">Calendario de Citas</h1>
-            <p className="text-medium-grey text-lg">
-              Vista calendario de tus citas médicas
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              Calendario de Citas
+            </h1>
+            <p className="text-gray-600">
+              Vista profesional de tu agenda médica
             </p>
           </div>
           
-          <div className="mt-4 md:mt-0 flex items-center gap-4">
+          <div className="flex items-center gap-3 mt-4 md:mt-0">
             <Link 
               href="/doctor/appointments" 
-              className="flex items-center font-medium px-6 py-3 rounded-full transition-all duration-200 hover:shadow-md bg-white border border-light-grey"
+              className="flex items-center font-medium px-4 py-2 rounded-lg transition-all duration-200 hover:shadow-md bg-white border border-gray-200 hover:border-blue-300 text-gray-700 hover:text-blue-600"
             >
-              <FiList className="mr-2" size={18} /> Vista Lista
+              <FiList className="mr-2" size={16} /> 
+              Vista Lista
             </Link>
             
             <button
               onClick={goToToday}
-              className="flex items-center font-medium px-6 py-3 rounded-full transition-all duration-200 hover:shadow-md"
-              style={{ 
-                color: '#007AFF', 
-                backgroundColor: 'rgba(0, 122, 255, 0.1)',
-              }}
+              className="flex items-center font-medium px-4 py-2 rounded-lg transition-all duration-200 hover:shadow-md text-white bg-blue-600 hover:bg-blue-700"
             >
+              <FiCalendar className="mr-2" size={16} />
               Hoy
             </button>
           </div>
         </div>
 
-        {/* Calendar Header */}
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-6">
-          <div className="p-6 border-b border-light-grey">
+        {/* Professional Calendar */}
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
+          
+          {/* Calendar Header */}
+          <div className="px-6 py-4 border-b border-gray-100 bg-gray-50">
             <div className="flex items-center justify-between">
               
               {/* Month Navigation */}
               <div className="flex items-center gap-4">
                 <button
                   onClick={() => navigateMonth('prev')}
-                  className="p-2 hover:bg-light-grey rounded-lg transition-colors"
+                  disabled={isLoading}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
                 >
-                  <FiChevronLeft size={20} className="text-dark-grey" />
+                  <FiChevronLeft size={20} className="text-gray-600" />
                 </button>
                 
-                <h2 className="text-2xl font-bold text-dark-grey min-w-[200px] text-center">
+                <h2 className="text-xl font-bold text-gray-900 min-w-[200px] text-center">
                   {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
                 </h2>
                 
                 <button
                   onClick={() => navigateMonth('next')}
-                  className="p-2 hover:bg-light-grey rounded-lg transition-colors"
+                  disabled={isLoading}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
                 >
-                  <FiChevronRight size={20} className="text-dark-grey" />
+                  <FiChevronRight size={20} className="text-gray-600" />
                 </button>
               </div>
 
-              {/* View Controls */}
-              <div className="flex items-center gap-4">
-                <div className="flex rounded-lg overflow-hidden border border-light-grey">
-                  <button
-                    onClick={() => setViewMode('month')}
-                    className={`px-4 py-2 text-sm font-medium transition-colors ${
-                      viewMode === 'month'
-                        ? 'text-white'
-                        : 'bg-white text-medium-grey hover:bg-light-grey'
-                    }`}
-                    style={{ backgroundColor: viewMode === 'month' ? '#007AFF' : undefined }}
-                  >
-                    Mes
-                  </button>
-                  <button
-                    onClick={() => setViewMode('week')}
-                    className={`px-4 py-2 text-sm font-medium transition-colors ${
-                      viewMode === 'week'
-                        ? 'text-white'
-                        : 'bg-white text-medium-grey hover:bg-light-grey'
-                    }`}
-                    style={{ backgroundColor: viewMode === 'week' ? '#007AFF' : undefined }}
-                  >
-                    Semana
-                  </button>
-                </div>
+              {/* View Toggle */}
+              <div className="flex rounded-lg overflow-hidden border border-gray-200">
+                <button
+                  onClick={() => setViewMode('month')}
+                  className={`px-4 py-2 text-sm font-medium transition-colors ${
+                    viewMode === 'month'
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-white text-gray-600 hover:text-blue-600'
+                  }`}
+                >
+                  Mes
+                </button>
+                <button
+                  onClick={() => setViewMode('week')}
+                  className={`px-4 py-2 text-sm font-medium transition-colors ${
+                    viewMode === 'week'
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-white text-gray-600 hover:text-blue-600'
+                  }`}
+                >
+                  Semana
+                </button>
               </div>
             </div>
           </div>
 
           {/* Calendar Grid */}
           <div className="p-6">
+            
             {/* Day Headers */}
-            <div className="grid grid-cols-7 gap-1 mb-4">
+            <div className="grid grid-cols-7 gap-3 mb-4">
               {dayNames.map(day => (
-                <div key={day} className="text-center py-3 text-sm font-medium text-medium-grey">
+                <div key={day} className="text-center py-2 text-sm font-semibold text-gray-500 uppercase tracking-wide">
                   {day}
                 </div>
               ))}
             </div>
 
             {/* Calendar Days */}
-            <div className="grid grid-cols-7 gap-1">
+            <div className="grid grid-cols-7 gap-3">
               {calendarData.days.map((date, index) => {
                 const appointmentCount = getAppointmentCount(date);
                 const dayAppointments = getDayAppointments(date);
@@ -234,24 +278,27 @@ const DoctorCalendarPage = () => {
                 return (
                   <button
                     key={index}
-                    onClick={() => setSelectedDate(date)}
+                    onClick={() => {
+                      logCalendarAction('Date selected', { date: date.toISOString() });
+                      setSelectedDate(date);
+                    }}
                     className={`
-                      aspect-square p-2 text-left transition-all duration-200 rounded-lg border-2
+                      relative p-3 text-left transition-all duration-200 rounded-xl border h-24 hover:shadow-md
                       ${isSelected 
-                        ? 'border-primary bg-primary/5' 
-                        : 'border-transparent hover:border-primary/30 hover:bg-primary/5'
+                        ? 'border-blue-500 bg-blue-50 shadow-md' 
+                        : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50'
                       }
-                      ${isCurrentMonth(date) ? '' : 'opacity-40'}
-                      ${isToday(date) ? 'bg-primary/10' : ''}
+                      ${isCurrentMonth(date) ? 'bg-white' : 'bg-gray-50 opacity-60'}
+                      ${isToday(date) ? 'ring-2 ring-blue-400 ring-opacity-30' : ''}
                     `}
                   >
                     {/* Date Number */}
-                    <div className={`text-sm font-medium mb-1 ${
+                    <div className={`text-sm font-semibold mb-2 ${
                       isToday(date) 
-                        ? 'text-primary font-bold' 
+                        ? 'text-blue-600' 
                         : isCurrentMonth(date) 
-                          ? 'text-dark-grey' 
-                          : 'text-medium-grey'
+                          ? 'text-gray-900' 
+                          : 'text-gray-400'
                     }`}>
                       {date.getDate()}
                     </div>
@@ -259,25 +306,19 @@ const DoctorCalendarPage = () => {
                     {/* Appointment Indicators */}
                     {appointmentCount > 0 && (
                       <div className="space-y-1">
-                        {dayAppointments.slice(0, 3).map((apt, aptIndex) => (
-                          <div
-                            key={aptIndex}
-                            className={`h-1.5 rounded-full text-xs ${
-                              apt.status === 'confirmed' ? 'bg-green-500' :
-                              apt.status === 'pending' ? 'bg-yellow-500' :
-                              apt.status === 'completed' ? 'bg-blue-500' :
-                              'bg-gray-400'
-                            }`}
-                            title={`${apt.time} - ${apt.patientName}`}
-                          />
-                        ))}
+                        {getAppointmentIndicators(dayAppointments)}
                         
                         {appointmentCount > 3 && (
-                          <div className="text-xs text-medium-grey">
+                          <div className="text-xs text-gray-500 font-medium mt-1">
                             +{appointmentCount - 3}
                           </div>
                         )}
                       </div>
+                    )}
+
+                    {/* Today indicator */}
+                    {isToday(date) && (
+                      <div className="absolute top-1 right-1 w-2 h-2 bg-blue-500 rounded-full"></div>
                     )}
                   </button>
                 );
@@ -288,33 +329,35 @@ const DoctorCalendarPage = () => {
 
         {/* Selected Date Details */}
         {selectedDate && (
-          <CalendarAppointmentView 
-            date={selectedDate}
-            appointments={getDayAppointments(selectedDate)}
-          />
+          <div className="mt-6 animate-in slide-in-from-bottom-2 duration-300">
+            <CalendarAppointmentView 
+              date={selectedDate}
+              appointments={getDayAppointments(selectedDate)}
+            />
+          </div>
         )}
 
-        {/* Calendar Legend */}
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-          <div className="p-6">
-            <h3 className="text-lg font-semibold text-dark-grey mb-4">Leyenda</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="flex items-center">
-                <div className="w-4 h-2 bg-green-500 rounded-full mr-3"></div>
-                <span className="text-sm text-dark-grey">Confirmadas</span>
-              </div>
-              <div className="flex items-center">
-                <div className="w-4 h-2 bg-yellow-500 rounded-full mr-3"></div>
-                <span className="text-sm text-dark-grey">Pendientes</span>
-              </div>
-              <div className="flex items-center">
-                <div className="w-4 h-2 bg-blue-500 rounded-full mr-3"></div>
-                <span className="text-sm text-dark-grey">Completadas</span>
-              </div>
-              <div className="flex items-center">
-                <div className="w-4 h-2 bg-gray-400 rounded-full mr-3"></div>
-                <span className="text-sm text-dark-grey">Canceladas</span>
-              </div>
+        {/* Simple Legend */}
+        <div className="mt-6 bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+            Leyenda de Estados
+          </h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="flex items-center">
+              <div className="w-4 h-2 bg-emerald-400 rounded-full mr-3"></div>
+              <span className="text-sm text-gray-700">Confirmadas</span>
+            </div>
+            <div className="flex items-center">
+              <div className="w-4 h-2 bg-amber-400 rounded-full mr-3"></div>
+              <span className="text-sm text-gray-700">Pendientes</span>
+            </div>
+            <div className="flex items-center">
+              <div className="w-4 h-2 bg-blue-400 rounded-full mr-3"></div>
+              <span className="text-sm text-gray-700">Completadas</span>
+            </div>
+            <div className="flex items-center">
+              <div className="w-4 h-2 bg-gray-400 rounded-full mr-3"></div>
+              <span className="text-sm text-gray-700">Canceladas</span>
             </div>
           </div>
         </div>
