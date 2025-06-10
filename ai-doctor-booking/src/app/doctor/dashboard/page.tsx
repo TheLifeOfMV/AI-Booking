@@ -311,52 +311,54 @@ const DoctorDashboardPage = () => {
           </div>
           
           {MOCK_APPOINTMENTS.length > 0 ? (
-            <div className="divide-y divide-light-grey">
+            <div className="p-6 space-y-4">
               {MOCK_APPOINTMENTS.map(appointment => (
-                <div key={appointment.id} className="p-4 sm:p-6 hover:bg-light-grey/30 transition-colors">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div className="flex items-center">
-                      <div className="w-12 h-12 rounded-full overflow-hidden bg-light-grey mr-4 flex-shrink-0">
-                        <Image 
-                          src={appointment.patientAvatar} 
-                          alt={appointment.patientName}
-                          width={48}
-                          height={48}
-                          className="object-cover"
-                        />
-                      </div>
-                      
-                      <div className="min-w-0">
-                        <h3 className="font-semibold text-dark-grey text-lg">{appointment.patientName}</h3>
-                        <div className="flex items-center text-medium-grey mt-1">
-                          <FiClock className="mr-2 flex-shrink-0" size={16} />
-                          <span className="font-medium">{appointment.time}</span>
+                <Link 
+                  key={appointment.id} 
+                  href={`/doctor/appointments/${appointment.id}`}
+                  className="block"
+                >
+                  <div 
+                    className="bg-white rounded-xl border border-light-grey hover:shadow-lg hover:border-blue-200 transition-all duration-300 overflow-hidden group cursor-pointer transform hover:scale-[1.02]"
+                    style={{ backgroundColor: '#FFFFFF' }}
+                  >
+                    <div className="p-5">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div className="flex items-center">
+                          <div className="w-14 h-14 rounded-full overflow-hidden bg-light-grey mr-4 flex-shrink-0 ring-2 ring-blue-50 group-hover:ring-blue-200 transition-all duration-300">
+                            <Image 
+                              src={appointment.patientAvatar} 
+                              alt={appointment.patientName}
+                              width={56}
+                              height={56}
+                              className="object-cover"
+                            />
+                          </div>
+                          
+                          <div className="min-w-0">
+                            <h3 className="font-bold text-dark-grey text-xl mb-1 group-hover:text-blue-700 transition-colors duration-300">{appointment.patientName}</h3>
+                            <div className="flex items-center text-medium-grey">
+                              <FiClock className="mr-2 flex-shrink-0" size={18} />
+                              <span className="font-semibold text-lg">{appointment.time}</span>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center gap-4 flex-shrink-0">
+                          <span 
+                            className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-bold shadow-sm ${
+                              appointment.status === 'confirmed' 
+                                ? 'bg-green-100 text-green-800 border border-green-200' 
+                                : 'bg-yellow-100 text-yellow-800 border border-yellow-200'
+                            }`}
+                          >
+                            {appointment.status === 'confirmed' ? 'Confirmada' : 'Pendiente'}
+                          </span>
                         </div>
                       </div>
                     </div>
-                    
-                    <div className="flex items-center gap-4 flex-shrink-0">
-                      <span 
-                        className={`inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium ${
-                          appointment.status === 'confirmed' 
-                            ? 'bg-green-100 text-green-700' 
-                            : 'bg-yellow-100 text-yellow-700'
-                        }`}
-                      >
-                        {appointment.status === 'confirmed' ? 'Confirmada' : 'Pendiente'}
-                      </span>
-                      
-                      <Link href={`/doctor/appointments/${appointment.id}`}>
-                        <button 
-                          className="p-2 hover:bg-light-grey rounded-full transition-colors flex-shrink-0"
-                          style={{ color: '#007AFF' }}
-                        >
-                          <FiChevronRight size={20} />
-                        </button>
-                      </Link>
-                    </div>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           ) : (
