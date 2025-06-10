@@ -109,19 +109,33 @@ const AppointmentDetailPage = () => {
       <div className="container max-w-4xl mx-auto py-8 px-6">
         
         {/* Header */}
-        <div className="flex items-center mb-8">
-          <Link
-            href="/doctor/appointments"
-            className="flex items-center text-primary hover:text-blue-600 font-medium mr-4"
-          >
-            <FiArrowLeft className="mr-2" size={18} />
-            Volver a Citas
-          </Link>
-          <div className="flex-1">
-            <h1 className="text-3xl font-bold text-dark-grey">Detalles de la Cita</h1>
-            <p className="text-medium-grey">ID: #{appointment.id}</p>
+        <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-8">
+          <div className="p-6">
+            {/* Top Navigation Row */}
+            <div className="flex items-center justify-between mb-6">
+              <Link
+                href="/doctor/appointments"
+                className="inline-flex items-center px-4 py-2 rounded-lg text-primary hover:bg-blue-50 font-medium transition-all duration-200"
+                style={{ color: '#007AFF' }}
+              >
+                <FiArrowLeft className="mr-2" size={18} />
+                Volver a Citas
+              </Link>
+              {getStatusBadge(appointment.status)}
+            </div>
+            
+            {/* Title Section */}
+            <div className="border-t border-light-grey pt-6">
+              <div>
+                <h1 className="text-3xl font-bold text-dark-grey mb-2">Detalles de la Cita</h1>
+                <div className="flex items-center text-medium-grey">
+                  <span className="text-sm font-medium bg-light-grey/50 px-3 py-1 rounded-full">
+                    ID: #{appointment.id}
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
-          {getStatusBadge(appointment.status)}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -227,61 +241,19 @@ const AppointmentDetailPage = () => {
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-medium-grey mb-2">
-                    Motivo de la consulta
-                  </label>
-                  <p className="text-dark-grey font-medium">{appointment.reason}</p>
-                </div>
-
-                {appointment.symptoms && appointment.symptoms.length > 0 && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-medium text-medium-grey mb-2">
-                      Síntomas reportados
+                      Motivo de la consulta
                     </label>
-                    <div className="flex flex-wrap gap-2">
-                      {appointment.symptoms.map((symptom, index) => (
-                        <span 
-                          key={index}
-                          className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-light-grey text-dark-grey"
-                        >
-                          {symptom}
-                        </span>
-                      ))}
-                    </div>
+                    <p className="text-dark-grey font-medium">{appointment.reason}</p>
                   </div>
-                )}
-
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-light-grey">
+                  
                   <div>
-                    <label className="block text-sm font-medium text-medium-grey mb-1">
+                    <label className="block text-sm font-medium text-medium-grey mb-2">
                       Duración
                     </label>
                     <span className="text-dark-grey font-medium">{appointment.duration} min</span>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-medium-grey mb-1">
-                      Tarifa
-                    </label>
-                    <span className="text-dark-grey font-medium">€{appointment.fees}</span>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-medium-grey mb-1">
-                      Tipo
-                    </label>
-                    <span className="text-dark-grey font-medium capitalize">{appointment.appointmentType}</span>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-medium-grey mb-1">
-                      Urgencia
-                    </label>
-                    <span className={`font-medium capitalize ${
-                      appointment.urgency === 'high' ? 'text-red-600' :
-                      appointment.urgency === 'medium' ? 'text-yellow-600' :
-                      'text-green-600'
-                    }`}>
-                      {appointment.urgency}
-                    </span>
                   </div>
                 </div>
               </div>
@@ -348,11 +320,11 @@ const AppointmentDetailPage = () => {
           <div className="space-y-6">
             
             {/* Actions */}
-            <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+            <div className="bg-white rounded-xl shadow-sm overflow-visible">
               <div className="p-6 border-b border-light-grey">
                 <h3 className="text-lg font-semibold text-dark-grey">Acciones</h3>
               </div>
-              <div className="p-6">
+              <div className="p-6 relative">
                 <AppointmentActions 
                   appointment={appointment}
                   onConfirm={async (id) => console.log('Confirm', id)}
@@ -364,34 +336,6 @@ const AppointmentDetailPage = () => {
               </div>
             </div>
 
-            {/* Quick Info */}
-            <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-              <div className="p-6 border-b border-light-grey">
-                <h3 className="text-lg font-semibold text-dark-grey">Información Rápida</h3>
-              </div>
-              <div className="p-6 space-y-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-medium-grey">Creada el:</span>
-                  <span className="text-dark-grey font-medium">
-                    {new Date(appointment.createdAt).toLocaleDateString('es-ES')}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-medium-grey">Última actualización:</span>
-                  <span className="text-dark-grey font-medium">
-                    {new Date(appointment.lastModified).toLocaleDateString('es-ES')}
-                  </span>
-                </div>
-                {appointment.cancelledAt && (
-                  <div className="flex justify-between items-center">
-                    <span className="text-medium-grey">Cancelada el:</span>
-                    <span className="text-red-600 font-medium">
-                      {new Date(appointment.cancelledAt).toLocaleDateString('es-ES')}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
           </div>
         </div>
       </div>

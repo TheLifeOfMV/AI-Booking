@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { FiCheck, FiX, FiEye, FiEdit, FiPhone, FiVideo, FiMoreVertical, FiClock } from 'react-icons/fi';
 import { ExtendedAppointment } from '../mockAppointments';
 
@@ -25,6 +25,21 @@ const AppointmentActions: React.FC<AppointmentActionsProps> = ({
 }) => {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [showMoreActions, setShowMoreActions] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowMoreActions(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const handleAction = async (action: string, callback?: () => Promise<void> | void) => {
     if (!callback) return;
@@ -145,7 +160,7 @@ const AppointmentActions: React.FC<AppointmentActionsProps> = ({
         </button>
 
         {/* More Actions Dropdown */}
-        <div className="relative">
+        <div className="relative" ref={dropdownRef}>
           <button
             onClick={() => setShowMoreActions(!showMoreActions)}
             className="p-2 hover:bg-light-grey rounded-lg transition-colors"
@@ -154,7 +169,9 @@ const AppointmentActions: React.FC<AppointmentActionsProps> = ({
           </button>
 
           {showMoreActions && (
-            <div className="absolute right-0 top-full mt-2 bg-white rounded-lg shadow-lg border border-light-grey min-w-[180px] z-10">
+            <div className="absolute right-0 bottom-full mb-2 bg-white rounded-lg shadow-xl border border-light-grey min-w-[180px] z-50" style={{ 
+              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
+            }}>
               
               {canReschedule && (
                 <button
@@ -169,29 +186,7 @@ const AppointmentActions: React.FC<AppointmentActionsProps> = ({
                 </button>
               )}
 
-              <button
-                onClick={() => {
-                  setShowMoreActions(false);
-                  console.log('Edit appointment', appointment.id);
-                }}
-                className="w-full text-left px-4 py-3 hover:bg-light-grey transition-colors flex items-center text-sm"
-              >
-                <FiEdit size={16} className="mr-3 text-medium-grey" />
-                Editar Información
-              </button>
 
-              {appointment.consultationType === 'presencial' && (
-                <button
-                  onClick={() => {
-                    setShowMoreActions(false);
-                    console.log('Call patient', appointment.patientPhone);
-                  }}
-                  className="w-full text-left px-4 py-3 hover:bg-light-grey transition-colors flex items-center text-sm"
-                >
-                  <FiPhone size={16} className="mr-3 text-medium-grey" />
-                  Llamar Paciente
-                </button>
-              )}
 
               {canCancel && (
                 <div className="border-t border-light-grey">

@@ -6,8 +6,6 @@ import { FiFilter, FiCalendar, FiClock, FiUsers } from 'react-icons/fi';
 export interface FilterState {
   timeRange: 'today' | 'tomorrow' | 'week' | 'month' | 'all';
   status: 'all' | 'confirmed' | 'pending' | 'completed' | 'cancelled';
-  consultationType: 'all' | 'presencial' | 'virtual';
-  urgency: 'all' | 'low' | 'medium' | 'high';
 }
 
 interface AppointmentFiltersProps {
@@ -78,25 +76,10 @@ const AppointmentFilters: React.FC<AppointmentFiltersProps> = ({
     }
   ];
 
-  const consultationTypeOptions = [
-    { value: 'all' as const, label: 'Todos los tipos' },
-    { value: 'presencial' as const, label: 'Presencial' },
-    { value: 'virtual' as const, label: 'Virtual' }
-  ];
-
-  const urgencyOptions = [
-    { value: 'all' as const, label: 'Todas las urgencias' },
-    { value: 'low' as const, label: 'Baja', color: 'text-green-600' },
-    { value: 'medium' as const, label: 'Media', color: 'text-yellow-600' },
-    { value: 'high' as const, label: 'Alta', color: 'text-red-600' }
-  ];
-
   const resetFilters = () => {
     onFiltersChange({
       timeRange: 'all',
-      status: 'all',
-      consultationType: 'all',
-      urgency: 'all'
+      status: 'all'
     });
   };
 
@@ -123,7 +106,7 @@ const AppointmentFilters: React.FC<AppointmentFiltersProps> = ({
         </div>
       </div>
 
-      <div className="p-6 space-y-6">
+      <div className="p-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Time Range Filter */}
         <div>
           <label className="block text-sm font-medium text-dark-grey mb-3">
@@ -185,93 +168,6 @@ const AppointmentFilters: React.FC<AppointmentFiltersProps> = ({
                 </button>
               );
             })}
-          </div>
-        </div>
-
-        {/* Consultation Type Filter */}
-        <div>
-          <label className="block text-sm font-medium text-dark-grey mb-3">
-            Tipo de consulta
-          </label>
-          <div className="flex flex-wrap gap-2">
-            {consultationTypeOptions.map(option => {
-              const isSelected = filters.consultationType === option.value;
-              
-              return (
-                <button
-                  key={option.value}
-                  onClick={() => updateFilter('consultationType', option.value)}
-                  className={`
-                    px-4 py-2 rounded-lg font-medium transition-all duration-200
-                    ${isSelected 
-                      ? 'text-white' 
-                      : 'bg-light-grey text-medium-grey hover:bg-gray-200'
-                    }
-                  `}
-                  style={{ 
-                    backgroundColor: isSelected ? '#007AFF' : undefined 
-                  }}
-                >
-                  {option.label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Urgency Filter */}
-        <div>
-          <label className="block text-sm font-medium text-dark-grey mb-3">
-            Nivel de urgencia
-          </label>
-          <div className="flex flex-wrap gap-2">
-            {urgencyOptions.map(option => {
-              const isSelected = filters.urgency === option.value;
-              
-              return (
-                <button
-                  key={option.value}
-                  onClick={() => updateFilter('urgency', option.value)}
-                  className={`
-                    px-4 py-2 rounded-lg font-medium transition-all duration-200
-                    ${isSelected 
-                      ? 'text-white' 
-                      : 'bg-light-grey hover:bg-gray-200'
-                    }
-                    ${option.color || 'text-medium-grey'}
-                  `}
-                  style={{ 
-                    backgroundColor: isSelected ? '#007AFF' : undefined 
-                  }}
-                >
-                  {option.label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="pt-4 border-t border-light-grey">
-          <div className="flex flex-wrap gap-2">
-            <button
-              onClick={() => updateFilter('timeRange', 'today')}
-              className="px-3 py-1 text-sm bg-green-100 text-green-700 rounded-full hover:bg-green-200 transition-colors"
-            >
-              Solo hoy
-            </button>
-            <button
-              onClick={() => updateFilter('status', 'pending')}
-              className="px-3 py-1 text-sm bg-yellow-100 text-yellow-700 rounded-full hover:bg-yellow-200 transition-colors"
-            >
-              Solo pendientes
-            </button>
-            <button
-              onClick={() => updateFilter('consultationType', 'virtual')}
-              className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200 transition-colors"
-            >
-              Solo virtuales
-            </button>
           </div>
         </div>
       </div>

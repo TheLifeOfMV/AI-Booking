@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { 
   FiCalendar, 
@@ -33,6 +34,7 @@ console.log('Loading doctor appointments page...');
 console.log('DoctorAppointmentsPage: Component mounting...');
 
 const DoctorAppointmentsPage = () => {
+  const router = useRouter();
   // State management
   const [dateFilter, setDateFilter] = useState<DateFilter>('today');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
@@ -40,11 +42,10 @@ const DoctorAppointmentsPage = () => {
   const [selectedAppointments, setSelectedAppointments] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const [showAllAppointments, setShowAllAppointments] = useState(false);
   const [filters, setFilters] = useState<FilterState>({
     timeRange: 'all',
-    status: 'all',
-    consultationType: 'all',
-    urgency: 'all'
+    status: 'all'
   });
 
   // Filter appointments based on current filters
@@ -83,16 +84,6 @@ const DoctorAppointmentsPage = () => {
     // Status filter
     if (filters.status !== 'all') {
       filtered = filtered.filter(apt => apt.status === filters.status);
-    }
-
-    // Consultation type filter
-    if (filters.consultationType !== 'all') {
-      filtered = filtered.filter(apt => apt.consultationType === filters.consultationType);
-    }
-
-    // Urgency filter
-    if (filters.urgency !== 'all') {
-      filtered = filtered.filter(apt => apt.urgency === filters.urgency);
     }
 
     return filtered.sort((a, b) => {
@@ -185,9 +176,7 @@ const DoctorAppointmentsPage = () => {
 
   // FIXED: Add missing handleViewDetails function
   const handleViewDetails = (appointmentId: string) => {
-    console.log('Viewing details for appointment:', appointmentId);
-    // Navigate to appointment details or open modal
-    // For now, just log - you can implement the actual logic later
+    router.push(`/doctor/appointments/${appointmentId}`);
   };
 
   // FIXED: Add missing handleConfirm function if it doesn't exist
@@ -222,6 +211,11 @@ const DoctorAppointmentsPage = () => {
     appointmentTypes: filteredAppointments.map(apt => 'presencial'),
     virtualAppointments: 0 // Confirms no virtual appointments
   });
+
+  // Get appointments to display (5 max unless showing all)
+  const displayedAppointments = showAllAppointments 
+    ? filteredAppointments 
+    : filteredAppointments.slice(0, 5);
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#F2F2F2' }}>
@@ -260,14 +254,14 @@ const DoctorAppointmentsPage = () => {
         </div>
 
         {/* Results Summary */}
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
+        <div className="bg-white rounded-xl shadow-sm mb-8 p-6">
           <div className="grid grid-cols-1 gap-6">
             <div className="text-center">
               <div className="text-3xl font-bold text-dark-grey mb-2">
                 {filteredAppointments.length}
               </div>
               <div className="text-medium-grey">
-                citas encontradas
+                Total de citas
               </div>
             </div>
           </div>
@@ -296,9 +290,7 @@ const DoctorAppointmentsPage = () => {
             <button
               onClick={() => setFilters({
                 timeRange: 'all',
-                status: 'all',
-                consultationType: 'all',
-                urgency: 'all'
+                status: 'all'
               })}
               className="inline-flex items-center px-6 py-3 rounded-lg font-medium transition-colors text-white mr-4"
               style={{ backgroundColor: '#007AFF' }}
@@ -308,17 +300,47 @@ const DoctorAppointmentsPage = () => {
           </div>
         ) : (
           <div className="space-y-4">
-            {filteredAppointments.map(appointment => (
-              <AppointmentCard
+            {displayedAppointments.map((appointment) => (
+              <div 
                 key={appointment.id}
-                appointment={appointment}
-                onConfirm={handleConfirm}
-                onCancel={handleCancel}
-                onViewDetails={handleViewDetails}
-                isLoading={isLoading}
-                showActions={true}
-              />
+                onClick={() => handleViewDetails(appointment.id)}
+                className="cursor-pointer transform transition-all duration-200 hover:scale-[1.02] hover:shadow-lg"
+              >
+                <AppointmentCard
+                  appointment={appointment}
+                  onConfirm={handleConfirmAppointment}
+                  onCancel={handleCancelAppointment}
+                  onViewDetails={handleViewDetails}
+                  isLoading={isLoading}
+                  showActions={false}
+                />
+              </div>
             ))}
+
+            {/* Show All Button */}
+            {filteredAppointments.length > 5 && !showAllAppointments && (
+              <div className="text-center mt-6">
+                <button
+                  onClick={() => setShowAllAppointments(true)}
+                  className="inline-flex items-center px-6 py-3 rounded-lg font-medium transition-colors text-white"
+                  style={{ backgroundColor: '#007AFF' }}
+                >
+                  Ver todas las citas ({filteredAppointments.length - 5} más)
+                </button>
+              </div>
+            )}
+
+            {/* Show Less Button */}
+            {showAllAppointments && filteredAppointments.length > 5 && (
+              <div className="text-center mt-6">
+                <button
+                  onClick={() => setShowAllAppointments(false)}
+                  className="inline-flex items-center px-6 py-3 rounded-lg font-medium transition-colors border border-gray-300 text-gray-700 bg-white hover:bg-gray-50"
+                >
+                  Ver menos
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>
