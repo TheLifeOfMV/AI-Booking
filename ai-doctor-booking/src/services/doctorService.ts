@@ -108,8 +108,8 @@ const MOCK_DOCTORS: Doctor[] = [
     createdAt: new Date('2021-11-20').toISOString(),
     subscription: {
       id: 'sub_2',
-      planType: 'enterprise',
-      monthlyFee: 250000, // 250,000 COP
+      planType: 'elite',
+      monthlyFee: 150000, // 150,000 COP
       status: 'active',
       paymentStatus: 'paid',
       startDate: '2021-11-20',
@@ -163,8 +163,8 @@ const MOCK_DOCTORS: Doctor[] = [
     createdAt: new Date('2022-01-10').toISOString(),
     subscription: {
       id: 'sub_3',
-      planType: 'basic',
-      monthlyFee: 80000, // 80,000 COP
+      planType: 'gratuito',
+      monthlyFee: 0, // Free plan
       status: 'active',
       paymentStatus: 'pending',
       startDate: '2022-01-10',
@@ -217,8 +217,8 @@ const MOCK_DOCTORS: Doctor[] = [
     createdAt: new Date('2022-03-25').toISOString(),
     subscription: {
       id: 'sub_4',
-      planType: 'basic',
-      monthlyFee: 80000, // 80,000 COP
+      planType: 'gratuito',
+      monthlyFee: 0, // Free plan
       status: 'expired',
       paymentStatus: 'failed',
       startDate: '2022-03-25',
@@ -272,7 +272,7 @@ const MOCK_DOCTORS: Doctor[] = [
     subscription: {
       id: 'sub_5',
       planType: 'premium',
-      monthlyFee: 150000, // 150,000 COP
+      monthlyFee: 100000, // 100,000 COP
       status: 'active',
       paymentStatus: 'paid',
       startDate: '2022-08-15',

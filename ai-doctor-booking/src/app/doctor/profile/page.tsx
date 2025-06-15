@@ -77,7 +77,7 @@ interface DoctorProfile {
   
   subscription: {
     id: string;
-    planType: 'basic' | 'premium' | 'enterprise';
+    planType: 'gratuito' | 'premium' | 'elite';
     monthlyFee: number;
     status: 'active' | 'pending' | 'expired' | 'cancelled';
     paymentStatus: 'paid' | 'pending' | 'failed' | 'refunded';
@@ -151,7 +151,7 @@ const MOCK_DOCTOR_PROFILE: DoctorProfile = {
   subscription: {
     id: 'sub123',
     planType: 'premium',
-    monthlyFee: 150000, // 150,000 COP
+    monthlyFee: 100000, // 100,000 COP
     status: 'active',
     paymentStatus: 'paid',
     startDate: '2023-01-01',

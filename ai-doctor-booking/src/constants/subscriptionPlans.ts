@@ -1,5 +1,5 @@
 export interface SubscriptionPlan {
-  id: 'basic' | 'premium' | 'enterprise';
+  id: 'gratuito' | 'premium' | 'elite';
   name: string;
   monthlyFee: number; // in Colombian pesos
   yearlyFee: number; // in Colombian pesos (with discount)
@@ -16,84 +16,81 @@ export interface SubscriptionPlan {
 }
 
 export const SUBSCRIPTION_PLANS: Record<string, SubscriptionPlan> = {
-  basic: {
-    id: 'basic',
-    name: 'Básico',
-    monthlyFee: 80000, // 80,000 COP
-    yearlyFee: 800000, // 800,000 COP (2 months free)
+  gratuito: {
+    id: 'gratuito',
+    name: 'Plan Gratuito',
+    monthlyFee: 0, // $0 / mes
+    yearlyFee: 0, // Free plan
     features: [
-      'Hasta 50 citas por mes',
-      'Dashboard básico',
-      'Soporte por email',
-      'Recordatorios automáticos',
-      'Gestión de horarios',
-      'Perfil profesional'
+      'Hasta 20 citas médicas mensuales',
+      'Panel de control básico para gestionar citas',
+      'Recordatorios automáticos por correo electrónico',
+      'Historial de citas de los últimos 30 días',
+      'Actualizaciones automáticas del sistema',
+      'Soporte por correo electrónico (en horario laboral)'
     ],
     limitations: [
-      'Máximo 50 citas/mes',
-      'Soporte solo por email',
-      'Sin analytics avanzados'
+      'Máximo 20 citas/mes',
+      'Soporte solo por email en horario laboral',
+      'Historial limitado a 30 días'
     ],
     recommended: false,
     color: '#10B981', // Green
     description: 'Perfecto para médicos que están comenzando su práctica digital',
-    maxAppointments: 50,
-    supportLevel: 'Email',
+    maxAppointments: 20,
+    supportLevel: 'Email (horario laboral)',
     analytics: false,
     apiAccess: false,
     customIntegrations: false
   },
   premium: {
     id: 'premium',
-    name: 'Premium',
-    monthlyFee: 150000, // 150,000 COP
-    yearlyFee: 1500000, // 1,500,000 COP (2 months free)
+    name: 'Plan Premium',
+    monthlyFee: 100000, // 100,000 COP / mes
+    yearlyFee: 1000000, // 1,000,000 COP (2 months free)
     features: [
-      'Hasta 200 citas por mes',
-      'Analytics avanzados',
-      'Soporte prioritario',
-      'Recordatorios automáticos',
-      'Gestión de horarios avanzada',
-      'Reportes mensuales',
-      'Integración con calendario',
-      'Notificaciones personalizadas'
+      'Hasta 60 citas médicas mensuales',
+      'Recordatorios automáticos por correo y WhatsApp (con IA)',
+      'WhatsApp con IA para confirmación/cancelación de citas',
+      'Historial de citas de los últimos 6 meses',
+      'Reportes básicos de citas (realizadas, canceladas)',
+      'Soporte por correo y chat en vivo',
+      'Acceso desde hasta 3 dispositivos'
     ],
     limitations: [
-      'Máximo 200 citas/mes',
-      'Sin API personalizada'
+      'Máximo 60 citas/mes',
+      'Acceso limitado a 3 dispositivos',
+      'Historial limitado a 6 meses'
     ],
     recommended: true,
     color: '#007AFF', // Primary blue
     description: 'La opción más popular para médicos establecidos',
-    maxAppointments: 200,
-    supportLevel: 'Prioritario',
+    maxAppointments: 60,
+    supportLevel: 'Correo y chat en vivo',
     analytics: true,
     apiAccess: false,
     customIntegrations: false
   },
-  enterprise: {
-    id: 'enterprise',
-    name: 'Enterprise',
-    monthlyFee: 250000, // 250,000 COP
-    yearlyFee: 2500000, // 2,500,000 COP (2 months free)
+  elite: {
+    id: 'elite',
+    name: 'Plan Élite / Corporativo',
+    monthlyFee: 150000, // 150,000 COP / mes
+    yearlyFee: 1500000, // 1,500,000 COP (2 months free)
     features: [
-      'Citas ilimitadas',
-      'Analytics completos',
-      'Soporte 24/7',
-      'API personalizada',
-      'Integración con sistemas externos',
-      'Manager de cuenta dedicado',
-      'Reportes personalizados',
-      'Backup automático',
-      'Múltiples ubicaciones',
-      'Equipo médico colaborativo'
+      'Citas médicas ilimitadas mensuales',
+      'WhatsApp con IA: agendamiento, confirmación, reprogramación',
+      'Llamadas automáticas con asistente virtual de IA para confirmación',
+      'Historial de citas sin límite de tiempo',
+      'Reportes avanzados y analítica (cancelaciones, ausencias, desempeño)',
+      'Soporte premium: correo, chat en vivo y teléfono',
+      'Acceso desde dispositivos ilimitados'
     ],
     limitations: [],
     recommended: false,
     color: '#8B5CF6', // Purple
     description: 'Solución completa para clínicas y consultorios grandes',
     maxAppointments: 'unlimited',
-    supportLevel: '24/7 Dedicado',
+    supportLevel: 'Premium: correo, chat y teléfono',
     analytics: true,
     apiAccess: true,
     customIntegrations: true
@@ -103,39 +100,39 @@ export const SUBSCRIPTION_PLANS: Record<string, SubscriptionPlan> = {
 export const PLAN_FEATURES_COMPARISON = {
   appointments: {
     label: 'Citas por mes',
-    basic: '50',
-    premium: '200',
-    enterprise: 'Ilimitadas'
+    gratuito: '20',
+    premium: '60',
+    elite: 'Ilimitadas'
   },
   support: {
     label: 'Soporte',
-    basic: 'Email',
-    premium: 'Prioritario',
-    enterprise: '24/7 Dedicado'
+    gratuito: 'Email (horario laboral)',
+    premium: 'Correo y chat en vivo',
+    elite: 'Premium: correo, chat y teléfono'
   },
   analytics: {
     label: 'Analytics',
-    basic: 'Básico',
-    premium: 'Avanzado',
-    enterprise: 'Completo'
+    gratuito: 'Básico',
+    premium: 'Reportes básicos',
+    elite: 'Reportes avanzados y analítica'
   },
   integrations: {
     label: 'Integraciones',
-    basic: 'Estándar',
-    premium: 'Avanzadas',
-    enterprise: 'Personalizadas'
+    gratuito: 'Email básico',
+    premium: 'WhatsApp con IA',
+    elite: 'WhatsApp + Llamadas con IA'
   },
-  api: {
-    label: 'Acceso API',
-    basic: '❌',
-    premium: '❌',
-    enterprise: '✅'
+  devices: {
+    label: 'Dispositivos',
+    gratuito: '1',
+    premium: '3',
+    elite: 'Ilimitados'
   },
-  backup: {
-    label: 'Backup automático',
-    basic: '❌',
-    premium: '✅',
-    enterprise: '✅'
+  history: {
+    label: 'Historial',
+    gratuito: '30 días',
+    premium: '6 meses',
+    elite: 'Sin límite'
   }
 };
 
@@ -171,11 +168,11 @@ export const formatCurrency = (amount: number): string => {
 };
 
 export const getPlanRecommendation = (monthlyAppointments: number): SubscriptionPlan => {
-  if (monthlyAppointments <= 50) {
-    return SUBSCRIPTION_PLANS.basic;
-  } else if (monthlyAppointments <= 200) {
+  if (monthlyAppointments <= 20) {
+    return SUBSCRIPTION_PLANS.gratuito;
+  } else if (monthlyAppointments <= 60) {
     return SUBSCRIPTION_PLANS.premium;
   } else {
-    return SUBSCRIPTION_PLANS.enterprise;
+    return SUBSCRIPTION_PLANS.elite;
   }
 }; 

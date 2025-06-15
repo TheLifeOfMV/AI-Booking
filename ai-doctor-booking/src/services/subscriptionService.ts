@@ -299,7 +299,7 @@ class SubscriptionService {
       // Create cancelled subscription object
       const cancelledSubscription: DoctorSubscription = {
         id: subscriptionId,
-        planType: 'basic', // Default to basic after cancellation
+        planType: 'gratuito', // Default to gratuito after cancellation
         monthlyFee: 0,
         status: 'cancelled' as SubscriptionStatus,
         paymentStatus: 'refunded' as PaymentStatus,

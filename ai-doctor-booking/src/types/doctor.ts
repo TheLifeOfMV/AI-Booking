@@ -6,7 +6,7 @@ export type PaymentStatus = 'paid' | 'pending' | 'failed' | 'refunded';
 
 export interface DoctorSubscription {
   id: string;
-  planType: 'basic' | 'premium' | 'enterprise';
+  planType: 'gratuito' | 'premium' | 'elite';
   monthlyFee: number; // in Colombian pesos
   status: SubscriptionStatus;
   paymentStatus: PaymentStatus;

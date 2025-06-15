@@ -208,13 +208,13 @@ const PlanComparison: React.FC<PlanComparisonProps> = ({
                   <tr key={key} className="border-b border-light-grey hover:bg-light-grey/30">
                     <td className="py-4 px-6 font-medium text-dark-grey">{feature.label}</td>
                     <td className="py-4 px-4 text-center text-sm text-dark-grey">
-                      {feature.basic}
+                      {feature.gratuito}
                     </td>
                     <td className="py-4 px-4 text-center text-sm text-dark-grey">
                       {feature.premium}
                     </td>
                     <td className="py-4 px-4 text-center text-sm text-dark-grey">
-                      {feature.enterprise}
+                      {feature.elite}
                     </td>
                   </tr>
                 ))}
