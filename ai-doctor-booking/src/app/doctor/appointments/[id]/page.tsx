@@ -16,10 +16,12 @@ import {
   FiSave,
   FiUser,
   FiMail,
-  FiCalendar
+  FiCalendar,
+  FiPaperclip
 } from 'react-icons/fi';
 import { ALL_MOCK_APPOINTMENTS, ExtendedAppointment } from '../mockAppointments';
 import AppointmentActions from '../components/AppointmentActions';
+import FileUpload, { UploadedFile } from '@/components/doctor/FileUpload';
 
 const AppointmentDetailPage = () => {
   const params = useParams();
@@ -29,6 +31,7 @@ const AppointmentDetailPage = () => {
   const [notes, setNotes] = useState('');
   const [editingNotes, setEditingNotes] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [attachedFiles, setAttachedFiles] = useState<UploadedFile[]>([]);
 
   useEffect(() => {
     // Simulate API call
@@ -253,13 +256,19 @@ const AppointmentDetailPage = () => {
               </div>
             </div>
 
-            {/* Doctor Notes */}
+            {/* Doctor Notes and Files */}
             <div className="bg-white rounded-xl shadow-sm overflow-hidden">
               <div className="p-6 border-b border-light-grey">
                 <div className="flex items-center justify-between">
                   <h2 className="text-xl font-semibold text-dark-grey flex items-center">
                     <FiFileText className="mr-3" size={20} />
                     Notas del Doctor
+                    {attachedFiles.length > 0 && (
+                      <span className="ml-2 flex items-center text-sm text-primary">
+                        <FiPaperclip className="mr-1" size={14} />
+                        {attachedFiles.length}
+                      </span>
+                    )}
                   </h2>
                   <button
                     onClick={() => setEditingNotes(!editingNotes)}
@@ -270,40 +279,113 @@ const AppointmentDetailPage = () => {
                   </button>
                 </div>
               </div>
-              <div className="p-6">
-                {editingNotes ? (
+              <div className="p-6 space-y-6">
+                {/* Notes Section */}
+                <div>
+                  {editingNotes ? (
+                    <div>
+                      <label className="block text-sm font-medium text-dark-grey mb-2">
+                        Notas de la Consulta
+                      </label>
+                      <textarea
+                        value={notes}
+                        onChange={(e) => setNotes(e.target.value)}
+                        placeholder="Agregar notas sobre la consulta, diagnóstico, tratamiento recomendado, etc."
+                        className="w-full h-32 p-4 border border-light-grey rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                      />
+                    </div>
+                  ) : (
+                    <div>
+                      <label className="block text-sm font-medium text-medium-grey mb-2">
+                        Notas de la Consulta
+                      </label>
+                      {notes ? (
+                        <div className="p-4 bg-gray-50 rounded-lg">
+                          <p className="text-dark-grey whitespace-pre-wrap">{notes}</p>
+                        </div>
+                      ) : (
+                        <p className="text-medium-grey italic p-4 bg-gray-50 rounded-lg">
+                          No hay notas para esta cita. Haz clic en "Editar" para agregar notas.
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* File Upload Section */}
+                {editingNotes && (
                   <div>
-                    <textarea
-                      value={notes}
-                      onChange={(e) => setNotes(e.target.value)}
-                      placeholder="Agregar notas sobre la consulta, diagnóstico, tratamiento recomendado, etc."
-                      className="w-full h-32 p-4 border border-light-grey rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                    />
-                    <div className="flex items-center gap-4 mt-4">
-                      <button
-                        onClick={handleSaveNotes}
+                    <label className="block text-sm font-medium text-dark-grey mb-3">
+                      Documentos Médicos
+                    </label>
+                    <div className="bg-gray-50 rounded-lg p-4">
+                      <FileUpload
+                        appointmentId={appointment.id}
+                        existingFiles={attachedFiles}
+                        onFilesChange={setAttachedFiles}
+                        maxFiles={5}
+                        maxFileSize={10}
                         disabled={loading}
-                        className="flex items-center px-6 py-3 rounded-lg font-medium transition-colors text-white disabled:opacity-50"
-                        style={{ backgroundColor: '#007AFF' }}
-                      >
-                        {loading ? (
-                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                        ) : (
-                          <FiSave className="mr-2" size={16} />
-                        )}
-                        Guardar Notas
-                      </button>
+                      />
                     </div>
                   </div>
-                ) : (
+                )}
+
+                {/* Display attached files when not editing */}
+                {!editingNotes && attachedFiles.length > 0 && (
                   <div>
-                    {notes ? (
-                      <p className="text-dark-grey whitespace-pre-wrap">{notes}</p>
-                    ) : (
-                      <p className="text-medium-grey italic">
-                        No hay notas para esta cita. Haz clic en "Editar" para agregar notas.
-                      </p>
-                    )}
+                    <label className="block text-sm font-medium text-medium-grey mb-3">
+                      Documentos Adjuntos
+                    </label>
+                    <div className="space-y-2">
+                      {attachedFiles.map((file) => (
+                        <div
+                          key={file.id}
+                          className="flex items-center justify-between p-3 border border-light-grey rounded-lg bg-gray-50"
+                        >
+                          <div className="flex items-center space-x-3 flex-1 min-w-0">
+                            <div className="p-2 rounded-lg bg-white">
+                              <FiFileText size={16} className="text-primary" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium text-dark-grey truncate">{file.name}</p>
+                              <p className="text-sm text-medium-grey">
+                                {new Date(file.uploadedAt).toLocaleDateString('es-ES')}
+                              </p>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => window.open(file.url, '_blank')}
+                            className="p-2 text-primary hover:bg-blue-50 rounded-lg transition-colors"
+                            title="Ver archivo"
+                          >
+                            <FiFileText size={16} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Save Button */}
+                {editingNotes && (
+                  <div className="flex items-center gap-3 pt-4 border-t border-light-grey">
+                    <button
+                      onClick={handleSaveNotes}
+                      disabled={loading}
+                      className="flex items-center px-4 py-2 rounded-lg font-medium transition-colors text-white disabled:opacity-50"
+                      style={{ backgroundColor: '#007AFF' }}
+                    >
+                      {loading ? (
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                      ) : (
+                        <FiSave className="mr-2" size={14} />
+                      )}
+                      Guardar
+                    </button>
+                    <p className="text-sm text-medium-grey">
+                      Se guardarán las notas y los archivos adjuntos
+                    </p>
                   </div>
                 )}
               </div>

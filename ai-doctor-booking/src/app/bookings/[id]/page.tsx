@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { useUserBookingsStore } from '@/store/userBookingsStore';
 import Image from 'next/image';
 import Link from 'next/link';
+import DoctorAttachedFiles, { DoctorAttachedFile } from '@/components/patient/DoctorAttachedFiles';
+import { getDoctorAttachedFiles } from '@/services/doctorFilesService';
 import BookingsPage from '../page';
 
 export default function BookingDetailPage({ params }: { params: { id: string } }) {
@@ -21,6 +23,8 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [cancelling, setCancelling] = useState(false);
   const [showRescheduleModal, setShowRescheduleModal] = useState(false);
+  const [attachedFiles, setAttachedFiles] = useState<DoctorAttachedFile[]>([]);
+  const [filesLoading, setFilesLoading] = useState(false);
   
   // Swipe navigation state
   const [touchStart, setTouchStart] = useState<{ x: number; y: number; time: number } | null>(null);
@@ -29,6 +33,28 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
   useEffect(() => {
     fetchBookingById(params.id);
   }, [fetchBookingById, params.id]);
+
+  // Fetch attached files for completed appointments
+  useEffect(() => {
+    const loadAttachedFiles = async () => {
+      if (selectedBooking && !isFutureDate(selectedBooking.date) && selectedBooking.status === 'completed') {
+        setFilesLoading(true);
+        try {
+          const files = await getDoctorAttachedFiles(selectedBooking.id);
+          setAttachedFiles(files);
+        } catch (error) {
+          console.error('Error loading attached files:', error);
+          // Graceful fallback: keep empty array
+        } finally {
+          setFilesLoading(false);
+        }
+      }
+    };
+
+    loadAttachedFiles();
+  }, [selectedBooking]);
+
+
   
   // Swipe navigation for going back to previous page
   useEffect(() => {
@@ -112,6 +138,8 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
   const isFutureDate = (date: Date) => {
     return new Date(date) > new Date();
   };
+
+
   
   const canCancel = (booking: typeof selectedBooking) => {
     if (!booking) return false;
@@ -315,6 +343,26 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
             </div>
           </div>
         </div>
+        
+        {/* Doctor's Attached Files - Only show for past appointments */}
+        {!isFutureDate(selectedBooking.date) && selectedBooking.status === 'completed' && (
+          <>
+            {filesLoading ? (
+              <div className="bg-white rounded-xl p-4 shadow-sm mb-6">
+                <div className="flex items-center justify-center py-8">
+                  <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mr-3"></div>
+                  <span className="text-medium-grey">Cargando archivos del doctor...</span>
+                </div>
+              </div>
+            ) : attachedFiles.length > 0 ? (
+              <DoctorAttachedFiles 
+                files={attachedFiles}
+                appointmentId={selectedBooking.id}
+                className="mb-6"
+              />
+            ) : null}
+          </>
+        )}
         
         {/* Appointment Recommendations - Only show for future appointments */}
         {isFutureDate(selectedBooking.date) && (
