@@ -153,6 +153,8 @@ const UnifiedBookingView = () => {
   const [selectedDoctorDetails, setSelectedDoctorDetails] = useState<Doctor | null>(null);
   // Add state for appointment reason selection
   const [appointmentReason, setAppointmentReason] = useState<string | null>(null);
+  // Add state for consultation reason text input
+  const [consultationReason, setConsultationReason] = useState<string>('');
 
   // Check URL params when component mounts to see if we should show doctor modal
   useEffect(() => {
@@ -587,8 +589,11 @@ const UnifiedBookingView = () => {
   };
 
   const handleBookAppointment = () => {
-    if (selectedSpecialty && selectedDate && selectedDoctor && selectedSlot) {
-      createDraftBooking();
+    if (selectedSpecialty && selectedDate && selectedDoctor && selectedSlot && appointmentReason) {
+      const reason = (appointmentReason === 'primera' || appointmentReason === 'control') ? appointmentReason : undefined;
+      const consultation = reason ? consultationReason.trim() : undefined;
+      
+      createDraftBooking(reason, consultation);
       router.push('/booking/confirm');
     }
   };
@@ -1766,8 +1771,8 @@ const UnifiedBookingView = () => {
           }}
         >
           <div className="rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto modal-content" style={{ backgroundColor: '#E6F0FA' }}>
-            {/* Doctor Image Header - Light Gray Background like reference photo */}
-            <div className="relative h-60 flex items-center justify-center" style={{ backgroundColor: '#D1D5DB' }}> {/* Changed from #E5E7EB to #D1D5DB for slightly darker gray */}
+            {/* Doctor Image Header - White Background */}
+            <div className="relative h-60 flex items-center justify-center" style={{ backgroundColor: '#FFFFFF' }}>
               {/* Close button */}
               <button 
                 onClick={() => setShowDoctorDetails(false)}
@@ -1893,14 +1898,17 @@ const UnifiedBookingView = () => {
               {/* Appointment Reason Section */}
               <div className="mb-6">
                 <h4 className="font-semibold mb-2">Motivo de la Cita</h4>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-2 gap-2 mb-4">
                   <button
                     className={`px-2 py-3 rounded-lg text-sm font-medium border flex items-center justify-center ${
                       appointmentReason === 'primera' 
                         ? 'bg-primary text-white border-primary' 
                         : 'bg-white text-dark-grey border-[#F2F2F2] shadow-sm hover:border-primary/30'
                     }`}
-                    onClick={() => setAppointmentReason('primera')}
+                    onClick={() => {
+                      setAppointmentReason('primera');
+                      setConsultationReason(''); // Reset consultation reason when changing type
+                    }}
                   >
                     Primera Cita
                   </button>
@@ -1911,38 +1919,56 @@ const UnifiedBookingView = () => {
                         ? 'bg-primary text-white border-primary' 
                         : 'bg-white text-dark-grey border-[#F2F2F2] shadow-sm hover:border-primary/30'
                     }`}
-                    onClick={() => setAppointmentReason('control')}
+                    onClick={() => {
+                      setAppointmentReason('control');
+                      setConsultationReason(''); // Reset consultation reason when changing type
+                    }}
                   >
                     Control
                   </button>
-                  
-                  <button
-                    className={`px-2 py-3 rounded-lg text-sm font-medium border flex items-center justify-center ${
-                      appointmentReason === 'urgente' 
-                        ? 'bg-primary text-white border-primary' 
-                        : 'bg-white text-dark-grey border-[#F2F2F2] shadow-sm hover:border-primary/30'
-                    }`}
-                    onClick={() => setAppointmentReason('urgente')}
-                  >
-                    Urgente
-                  </button>
                 </div>
+                
+                {/* Consultation Reason Text Input - Show when Primera Cita or Control is selected */}
+                {(appointmentReason === 'primera' || appointmentReason === 'control') && (
+                  <div className="mt-4">
+                    <label htmlFor="consultationReason" className="block text-sm font-medium text-dark-grey mb-2">
+                      Describe el motivo de tu consulta
+                    </label>
+                    <textarea
+                      id="consultationReason"
+                      value={consultationReason}
+                      onChange={(e) => setConsultationReason(e.target.value)}
+                      placeholder="Ej: Dolor de cabeza persistente, revisión de resultados, control post-operatorio..."
+                      className="w-full px-3 py-3 border border-[#F2F2F2] rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm text-dark-grey placeholder-medium-grey resize-none"
+                      rows={3}
+                      maxLength={200}
+                    />
+                    <div className="text-xs text-medium-grey mt-1 text-right">
+                      {consultationReason.length}/200 caracteres
+                    </div>
+                  </div>
+                )}
               </div>
               
               {/* Booking Button */}
               <button 
                 className={`w-full py-3 px-4 rounded-lg font-medium flex items-center justify-center ${
-                  selectedSlot && appointmentReason
+                  selectedSlot && appointmentReason && 
+                  ((appointmentReason === 'primera' || appointmentReason === 'control') ? consultationReason.trim() !== '' : true)
                     ? 'bg-primary text-white' 
                     : 'bg-white text-medium-grey border border-[#F2F2F2] cursor-not-allowed shadow-sm' /* Added shadow-sm */
                 }`}
                 onClick={() => {
-                  if (selectedSlot && appointmentReason) {
+                  const isValidBooking = selectedSlot && appointmentReason && 
+                    ((appointmentReason === 'primera' || appointmentReason === 'control') ? consultationReason.trim() !== '' : true);
+                  
+                  if (isValidBooking) {
                     handleBookAppointment();
                     setShowDoctorDetails(false);
                   }
                 }}
-                disabled={!selectedSlot || !appointmentReason}
+                disabled={!selectedSlot || !appointmentReason || 
+                  ((appointmentReason === 'primera' || appointmentReason === 'control') && consultationReason.trim() === '')}
               >
                 Reservar Cita <span className="ml-2">›</span>
               </button>

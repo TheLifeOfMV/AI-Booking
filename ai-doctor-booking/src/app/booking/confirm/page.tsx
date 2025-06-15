@@ -136,8 +136,8 @@ const BookingConfirmationView = () => {
       {/* Success Modal */}
       {showSuccessModal && <SuccessModal />}
       
-      {/* Summary Card with Light Gray Background */}
-      <div className="text-white rounded-xl overflow-hidden mb-8" style={{ backgroundColor: '#D1D5DB' }}>
+      {/* Summary Card with White Background */}
+      <div className="text-white rounded-xl overflow-hidden mb-8" style={{ backgroundColor: '#FFFFFF' }}>
         <div className="p-6 flex flex-col items-center text-center">
           
           {/* 1. Doctor Avatar (square, centered, larger) */}
@@ -200,9 +200,21 @@ const BookingConfirmationView = () => {
         <div className="text-sm text-medium-grey mb-1">
           <span className="font-medium text-dark-grey">Doctor:</span> {selectedDoctor.name}
         </div>
-        <div className="text-sm text-medium-grey">
+        <div className="text-sm text-medium-grey mb-1">
           <span className="font-medium text-dark-grey">Especialidad:</span> {selectedSpecialty.name}
         </div>
+        {draftBooking.appointmentReason && (
+          <div className="text-sm text-medium-grey mb-1">
+            <span className="font-medium text-dark-grey">Tipo de cita:</span> {
+              draftBooking.appointmentReason === 'primera' ? 'Primera Cita' : 'Control'
+            }
+          </div>
+        )}
+        {draftBooking.consultationReason && (
+          <div className="text-sm text-medium-grey">
+            <span className="font-medium text-dark-grey">Motivo:</span> {draftBooking.consultationReason}
+          </div>
+        )}
       </div>
       
       <div className="text-sm text-medium-grey">

@@ -27,6 +27,8 @@ export interface DraftBooking {
   doctorId: string;
   date: Date;
   slotId: string;
+  appointmentReason?: 'primera' | 'control';
+  consultationReason?: string;
 }
 
 export interface Booking extends DraftBooking {

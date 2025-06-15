@@ -16,7 +16,7 @@ interface BookingState {
   setSelectedDate: (date: Date) => void;
   setSelectedDoctor: (doctor: Doctor) => void;
   setSelectedSlot: (slot: TimeSlot) => void;
-  createDraftBooking: () => void;
+  createDraftBooking: (appointmentReason?: 'primera' | 'control', consultationReason?: string) => void;
   fetchDoctorsBySpecialtyAndDate: (specialtyId: string, date: Date) => Promise<void>;
   reset: () => void;
   clearError: () => void;
@@ -40,7 +40,7 @@ export const useBookingStore = create<BookingState>((set, get) => ({
   
   setSelectedSlot: (slot) => set({ selectedSlot: slot }),
   
-  createDraftBooking: () => {
+  createDraftBooking: (appointmentReason?: 'primera' | 'control', consultationReason?: string) => {
     const { selectedSpecialty, selectedDoctor, selectedDate, selectedSlot } = get();
     
     if (selectedSpecialty && selectedDoctor && selectedDate && selectedSlot) {
@@ -48,7 +48,9 @@ export const useBookingStore = create<BookingState>((set, get) => ({
         specialtyId: selectedSpecialty.id,
         doctorId: selectedDoctor.id,
         date: selectedDate,
-        slotId: selectedSlot.id
+        slotId: selectedSlot.id,
+        appointmentReason,
+        consultationReason
       };
       
       set({ draftBooking });
