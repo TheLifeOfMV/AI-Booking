@@ -12,9 +12,8 @@ interface AppointmentCardProps {
     patientAvatar: string;
     date: string;
     time: string;
-    status: 'confirmed' | 'pending' | 'cancelled';
+    status: 'confirmed' | 'cancelled' | 'completed';
   };
-  onConfirm?: (id: string) => void;
   onCancel?: (id: string) => void;
   onViewDetails?: (id: string) => void;
   showActions?: boolean;
@@ -23,7 +22,6 @@ interface AppointmentCardProps {
 
 const AppointmentCard: React.FC<AppointmentCardProps> = ({ 
   appointment, 
-  onConfirm, 
   onCancel, 
   onViewDetails,
   showActions = false,
@@ -32,8 +30,8 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'confirmed': return 'text-green-800 bg-green-100 border-green-200';
-      case 'pending': return 'text-yellow-800 bg-yellow-100 border-yellow-200';
       case 'cancelled': return 'text-red-800 bg-red-100 border-red-200';
+      case 'completed': return 'text-blue-800 bg-blue-100 border-blue-200';
       default: return 'text-gray-800 bg-gray-100 border-gray-200';
     }
   };
@@ -41,8 +39,8 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({
   const getStatusText = (status: string) => {
     switch (status) {
       case 'confirmed': return 'Confirmada';
-      case 'pending': return 'Pendiente';
       case 'cancelled': return 'Cancelada';
+      case 'completed': return 'Completada';
       default: return status;
     }
   };
@@ -109,15 +107,8 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({
                 </button>
               )}
               
-              {showActions && appointment.status === 'pending' && (
+              {showActions && appointment.status === 'confirmed' && (
                 <div className="flex gap-2">
-                  <button
-                    onClick={() => onConfirm?.(appointment.id)}
-                    className="p-3 text-green-600 hover:bg-green-50 rounded-full transition-all duration-200 group-hover:scale-110"
-                    title="Confirmar cita"
-                  >
-                    <FiCheck size={18} />
-                  </button>
                   <button
                     onClick={() => onCancel?.(appointment.id)}
                     className="p-3 text-red-600 hover:bg-red-50 rounded-full transition-all duration-200 group-hover:scale-110"

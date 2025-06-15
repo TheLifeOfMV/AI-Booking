@@ -150,7 +150,6 @@ const DoctorCalendarPage = () => {
     return appointments.slice(0, 3).map((apt, index) => {
       const statusColors = {
         confirmed: 'bg-emerald-400',
-        pending: 'bg-amber-400',
         completed: 'bg-blue-400',
         cancelled: 'bg-gray-400',
         'no-show': 'bg-red-400'
@@ -348,16 +347,16 @@ const DoctorCalendarPage = () => {
               <span className="text-sm text-gray-700">Confirmadas</span>
             </div>
             <div className="flex items-center">
-              <div className="w-4 h-2 bg-amber-400 rounded-full mr-3"></div>
-              <span className="text-sm text-gray-700">Pendientes</span>
-            </div>
-            <div className="flex items-center">
               <div className="w-4 h-2 bg-blue-400 rounded-full mr-3"></div>
               <span className="text-sm text-gray-700">Completadas</span>
             </div>
             <div className="flex items-center">
               <div className="w-4 h-2 bg-gray-400 rounded-full mr-3"></div>
               <span className="text-sm text-gray-700">Canceladas</span>
+            </div>
+            <div className="flex items-center">
+              <div className="w-4 h-2 bg-red-400 rounded-full mr-3"></div>
+              <span className="text-sm text-gray-700">No asistió</span>
             </div>
           </div>
         </div>

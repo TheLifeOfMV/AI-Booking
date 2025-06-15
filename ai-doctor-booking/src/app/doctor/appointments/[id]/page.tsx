@@ -63,7 +63,6 @@ const AppointmentDetailPage = () => {
   const getStatusBadge = (status: ExtendedAppointment['status']) => {
     const statusConfig = {
       confirmed: { bg: 'bg-green-100', text: 'text-green-700', label: 'Confirmada' },
-      pending: { bg: 'bg-yellow-100', text: 'text-yellow-700', label: 'Pendiente' },
       completed: { bg: 'bg-blue-100', text: 'text-blue-700', label: 'Completada' },
       cancelled: { bg: 'bg-red-100', text: 'text-red-700', label: 'Cancelada' },
       'no-show': { bg: 'bg-gray-100', text: 'text-gray-700', label: 'No asistió' }

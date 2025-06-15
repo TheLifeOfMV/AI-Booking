@@ -1,12 +1,11 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
-import { FiCheck, FiX, FiEye, FiEdit, FiPhone, FiVideo, FiMoreVertical, FiClock } from 'react-icons/fi';
+import { FiX, FiEye, FiPhone, FiVideo, FiMoreVertical, FiClock } from 'react-icons/fi';
 import { ExtendedAppointment } from '../mockAppointments';
 
 interface AppointmentActionsProps {
   appointment: ExtendedAppointment;
-  onConfirm?: (appointmentId: string) => Promise<void>;
   onCancel?: (appointmentId: string) => Promise<void>;
   onReschedule?: (appointmentId: string) => void;
   onViewDetails?: (appointmentId: string) => void;
@@ -16,7 +15,6 @@ interface AppointmentActionsProps {
 
 const AppointmentActions: React.FC<AppointmentActionsProps> = ({
   appointment,
-  onConfirm,
   onCancel,
   onReschedule,
   onViewDetails,
@@ -55,9 +53,8 @@ const AppointmentActions: React.FC<AppointmentActionsProps> = ({
     }
   };
 
-  const canConfirm = appointment.status === 'pending';
-  const canCancel = ['pending', 'confirmed'].includes(appointment.status);
-  const canReschedule = ['pending', 'confirmed'].includes(appointment.status);
+  const canCancel = ['confirmed'].includes(appointment.status);
+  const canReschedule = ['confirmed'].includes(appointment.status);
   const canStartConsultation = appointment.status === 'confirmed' && isAppointmentTimeNow(appointment);
 
   // Check if appointment time is now (within 15 minutes)
@@ -71,17 +68,6 @@ const AppointmentActions: React.FC<AppointmentActionsProps> = ({
   if (compact) {
     return (
       <div className="flex items-center gap-1">
-        {canConfirm && (
-          <button
-            onClick={() => handleAction('confirm', () => onConfirm?.(appointment.id))}
-            disabled={isLoading || actionLoading === 'confirm'}
-            className="p-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors disabled:opacity-50"
-            title="Confirmar cita"
-          >
-            <FiCheck size={14} />
-          </button>
-        )}
-        
         {canCancel && (
           <button
             onClick={() => handleAction('cancel', () => onCancel?.(appointment.id))}
@@ -112,40 +98,6 @@ const AppointmentActions: React.FC<AppointmentActionsProps> = ({
     <div className="flex flex-col gap-2">
       {/* Primary Actions */}
       <div className="flex items-center gap-2">
-        
-        {/* Confirm Action */}
-        {canConfirm && (
-          <button
-            onClick={() => handleAction('confirm', () => onConfirm?.(appointment.id))}
-            disabled={isLoading || actionLoading === 'confirm'}
-            className="flex items-center px-3 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors disabled:opacity-50 text-sm font-medium"
-          >
-            {actionLoading === 'confirm' ? (
-              <div className="w-4 h-4 border-2 border-green-700 border-t-transparent rounded-full animate-spin mr-2" />
-            ) : (
-              <FiCheck size={16} className="mr-2" />
-            )}
-            Confirmar
-          </button>
-        )}
-
-        {/* Start Consultation */}
-        {canStartConsultation && (
-          <button
-            onClick={() => handleAction('start', () => console.log('Starting consultation'))}
-            disabled={isLoading}
-            className="flex items-center px-3 py-2 rounded-lg transition-colors text-sm font-medium text-white"
-            style={{ backgroundColor: '#007AFF' }}
-          >
-            {appointment.consultationType === 'virtual' ? (
-              <FiVideo size={16} className="mr-2" />
-            ) : (
-              <FiPhone size={16} className="mr-2" />
-            )}
-            Iniciar Consulta
-          </button>
-        )}
-
         {/* View Details */}
         <button
           onClick={() => onViewDetails?.(appointment.id)}
@@ -160,53 +112,85 @@ const AppointmentActions: React.FC<AppointmentActionsProps> = ({
         </button>
 
         {/* More Actions Dropdown */}
-        <div className="relative" ref={dropdownRef}>
+        <div className="relative">
           <button
             onClick={() => setShowMoreActions(!showMoreActions)}
-            className="p-2 hover:bg-light-grey rounded-lg transition-colors"
+            className="p-3 rounded-lg transition-colors"
+            style={{ 
+              color: '#007AFF',
+              backgroundColor: 'rgba(0, 122, 255, 0.1)'
+            }}
+            title="Más acciones"
           >
-            <FiMoreVertical size={16} className="text-medium-grey" />
+            <FiMoreVertical size={16} />
           </button>
 
           {showMoreActions && (
-            <div className="absolute right-0 bottom-full mb-2 bg-white rounded-lg shadow-xl border border-light-grey min-w-[180px] z-50" style={{ 
-              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
-            }}>
-              
-              {canReschedule && (
+            <div 
+              ref={dropdownRef}
+              className="absolute right-0 top-full mt-2 bg-white rounded-xl shadow-lg border border-light-grey z-10 min-w-48"
+            >
+              <div className="py-2">
                 <button
                   onClick={() => {
                     setShowMoreActions(false);
-                    onReschedule?.(appointment.id);
+                    onViewDetails?.(appointment.id);
                   }}
                   className="w-full text-left px-4 py-3 hover:bg-light-grey transition-colors flex items-center text-sm"
                 >
-                  <FiClock size={16} className="mr-3 text-medium-grey" />
-                  Reprogramar
+                  <FiEye size={16} className="mr-3" />
+                  Ver Detalles
                 </button>
-              )}
 
-
-
-              {canCancel && (
-                <div className="border-t border-light-grey">
+                {canReschedule && (
                   <button
                     onClick={() => {
                       setShowMoreActions(false);
-                      handleAction('cancel', () => onCancel?.(appointment.id));
+                      onReschedule?.(appointment.id);
                     }}
-                    disabled={isLoading || actionLoading === 'cancel'}
-                    className="w-full text-left px-4 py-3 hover:bg-red-50 transition-colors flex items-center text-sm text-red-600 disabled:opacity-50"
+                    className="w-full text-left px-4 py-3 hover:bg-light-grey transition-colors flex items-center text-sm"
                   >
-                    {actionLoading === 'cancel' ? (
-                      <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin mr-3" />
-                    ) : (
-                      <FiX size={16} className="mr-3" />
-                    )}
-                    Cancelar Cita
+                    <FiClock size={16} className="mr-3" />
+                    Reprogramar
                   </button>
-                </div>
-              )}
+                )}
+
+                {canStartConsultation && (
+                  <div className="border-t border-light-grey">
+                    <button
+                      onClick={() => setShowMoreActions(false)}
+                      className="w-full text-left px-4 py-3 hover:bg-green-50 transition-colors flex items-center text-sm text-green-600"
+                    >
+                      {appointment.consultationType === 'virtual' ? (
+                        <FiVideo size={16} className="mr-3" />
+                      ) : (
+                        <FiPhone size={16} className="mr-3" />
+                      )}
+                      Iniciar Consulta
+                    </button>
+                  </div>
+                )}
+
+                {canCancel && (
+                  <div className="border-t border-light-grey">
+                    <button
+                      onClick={() => {
+                        setShowMoreActions(false);
+                        handleAction('cancel', () => onCancel?.(appointment.id));
+                      }}
+                      disabled={isLoading || actionLoading === 'cancel'}
+                      className="w-full text-left px-4 py-3 hover:bg-red-50 transition-colors flex items-center text-sm text-red-600 disabled:opacity-50"
+                    >
+                      {actionLoading === 'cancel' ? (
+                        <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin mr-3" />
+                      ) : (
+                        <FiX size={16} className="mr-3" />
+                      )}
+                      Cancelar Cita
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>

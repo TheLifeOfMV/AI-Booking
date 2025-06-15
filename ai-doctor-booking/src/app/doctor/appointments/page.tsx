@@ -25,7 +25,7 @@ import AppointmentFilters, { FilterState } from './components/AppointmentFilters
 
 // Types for filters
 type DateFilter = 'today' | 'tomorrow' | 'week' | 'month' | 'all';
-type StatusFilter = 'all' | 'confirmed' | 'pending' | 'completed' | 'cancelled' | 'no-show';
+type StatusFilter = 'all' | 'confirmed' | 'completed' | 'cancelled' | 'no-show';
 
 // Add at the top to verify the import works
 console.log('Loading doctor appointments page...');
@@ -158,40 +158,29 @@ const DoctorAppointmentsPage = () => {
     });
   }, [filters, searchTerm]);
 
-  // Calculate appointment counts for filters
+  // Calculate appointment counts for filters (removed pending)
   const appointmentCounts = useMemo(() => {
     return {
       total: ALL_MOCK_APPOINTMENTS.length,
       confirmed: ALL_MOCK_APPOINTMENTS.filter(apt => apt.status === 'confirmed').length,
-      pending: ALL_MOCK_APPOINTMENTS.filter(apt => apt.status === 'pending').length,
       completed: ALL_MOCK_APPOINTMENTS.filter(apt => apt.status === 'completed').length,
       cancelled: ALL_MOCK_APPOINTMENTS.filter(apt => apt.status === 'cancelled').length,
     };
   }, []);
 
-  // Statistics
+  // Statistics (removed pending)
   const stats = useMemo(() => {
     const today = new Date().toISOString().split('T')[0];
     const todayAppointments = ALL_MOCK_APPOINTMENTS.filter(apt => apt.date === today);
     
     return {
       today: todayAppointments.length,
-      pending: ALL_MOCK_APPOINTMENTS.filter(apt => apt.status === 'pending').length,
       confirmed: ALL_MOCK_APPOINTMENTS.filter(apt => apt.status === 'confirmed').length,
       completed: ALL_MOCK_APPOINTMENTS.filter(apt => apt.status === 'completed').length
     };
   }, []);
 
-  // Action handlers
-  const handleConfirmAppointment = async (appointmentId: string) => {
-    setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      console.log(`Confirming appointment ${appointmentId}`);
-      setIsLoading(false);
-    }, 1000);
-  };
-
+  // Action handlers - removed confirm appointment since all are auto-confirmed
   const handleCancelAppointment = async (appointmentId: string) => {
     setIsLoading(true);
     // Simulate API call
@@ -204,7 +193,6 @@ const DoctorAppointmentsPage = () => {
   const getStatusBadge = (status: ExtendedAppointment['status']) => {
     const statusConfig = {
       confirmed: { bg: 'bg-green-100', text: 'text-green-700', label: 'Confirmada' },
-      pending: { bg: 'bg-yellow-100', text: 'text-yellow-700', label: 'Pendiente' },
       completed: { bg: 'bg-blue-100', text: 'text-blue-700', label: 'Completada' },
       cancelled: { bg: 'bg-red-100', text: 'text-red-700', label: 'Cancelada' },
       'no-show': { bg: 'bg-gray-100', text: 'text-gray-700', label: 'No asistió' }
@@ -428,7 +416,6 @@ const DoctorAppointmentsPage = () => {
               >
                 <AppointmentCard
                   appointment={appointment}
-                  onConfirm={handleConfirmAppointment}
                   onCancel={handleCancelAppointment}
                   onViewDetails={handleViewDetails}
                   isLoading={isLoading}

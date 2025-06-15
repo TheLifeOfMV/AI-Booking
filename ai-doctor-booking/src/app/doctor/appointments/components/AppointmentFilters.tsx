@@ -5,7 +5,7 @@ import { FiFilter, FiCalendar, FiClock, FiUsers } from 'react-icons/fi';
 
 export interface FilterState {
   timeRange: 'today' | 'tomorrow' | 'week' | 'month' | 'all';
-  status: 'all' | 'confirmed' | 'pending' | 'completed' | 'cancelled';
+  status: 'all' | 'confirmed' | 'completed' | 'cancelled';
 }
 
 interface AppointmentFiltersProps {
@@ -14,7 +14,6 @@ interface AppointmentFiltersProps {
   appointmentCounts: {
     total: number;
     confirmed: number;
-    pending: number;
     completed: number;
     cancelled: number;
   };
@@ -55,12 +54,6 @@ const AppointmentFilters: React.FC<AppointmentFiltersProps> = ({
       label: 'Confirmadas', 
       count: appointmentCounts.confirmed,
       color: 'bg-green-100 text-green-700'
-    },
-    { 
-      value: 'pending' as const, 
-      label: 'Pendientes', 
-      count: appointmentCounts.pending,
-      color: 'bg-yellow-100 text-yellow-700'
     },
     { 
       value: 'completed' as const, 

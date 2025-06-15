@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useBookingStore } from '../../../store/bookingStore';
+import { createAppointment } from '../../../services/appointmentService';
 import Image from 'next/image';
 
 const BookingConfirmationView = () => {
@@ -41,17 +42,28 @@ const BookingConfirmationView = () => {
     setError(null);
     
     try {
-      // Simulate API call - in a real app this would be a fetch to the backend
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Use the appointment service for automatic confirmation
+      const confirmedBooking = await createAppointment({
+        draftBooking,
+        doctorName: selectedDoctor.name,
+        doctorAvatar: selectedDoctor.avatarUrl,
+        specialtyName: selectedSpecialty.name,
+        slotTime: selectedSlot.time,
+        location: 'Centro Médico California, Sala 234',
+        price: selectedDoctor.consultationFee || 60
+      });
       
-      // Show success modal instead of redirecting
+      console.log('✅ Appointment automatically confirmed:', confirmedBooking);
+      
+      // Show success modal
       setIsSubmitting(false);
       setShowSuccessModal(true);
       
       // In a real app, we'd reset the store after a successful navigation
       // setTimeout(() => reset(), 1000);
     } catch (err) {
-      setError('Hubo un error al confirmar tu reserva. Por favor, inténtalo de nuevo.');
+      const errorMessage = err instanceof Error ? err.message : 'Hubo un error al confirmar tu reserva. Por favor, inténtalo de nuevo.';
+      setError(errorMessage);
       setIsSubmitting(false);
     }
   };

@@ -66,12 +66,20 @@ next-env.d.ts
 logs
 *.log
 
-# YAML files (uncommenting this line if these files should be tracked)
-# *.yaml
-# *.yml 
-DOCTOR_SUBSCRIPTION_SYSTEM.md
+# YAML configuration and debugging files - keep local but don't track
+*.yaml
+*.yml
+slow_debugging.yaml
+new_code.yaml
+cause_debugging.yaml
+code_contraction.yaml
+code_expansion.yaml
+code_implosion.yaml
+plan_testscript.yaml
+slow_planning.yaml
 
 # Documentation files - keep local but don't track
+DOCTOR_SUBSCRIPTION_SYSTEM.md
 AUTHENTICATION_FIX.md
 AUTHENTICATION_FLOW_FIX.md
 CLIENT_SERVER_COMPONENT_FIX.md

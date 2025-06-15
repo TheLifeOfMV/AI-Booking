@@ -1,3 +1,27 @@
+/**
+ * Extended Appointment Interface and Mock Data
+ * 
+ * BUSINESS RULE CHANGE: Automatic Appointment Confirmation for Doctors
+ * ================================================================
+ * 
+ * Previous behavior:
+ * - Appointments could have 'pending' status requiring manual confirmation by doctors
+ * - Doctors had to manually confirm each appointment
+ * 
+ * New behavior (implemented):
+ * - All appointments are automatically confirmed based on doctor availability
+ * - Doctors attend to anyone and confirmation is automatic
+ * - No 'pending' status in doctor views
+ * - Removed confirmation buttons and actions from doctor UI
+ * 
+ * Changes made:
+ * 1. Removed 'pending' from status generation in mock data
+ * 2. Auto-confirm future appointments in generateMockAppointments()
+ * 3. Updated all doctor UI components to remove pending status
+ * 4. Created appointmentService.ts for automatic confirmation logic
+ * 5. Updated booking flow to use automatic confirmation
+ */
+
 export interface ExtendedAppointment {
   id: string;
   patientName: string;
@@ -54,7 +78,7 @@ export const MOCK_APPOINTMENTS: ExtendedAppointment[] = [
     date: '2023-07-15',
     time: '11:00',
     endTime: '11:30',
-    status: 'pending',
+    status: 'confirmed',
     duration: 30,
     appointmentType: 'follow-up',
     reason: 'Revisión post-operatoria',
@@ -152,7 +176,7 @@ const generateMockAppointments = (count: number): ExtendedAppointment[] => {
     'Consulta respiratoria', 'Dolor articular', 'Revisión oftalmológica'
   ];
   
-  const statuses: ExtendedAppointment['status'][] = ['confirmed', 'pending', 'completed', 'cancelled', 'no-show'];
+  const statuses: ExtendedAppointment['status'][] = ['confirmed', 'completed', 'cancelled', 'no-show'];
   const types: ExtendedAppointment['appointmentType'][] = ['consultation', 'follow-up', 'emergency', 'check-up'];
   const consultationTypes: ExtendedAppointment['consultationType'][] = ['presencial', 'virtual'];
   
@@ -165,16 +189,25 @@ const generateMockAppointments = (count: number): ExtendedAppointment[] => {
     const hour = 9 + Math.floor(Math.random() * 8); // 9 AM to 5 PM
     const minute = Math.random() > 0.5 ? '00' : '30';
     
+    const appointmentDate = date.toISOString().split('T')[0];
+    const today = new Date().toISOString().split('T')[0];
+    const isFuture = appointmentDate >= today;
+    
+    let appointmentStatus = statuses[Math.floor(Math.random() * statuses.length)];
+    if (isFuture && appointmentStatus !== 'cancelled') {
+      appointmentStatus = 'confirmed';
+    }
+    
     appointments.push({
       id: `generated-${i + 6}`,
       patientName: names[Math.floor(Math.random() * names.length)],
       patientAvatar: `https://via.placeholder.com/60?text=${i + 6}`,
       patientPhone: `+34 ${600 + Math.floor(Math.random() * 100)} ${Math.floor(Math.random() * 1000).toString().padStart(3, '0')} ${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`,
       patientEmail: `patient${i + 6}@email.com`,
-      date: date.toISOString().split('T')[0],
+      date: appointmentDate,
       time: `${hour.toString().padStart(2, '0')}:${minute}`,
       endTime: `${hour.toString().padStart(2, '0')}:${parseInt(minute) + 30}`,
-      status: statuses[Math.floor(Math.random() * statuses.length)],
+      status: appointmentStatus,
       duration: 30,
       appointmentType: types[Math.floor(Math.random() * types.length)],
       reason: reasons[Math.floor(Math.random() * reasons.length)],
