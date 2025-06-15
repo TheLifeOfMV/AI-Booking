@@ -10,7 +10,6 @@ import {
   FiMail, 
   FiHeart, 
   FiPlus, 
-  FiClock, 
   FiAlertTriangle,
   FiEdit,
   FiSave,
@@ -29,9 +28,8 @@ import {
 } from 'react-icons/fi';
 import Button from '@/components/Button';
 import Input from '@/components/Input';
-import AppointmentCard from '@/components/patient/AppointmentCard';
 import { Patient, PatientFormData } from '@/types/patient';
-import { getPatientProfile, updatePatientProfile, getPatientAppointments } from '@/services/patientService';
+import { getPatientProfile, updatePatientProfile } from '@/services/patientService';
 
 // Tipos de documento disponibles
 const DOCUMENT_TYPES = [
@@ -257,7 +255,6 @@ export default function PatientProfilePage() {
   });
   const [isEditing, setIsEditing] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
-  const [appointments, setAppointments] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
   // Estado para controlar qué paneles están abiertos
@@ -265,7 +262,6 @@ export default function PatientProfilePage() {
     basic: false,
     emergency: false,
     password: false,
-    appointments: false,
     faq: false
   });
 
@@ -308,19 +304,6 @@ export default function PatientProfilePage() {
     };
 
     loadProfile();
-  }, []);
-
-  // Cargar citas
-  useEffect(() => {
-    const loadAppointments = async () => {
-      try {
-        const data = await getPatientAppointments('1');
-        setAppointments(data);
-      } catch (error) {
-        console.error('Error al cargar citas:', error);
-      }
-    };
-    loadAppointments();
   }, []);
 
   // Alternar panel abierto/cerrado
@@ -802,50 +785,6 @@ export default function PatientProfilePage() {
               >
                 Cambiar mi contraseña
               </button>
-            )}
-          </div>
-        </CollapsiblePanel>
-
-        {/* Mis Citas */}
-        <CollapsiblePanel
-          title="Mis Citas"
-          icon={<FiCalendar size={18} />}
-          isOpen={openPanels.appointments}
-          onToggle={() => togglePanel('appointments')}
-        >
-          <div className="pt-4">
-            {appointments.length > 0 ? (
-              <div className="space-y-3">
-                {appointments.slice(0, 3).map(appointment => (
-                  <div key={appointment.id} className="bg-white rounded-lg p-3 border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200">
-                    <AppointmentCard
-                      id={appointment.id}
-                      doctorName={appointment.doctorName}
-                      doctorSpecialty={appointment.doctorSpecialty}
-                      date={appointment.date}
-                      time={appointment.time}
-                      status={appointment.status}
-                      location={appointment.location}
-                    />
-                  </div>
-                ))}
-                {appointments.length > 3 && (
-                  <button className="w-full py-2 px-4 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors duration-200 text-sm">
-                    Ver todas mis citas ({appointments.length})
-                  </button>
-                )}
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-3">
-                  <FiClock size={24} className="text-blue-600" />
-                </div>
-                <h3 className="text-base font-semibold text-gray-800 mb-1">Sin citas programadas</h3>
-                <p className="text-gray-600 mb-4 text-sm">Agenda tu primera cita médica</p>
-                <button className="bg-blue-600 text-white py-2 px-6 rounded-lg font-medium hover:bg-blue-700 transition-colors duration-200 shadow-md text-sm">
-                  Agendar cita
-                </button>
-              </div>
             )}
           </div>
         </CollapsiblePanel>
