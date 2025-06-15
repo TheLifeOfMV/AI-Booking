@@ -9,7 +9,7 @@ const DoctorRegisterSuccessPage = () => {
   const router = useRouter();
   
   return (
-    <div style={{ backgroundColor: '#F0F4F9', minHeight: '100vh' }}>
+    <div style={{ backgroundColor: '#E6F0FA', minHeight: '100vh' }}>
       <div className="container max-w-md mx-auto py-12 px-4 text-center">
         <div className="bg-primary/10 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
           <FiCheckCircle className="text-primary text-4xl" />

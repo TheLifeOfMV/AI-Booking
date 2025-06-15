@@ -69,7 +69,7 @@ export default function BottomNavigation() {
   };
   
   return (
-    <div className="fixed bottom-0 left-0 right-0 border-t border-light-grey py-2 px-4 flex justify-around z-20" style={{ backgroundColor: '#F0F4F9' }}>
+    <div className="fixed bottom-0 left-0 right-0 border-t border-light-grey py-2 px-4 flex justify-around z-20" style={{ backgroundColor: '#E6F0FA' }}>
       <Link 
         href={homeHref}
         className={`flex flex-col items-center ${

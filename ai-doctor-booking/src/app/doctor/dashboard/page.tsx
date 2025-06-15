@@ -89,7 +89,7 @@ const DoctorDashboardPage = () => {
   };
   
   return (
-    <div className="min-h-screen relative" style={{ backgroundColor: '#F2F2F2' }}>
+    <div className="min-h-screen relative" style={{ backgroundColor: '#E6F0FA' }}>
       {/* Fixed Top-Right Notification Icon */}
       <div className="fixed top-6 right-6 z-50" ref={notificationRef}>
         <button 

@@ -469,7 +469,7 @@ export default function PatientProfilePage() {
   }
 
   return (
-    <div className="min-h-screen pb-24" style={{ backgroundColor: '#F0F4F9' }}>
+    <div className="min-h-screen pb-24" style={{ backgroundColor: '#E6F0FA' }}>
       {/* Animated Header with Profile Photo - Simplified */}
       <div className="bg-white mx-4 pt-4 rounded-2xl shadow-lg overflow-hidden border border-gray-100">
         {/* Animated gradient background */}

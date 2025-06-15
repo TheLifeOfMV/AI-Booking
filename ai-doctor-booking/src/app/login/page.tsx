@@ -282,7 +282,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="h-screen max-h-screen overflow-hidden fixed inset-0 flex flex-col" style={{ backgroundColor: '#F0F4F9' }}>
+    <div className="h-screen max-h-screen overflow-hidden fixed inset-0 flex flex-col" style={{ backgroundColor: '#E6F0FA' }}>
       {/* Main content */}
       <main className="flex-1 flex flex-col items-center justify-center p-6 overflow-y-auto">
         <div className="w-full max-w-sm">

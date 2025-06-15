@@ -83,7 +83,7 @@ const BookingConfirmationView = () => {
   const SuccessModal = () => (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl w-full max-w-md overflow-hidden">
-        <div className="px-4 py-6" style={{ backgroundColor: '#F0F4F9' }}>
+        <div className="px-4 py-6" style={{ backgroundColor: '#E6F0FA' }}>
           <div className="text-center mb-8">
             <div className="w-16 h-16 bg-primary text-white rounded-full flex items-center justify-center mx-auto mb-4">
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -130,7 +130,7 @@ const BookingConfirmationView = () => {
   );
 
   return (
-    <div className="px-4 py-6" style={{ backgroundColor: '#F0F4F9' }}>
+            <div className="px-4 py-6" style={{ backgroundColor: '#E6F0FA' }}>
       {/* <h1 className="text-xl font-semibold text-dark-grey mb-6 text-center">Confirmar Reserva</h1> */}
       
       {/* Success Modal */}

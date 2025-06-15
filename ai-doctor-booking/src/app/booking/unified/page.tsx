@@ -44,14 +44,14 @@ const hideScrollbarCSS = `
   
   /* Solución definitiva para eliminar espacio en blanco durante scroll */
   html {
-    background-color: #F0F4F9 !important;
+    background-color: #E6F0FA !important;
     margin: 0 !important;
     padding: 0 !important;
     height: 100% !important;
   }
   
   body {
-    background-color: #F0F4F9 !important;
+    background-color: #E6F0FA !important;
     margin: 0 !important;
     padding: 0 !important;
     min-height: 100vh !important;
@@ -60,13 +60,13 @@ const hideScrollbarCSS = `
   }
   
   #__next {
-    background-color: #F0F4F9 !important;
+    background-color: #E6F0FA !important;
     min-height: 100vh !important;
   }
   
   /* Asegurar que el contenedor principal mantenga el fondo durante scroll */
   .min-h-screen {
-    background-color: #F0F4F9 !important;
+    background-color: #E6F0FA !important;
     position: relative;
   }
   
@@ -821,12 +821,12 @@ const UnifiedBookingView = () => {
   }, [doctorSearchQuery, allDoctors]);
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#F0F4F9' }}>
+    <div className="min-h-screen" style={{ backgroundColor: '#E6F0FA' }}>
       {/* Aplicar estilos CSS para ocultar barras de desplazamiento */}
       <style jsx global>{hideScrollbarCSS}</style>
       
       {/* Conversational Header */}
-      <header className="p-5 shadow-sm" style={{ backgroundColor: '#F0F4F9' }}>
+      <header className="p-5 shadow-sm" style={{ backgroundColor: '#E6F0FA' }}>
         <div className="flex items-center justify-between">
           <div>
             <h3 className="font-medium text-black text-base mb-1">Hola, {user.name} 👋</h3>
@@ -872,7 +872,7 @@ const UnifiedBookingView = () => {
       </header>
 
       {/* Main Content */}
-      <div className="px-4 py-4 pb-4" style={{ backgroundColor: '#F0F4F9' }}>
+      <div className="px-4 py-4 pb-4" style={{ backgroundColor: '#E6F0FA' }}>
         {/* Paso 2 y 6: Crear el componente de barra de búsqueda y ajustar el estilo del contenedor */}
         <div className="search-bar-container mb-4 mt-1">
           <div className="flex items-center bg-white rounded-full p-1 shadow-sm">
@@ -1765,7 +1765,7 @@ const UnifiedBookingView = () => {
             }
           }}
         >
-          <div className="rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto modal-content" style={{ backgroundColor: '#F0F4F9' }}>
+          <div className="rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto modal-content" style={{ backgroundColor: '#E6F0FA' }}>
             {/* Doctor Image Header - Light Gray Background like reference photo */}
             <div className="relative h-60 flex items-center justify-center" style={{ backgroundColor: '#D1D5DB' }}> {/* Changed from #E5E7EB to #D1D5DB for slightly darker gray */}
               {/* Close button */}

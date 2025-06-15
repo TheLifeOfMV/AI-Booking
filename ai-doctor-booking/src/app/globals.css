@@ -113,11 +113,15 @@
   --accent-orange: #FF9500;
 }
 
+html {
+  background-color: #E6F0FA;
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   line-height: 1.6;
   color: var(--dark-grey);
-  background-color: var(--white);
+  background-color: #E6F0FA;
   margin: 0;
   padding: 0;
 }

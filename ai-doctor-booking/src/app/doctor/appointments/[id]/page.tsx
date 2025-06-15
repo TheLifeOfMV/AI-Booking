@@ -76,7 +76,7 @@ const AppointmentDetailPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#F0F4F9' }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#E6F0FA' }}>
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-medium-grey">Cargando detalles de la cita...</p>
@@ -87,7 +87,7 @@ const AppointmentDetailPage = () => {
 
   if (!appointment) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#F0F4F9' }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#E6F0FA' }}>
         <div className="text-center">
           <h1 className="text-2xl font-bold text-dark-grey mb-4">Cita no encontrada</h1>
           <p className="text-medium-grey mb-8">La cita que buscas no existe o ha sido eliminada.</p>
@@ -105,7 +105,7 @@ const AppointmentDetailPage = () => {
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#F0F4F9' }}>
+    <div className="min-h-screen" style={{ backgroundColor: '#E6F0FA' }}>
       <div className="container max-w-4xl mx-auto py-8 px-6">
         
         {/* Header */}

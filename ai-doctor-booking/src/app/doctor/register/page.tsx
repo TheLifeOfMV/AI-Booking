@@ -166,7 +166,7 @@ const DoctorRegisterPage = () => {
   };
   
   return (
-    <div style={{ backgroundColor: '#F0F4F9', minHeight: '100vh' }}>
+    <div style={{ backgroundColor: '#E6F0FA', minHeight: '100vh' }}>
       <div className="container max-w-4xl mx-auto py-8 px-4">
         {/* Error Boundary */}
         {hasError && (
