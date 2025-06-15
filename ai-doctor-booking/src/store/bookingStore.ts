@@ -10,8 +10,6 @@ interface BookingState {
   doctors: Doctor[];
   isLoading: boolean;
   error: string | null;
-  hasInsurance: boolean | null;
-  selectedInsurance: string | null;
   
   // Actions
   setSelectedSpecialty: (specialty: Specialty) => void;
@@ -22,8 +20,6 @@ interface BookingState {
   fetchDoctorsBySpecialtyAndDate: (specialtyId: string, date: Date) => Promise<void>;
   reset: () => void;
   clearError: () => void;
-  setHasInsurance: (hasInsurance: boolean) => void;
-  setSelectedInsurance: (provider: string | null) => void;
 }
 
 export const useBookingStore = create<BookingState>((set, get) => ({
@@ -35,8 +31,6 @@ export const useBookingStore = create<BookingState>((set, get) => ({
   doctors: [],
   isLoading: false,
   error: null,
-  hasInsurance: null,
-  selectedInsurance: null,
   
   setSelectedSpecialty: (specialty) => set({ selectedSpecialty: specialty }),
   
@@ -46,24 +40,15 @@ export const useBookingStore = create<BookingState>((set, get) => ({
   
   setSelectedSlot: (slot) => set({ selectedSlot: slot }),
   
-  setHasInsurance: (hasInsurance) => set({ 
-    hasInsurance,
-    selectedInsurance: hasInsurance ? get().selectedInsurance : null
-  }),
-  
-  setSelectedInsurance: (provider) => set({ selectedInsurance: provider }),
-  
   createDraftBooking: () => {
-    const { selectedSpecialty, selectedDoctor, selectedDate, selectedSlot, hasInsurance, selectedInsurance } = get();
+    const { selectedSpecialty, selectedDoctor, selectedDate, selectedSlot } = get();
     
     if (selectedSpecialty && selectedDoctor && selectedDate && selectedSlot) {
       const draftBooking: DraftBooking = {
         specialtyId: selectedSpecialty.id,
         doctorId: selectedDoctor.id,
         date: selectedDate,
-        slotId: selectedSlot.id,
-        hasInsurance: hasInsurance || false,
-        insuranceProvider: selectedInsurance || undefined
+        slotId: selectedSlot.id
       };
       
       set({ draftBooking });
@@ -132,9 +117,7 @@ export const useBookingStore = create<BookingState>((set, get) => ({
     selectedDoctor: null,
     selectedSlot: null,
     draftBooking: null,
-    doctors: [],
-    hasInsurance: null,
-    selectedInsurance: null,
+    doctors: []
   }),
   
   clearError: () => set({ error: null }),

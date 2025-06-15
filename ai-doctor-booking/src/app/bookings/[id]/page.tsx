@@ -366,18 +366,6 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
               </div>
               
               <div className="flex items-start gap-3">
-                <div className="w-6 h-6 bg-orange-100 rounded-full flex items-center justify-center mt-0.5 flex-shrink-0">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M20 6L9 17l-5-5" stroke="#EA580C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="font-medium text-dark-grey text-sm">Seguro Medico</h3>
-                  <p className="text-medium-grey text-xs">Si agendaste la cita con seguro medico, asegurate de llevar el documento o numero de afiliado.</p>
-                </div>
-              </div>
-              
-              <div className="flex items-start gap-3">
                 <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center mt-0.5 flex-shrink-0">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M3 3h18v18H3zM9 9h6v6H9z" stroke="#DC2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>

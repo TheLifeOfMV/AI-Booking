@@ -21,7 +21,7 @@ export default function BookingLayout({
     } else if (pathname === '/booking/date') {
       router.push('/booking/specialty');
     } else if (pathname === '/booking/specialty') {
-      router.push('/channel');
+      router.push('/booking/unified');
     } else if (pathname === '/booking/confirm') {
       // Modified to return to the unified page with the doctor modal
       router.push('/booking/unified?showDoctorModal=true');
@@ -29,9 +29,7 @@ export default function BookingLayout({
       // Allow manual navigation from success screen
       router.push('/bookings');
     } else if (pathname === '/booking/unified') {
-      router.push('/booking/insurance');
-    } else if (pathname === '/booking/insurance') {
-      router.push('/booking/insurance-selection');
+      router.push('/channel');
     } else {
       router.back();
     }

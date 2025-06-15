@@ -10,7 +10,7 @@ export default function ChannelSelectionPage() {
   
   const handleChannelSelect = (channel: 'phone' | 'whatsapp' | 'app') => {
     if (channel === 'app') {
-      router.push('/booking/insurance-selection');
+      router.push('/booking/unified');
     } else {
       // For now, we just show an alert for phone/whatsapp options
       // This would be replaced with actual functionality in the future

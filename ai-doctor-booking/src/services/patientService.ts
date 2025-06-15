@@ -26,12 +26,6 @@ const MOCK_PATIENTS: Patient[] = [
       postalCode: '28001',
       country: 'España'
     },
-    insurance: {
-      provider: 'Sanitas',
-      policyNumber: 'SAN-12345678',
-      expirationDate: '2024-12-31',
-      coverageDetails: 'Cobertura completa'
-    },
     medicalDocuments: [
       {
         id: 'doc1',
@@ -96,12 +90,6 @@ export const updatePatientProfile = async (id: string, data: PatientFormData): P
       city: data.city || '',
       postalCode: data.postalCode || '',
       country: data.country || ''
-    },
-    insurance: {
-      provider: data.insuranceProvider || '',
-      policyNumber: data.insurancePolicyNumber || '',
-      expirationDate: data.insuranceExpirationDate || '',
-      coverageDetails: data.insuranceCoverageDetails || ''
     }
   };
   

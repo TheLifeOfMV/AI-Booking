@@ -16,7 +16,6 @@ export interface ExtendedAppointment {
   medicalNotes?: string;
   symptoms?: string[];
   urgency: 'low' | 'medium' | 'high';
-  insuranceProvider?: string;
   location: string;
   roomNumber?: string;
   createdAt: string;
@@ -41,7 +40,6 @@ export const MOCK_APPOINTMENTS: ExtendedAppointment[] = [
     fees: 60,
     symptoms: ['dolor de cabeza', 'mareos', 'fatiga'],
     urgency: 'medium',
-    insuranceProvider: 'Sanitas',
     location: 'Consultorio Principal',
     roomNumber: '201',
     createdAt: '2023-07-10T10:30:00Z',
@@ -64,7 +62,6 @@ export const MOCK_APPOINTMENTS: ExtendedAppointment[] = [
     fees: 45,
     symptoms: ['revisión', 'control'],
     urgency: 'low',
-    insuranceProvider: 'Adeslas',
     location: 'Consultorio Principal',
     roomNumber: '201',
     createdAt: '2023-07-13T09:15:00Z',
@@ -88,7 +85,6 @@ export const MOCK_APPOINTMENTS: ExtendedAppointment[] = [
     medicalNotes: 'Paciente en buen estado general. Continuar con medicación actual.',
     symptoms: ['revisión general'],
     urgency: 'low',
-    insuranceProvider: 'Mapfre',
     location: 'Consultorio Principal',
     roomNumber: '201',
     createdAt: '2023-06-15T11:00:00Z',
@@ -111,7 +107,6 @@ export const MOCK_APPOINTMENTS: ExtendedAppointment[] = [
     fees: 70,
     symptoms: ['migrañas', 'sensibilidad a la luz', 'náuseas'],
     urgency: 'high',
-    insuranceProvider: 'DKV',
     location: 'Consulta Virtual',
     createdAt: '2023-07-12T16:30:00Z',
     updatedAt: '2023-07-14T10:20:00Z'
@@ -187,7 +182,6 @@ const generateMockAppointments = (count: number): ExtendedAppointment[] => {
       fees: 30 + Math.floor(Math.random() * 50),
       symptoms: [reasons[Math.floor(Math.random() * reasons.length)]],
       urgency: ['low', 'medium', 'high'][Math.floor(Math.random() * 3)] as 'low' | 'medium' | 'high',
-      insuranceProvider: ['Sanitas', 'Adeslas', 'Mapfre', 'DKV'][Math.floor(Math.random() * 4)],
       location: Math.random() > 0.3 ? 'Consultorio Principal' : 'Consulta Virtual',
       roomNumber: Math.random() > 0.3 ? `20${1 + Math.floor(Math.random() * 5)}` : undefined,
       createdAt: new Date(date.getTime() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString(),

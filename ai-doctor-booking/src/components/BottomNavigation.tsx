@@ -20,8 +20,6 @@ export default function BottomNavigation() {
     pathname.startsWith('/splash') ||
     pathname.startsWith('/auth') ||
     pathname.startsWith('/doctor/register') || // Hide during doctor registration
-    pathname === '/booking/insurance-selection' ||
-    pathname === '/booking/insurance' ||
     pathname.startsWith('/admin'); // Hide in admin views for desktop
   
   // If we're on a pre-app page, don't render the navigation bar

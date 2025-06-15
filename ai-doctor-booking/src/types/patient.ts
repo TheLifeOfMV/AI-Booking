@@ -16,14 +16,6 @@ export interface Patient extends User {
     name: string;
     phone: string;
   };
-
-  // Información de seguro médico
-  insurance?: {
-    provider: string;
-    policyNumber: string;
-    expirationDate: string;
-    coverageDetails: string;
-  };
 }
 
 /**
@@ -40,8 +32,4 @@ export interface PatientFormData {
   gender?: string;
   emergencyContactName?: string;
   emergencyContactPhone?: string;
-  insuranceProvider?: string;
-  insurancePolicyNumber?: string;
-  insuranceExpirationDate?: string;
-  insuranceCoverageDetails?: string;
 } 

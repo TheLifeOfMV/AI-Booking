@@ -865,7 +865,7 @@ export default function PatientProfilePage() {
               },
               {
                 question: "¿Qué documentos necesito llevar a mi cita?",
-                answer: "Debes llevar tu documento de identidad, tarjeta del seguro médico en dado caso, órdenes médicas previas, historial medico y lista de medicamentos actuales."
+                answer: "Debes llevar tu documento de identidad, órdenes médicas previas, historial médico y lista de medicamentos actuales."
               },
               {
                 question: "¿Puedo agendar citas para familiares?",

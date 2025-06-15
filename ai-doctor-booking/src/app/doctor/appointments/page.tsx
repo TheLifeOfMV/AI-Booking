@@ -108,8 +108,7 @@ const DoctorAppointmentsPage = () => {
           apt.reason.toLowerCase().includes(searchLower) ||
           apt.patientEmail.toLowerCase().includes(searchLower) ||
           apt.patientPhone.includes(searchTerm.trim()) ||
-          apt.location.toLowerCase().includes(searchLower) ||
-          (apt.insuranceProvider && apt.insuranceProvider.toLowerCase().includes(searchLower));
+          apt.location.toLowerCase().includes(searchLower);
 
         // Date-based searches
         const dateMatch = searchByDate(apt.date, searchTerm);

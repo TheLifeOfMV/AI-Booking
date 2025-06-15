@@ -179,12 +179,6 @@ const AppointmentDetailPage = () => {
                         <FiCalendar className="mr-2" size={16} />
                         <span>Edad: {appointment.patientAge} años</span>
                       </div>
-                      {appointment.insuranceProvider && (
-                        <div className="flex items-center">
-                          <FiFileText className="mr-2" size={16} />
-                          <span>{appointment.insuranceProvider}</span>
-                        </div>
-                      )}
                     </div>
                   </div>
                 </div>
