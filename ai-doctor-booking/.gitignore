@@ -63,3 +63,11 @@ next-env.d.ts
 *.yml
 slow_debugging.yaml
 new_code.yaml
+
+# Authentication documentation files - keep local but don't track
+AUTHENTICATION_TESTING_GUIDE.md
+AUTHENTICATION_INTEGRATION_GUIDE.md
+
+# Authentication test scripts and reports
+scripts/test-auth*.js
+test-reports/

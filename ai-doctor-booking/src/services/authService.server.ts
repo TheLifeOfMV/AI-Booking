@@ -92,6 +92,15 @@ export const signup = async (
     
     return await measurePerformance(async () => {
       const supabase = getServerSupabaseClient();
+      console.log('🔍 DEBUG: Supabase client created successfully');
+      
+      // Test a simple query first to verify connection
+      try {
+        const { data: testData, error: testError } = await supabase.from('profiles').select('count').limit(1);
+        console.log('🔍 DEBUG: Connection test result:', { testData, testError });
+      } catch (connError) {
+        console.error('🔍 DEBUG: Connection test failed:', connError);
+      }
       
       logDatabaseOperation('AUTH_SIGNUP', { 
         email: signupData.email,
@@ -131,10 +140,19 @@ export const signup = async (
         );
       }
       
-      // Create profile record
+      // Create profile record with user session for RLS compliance
       logDatabaseOperation('PROFILE_CREATE', { 
         user_id: authData.user.id,
         correlationId: opId 
+      });
+      
+      // Create profile directly without session dependency
+      // Since RLS is now disabled, this should work
+      console.log('🔍 DEBUG: About to create profile with data:', {
+        user_id: authData.user.id,
+        full_name: signupData.full_name.trim(),
+        phone_number: signupData.phone_number?.trim() || null,
+        role: signupData.role || 'patient'
       });
       
       const { data: profileData, error: profileError } = await supabase
@@ -147,10 +165,20 @@ export const signup = async (
         }])
         .select()
         .single();
+        
+      console.log('🔍 DEBUG: Profile creation result:', {
+        data: profileData,
+        error: profileError,
+        errorDetails: profileError ? JSON.stringify(profileError, null, 2) : null
+      });
       
       if (profileError) {
-        // Clean up auth user if profile creation fails
-        await supabase.auth.admin.deleteUser(authData.user.id);
+        console.error('❌ Profile creation failed:', profileError);
+        console.error('❌ Profile creation error details:', JSON.stringify(profileError, null, 2));
+        // Note: User cleanup requires service role key, which isn't configured yet
+        // For now, we'll log the error and let the user try again
+        console.warn('⚠️ Unable to cleanup auth user (requires service role key)');
+        
         handleDatabaseError(profileError, 'SIGNUP_PROFILE', opId);
       }
       
@@ -159,7 +187,7 @@ export const signup = async (
         user: {
           id: authData.user.id,
           email: authData.user.email!,
-          email_confirmed_at: authData.user.email_confirmed_at,
+          email_confirmed_at: authData.user.email_confirmed_at || null,
           profile: profileData
         },
         access_token: authData.session?.access_token || '',
@@ -177,10 +205,10 @@ export const signup = async (
     }, 'signup', opId);
     
   } catch (error) {
-    logServiceError('Auth', 'SIGNUP', error, opId, { 
+    logServiceError('Auth', 'SIGNUP', error as Error, opId, { 
       email: signupData.email 
     });
-    return createErrorResponse(error, undefined, opId);
+    return createErrorResponse(error as Error, undefined, opId);
   }
 };
 
@@ -260,7 +288,7 @@ export const login = async (
         user: {
           id: authData.user.id,
           email: authData.user.email!,
-          email_confirmed_at: authData.user.email_confirmed_at,
+          email_confirmed_at: authData.user.email_confirmed_at || null,
           profile: profileData
         },
         access_token: authData.session.access_token,
@@ -278,10 +306,10 @@ export const login = async (
     }, 'login', opId);
     
   } catch (error) {
-    logServiceError('Auth', 'LOGIN', error, opId, { 
+    logServiceError('Auth', 'LOGIN', error as Error, opId, { 
       email: loginData.email 
     });
-    return createErrorResponse(error, undefined, opId);
+    return createErrorResponse(error as Error, undefined, opId);
   }
 };
 
@@ -323,8 +351,8 @@ export const logout = async (
     }, 'logout', opId);
     
   } catch (error) {
-    logServiceError('Auth', 'LOGOUT', error, opId);
-    return createErrorResponse(error, undefined, opId);
+    logServiceError('Auth', 'LOGOUT', error as Error, opId);
+    return createErrorResponse(error as Error, undefined, opId);
   }
 };
 
@@ -379,7 +407,7 @@ export const verifyToken = async (
       const authUser: AuthUser = {
         id: userData.user.id,
         email: userData.user.email!,
-        email_confirmed_at: userData.user.email_confirmed_at,
+        email_confirmed_at: userData.user.email_confirmed_at || null,
         profile: profileData
       };
       
@@ -392,8 +420,8 @@ export const verifyToken = async (
     }, 'verifyToken', opId);
     
   } catch (error) {
-    logServiceError('Auth', 'VERIFY_TOKEN', error, opId);
-    return createErrorResponse(error, undefined, opId);
+    logServiceError('Auth', 'VERIFY_TOKEN', error as Error, opId);
+    return createErrorResponse(error as Error, undefined, opId);
   }
 };
 
@@ -439,8 +467,8 @@ export const refreshToken = async (
     }, 'refreshToken', opId);
     
   } catch (error) {
-    logServiceError('Auth', 'REFRESH_TOKEN', error, opId);
-    return createErrorResponse(error, undefined, opId);
+    logServiceError('Auth', 'REFRESH_TOKEN', error as Error, opId);
+    return createErrorResponse(error as Error, undefined, opId);
   }
 };
 
@@ -494,7 +522,7 @@ export const getUserById = async (
       const authUser: AuthUser = {
         id: userData.user.id,
         email: userData.user.email!,
-        email_confirmed_at: userData.user.email_confirmed_at,
+        email_confirmed_at: userData.user.email_confirmed_at || null,
         profile: profileData
       };
       
@@ -507,8 +535,8 @@ export const getUserById = async (
     }, 'getUserById', opId);
     
   } catch (error) {
-    logServiceError('Auth', 'GET_USER_BY_ID', error, opId, { user_id: userId });
-    return createErrorResponse(error, undefined, opId);
+    logServiceError('Auth', 'GET_USER_BY_ID', error as Error, opId, { user_id: userId });
+    return createErrorResponse(error as Error, undefined, opId);
   }
 };
 
@@ -534,7 +562,7 @@ export const checkAuthServiceHealth = async (): Promise<ServiceResponse<{ status
     }, opId);
     
   } catch (error) {
-    logServiceError('Auth', 'HEALTH_CHECK', error, opId);
-    return createErrorResponse(error, ServiceErrorCode.EXTERNAL_SERVICE_ERROR, opId);
+    logServiceError('Auth', 'HEALTH_CHECK', error as Error, opId);
+    return createErrorResponse(error as Error, ServiceErrorCode.EXTERNAL_SERVICE_ERROR, opId);
   }
 }; 

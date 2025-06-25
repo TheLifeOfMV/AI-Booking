@@ -260,21 +260,31 @@ export default function LoginPage() {
 
       setIsSignupLoading(true);
       try {
-        console.log('LoginPage: Creating account with email:', {
+        console.log('LoginPage: Creating account with email via real API:', {
           email: signupData.email,
           dataConsent: signupData.dataConsent,
           communicationsConsent: signupData.communicationsConsent
         });
         
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        // FIXED: Call real signup API via authStore
+        const { signup } = useAuthStore.getState();
+        await signup({
+          email: signupData.email,
+          password: signupData.password,
+          name: 'Usuario', // Default name for now - could be enhanced with a name field
+          role: 'patient' // Patient signup from login page
+        });
         
         // Close modal and show success
         closeSignupModal();
         alert('Cuenta creada exitosamente. Revisa tu correo para verificar tu cuenta.');
+        
+        // Redirect to main page after successful signup
+        router.push('/channel');
       } catch (error) {
         console.error('LoginPage: Error creating account:', error);
-        alert('Error al crear la cuenta. Inténtalo de nuevo.');
+        const errorMessage = error instanceof Error ? error.message : 'Error al crear la cuenta. Inténtalo de nuevo.';
+        alert(errorMessage);
       } finally {
         setIsSignupLoading(false);
       }

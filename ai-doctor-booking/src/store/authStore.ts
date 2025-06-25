@@ -1,5 +1,12 @@
 import { create } from 'zustand';
-import { User, LoginCredentials } from '../types/auth';
+import { 
+  User, 
+  LoginCredentials, 
+  SignupCredentials, 
+  ApiResponse, 
+  AuthApiResponse, 
+  TokenRefreshResponse 
+} from '../types/auth';
 
 interface AuthState {
   user: User | null;
@@ -7,10 +14,12 @@ interface AuthState {
   isAuthenticated: boolean;
   error: string | null;
   login: (credentials: LoginCredentials) => Promise<void>;
-  logout: () => void;
+  signup: (credentials: SignupCredentials) => Promise<void>;
+  logout: () => Promise<void>;
   clearError: () => void;
   isAdmin: () => boolean;
-  initializeAuth: () => void;
+  initializeAuth: () => Promise<void>;
+  refreshToken: () => Promise<boolean>;
 }
 
 // Helper function to safely parse JSON from localStorage
@@ -26,68 +35,134 @@ const parseStoredUser = (storedUser: string | null): User | null => {
 // Helper function to check if we're in browser environment
 const isBrowser = typeof window !== 'undefined';
 
+// Helper function to get stored tokens
+const getStoredTokens = () => {
+  if (!isBrowser) return { accessToken: null, refreshToken: null };
+  
+  return {
+    accessToken: localStorage.getItem('auth_token'),
+    refreshToken: localStorage.getItem('auth_refresh_token')
+  };
+};
+
+// Helper function to clear all stored auth data
+const clearStoredAuth = () => {
+  if (!isBrowser) return;
+  
+  localStorage.removeItem('auth_token');
+  localStorage.removeItem('auth_refresh_token');
+  localStorage.removeItem('auth_token_timestamp');
+  localStorage.removeItem('auth_user');
+};
+
+// Helper function to store auth data
+const storeAuthData = (authResponse: AuthApiResponse) => {
+  if (!isBrowser) return;
+  
+  localStorage.setItem('auth_token', authResponse.access_token);
+  localStorage.setItem('auth_refresh_token', authResponse.refresh_token);
+  localStorage.setItem('auth_token_timestamp', Date.now().toString());
+  localStorage.setItem('auth_user', JSON.stringify(authResponse.user));
+};
+
+// API Call helpers
+const apiCall = async <T>(
+  endpoint: string, 
+  options: RequestInit = {}
+): Promise<ApiResponse<T>> => {
+  const { accessToken } = getStoredTokens();
+  
+  const defaultHeaders: HeadersInit = {
+    'Content-Type': 'application/json',
+  };
+  
+  // Add authorization header if token exists
+  if (accessToken && !endpoint.includes('/login') && !endpoint.includes('/signup')) {
+    defaultHeaders['Authorization'] = `Bearer ${accessToken}`;
+  }
+  
+  const config: RequestInit = {
+    ...options,
+    headers: {
+      ...defaultHeaders,
+      ...options.headers,
+    },
+  };
+  
+  try {
+    console.log(`🌐 API Call: ${endpoint}`, { method: config.method || 'GET' });
+    
+    const response = await fetch(endpoint, config);
+    const data = await response.json();
+    
+    console.log(`🌐 API Response: ${endpoint}`, { 
+      status: response.status, 
+      success: data.success 
+    });
+    
+    return data;
+  } catch (error) {
+    console.error(`💥 API Error: ${endpoint}`, error);
+    throw new Error('Error de conexión. Verifica tu conexión a internet.');
+  }
+};
+
 export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   isLoading: false,
   isAuthenticated: false,
   error: null,
 
-  // Initialize authentication state from localStorage - ONLY when explicitly called
-  initializeAuth: () => {
-    console.log('AuthStore: Initializing authentication...');
+  // Initialize authentication state from localStorage and verify with server
+  initializeAuth: async () => {
+    console.log('🔄 AuthStore: Initializing authentication...');
     
     if (!isBrowser) {
-      console.log('AuthStore: Not in browser environment, skipping initialization');
+      console.log('⚠️  AuthStore: Not in browser environment, skipping initialization');
       return;
     }
     
     try {
       const storedUser = localStorage.getItem('auth_user');
-      const storedToken = localStorage.getItem('auth_token');
+      const { accessToken } = getStoredTokens();
       
-      console.log('AuthStore: Checking stored data -', { 
+      console.log('🔍 AuthStore: Checking stored data', { 
         hasUser: !!storedUser, 
-        hasToken: !!storedToken,
-        userData: storedUser ? 'present' : 'missing'
+        hasToken: !!accessToken 
       });
       
-      // FIXED: Only restore session if both user and token exist AND are valid
-      if (storedUser && storedToken) {
-        const user = parseStoredUser(storedUser);
-        // Add token expiration check
-        const tokenTimestamp = localStorage.getItem('auth_token_timestamp');
-        const now = Date.now();
-        const tokenAge = tokenTimestamp ? now - parseInt(tokenTimestamp) : Infinity;
-        const MAX_TOKEN_AGE = 24 * 60 * 60 * 1000; // 24 hours
+      if (!storedUser || !accessToken) {
+        console.log('ℹ️  AuthStore: No stored session found');
+        set({ 
+          user: null, 
+          isAuthenticated: false, 
+          isLoading: false,
+          error: null 
+        });
+        return;
+      }
+      
+      // Verify token with server
+      console.log('🔐 AuthStore: Verifying stored token with server...');
+      set({ isLoading: true });
+      
+      const result = await apiCall<{ user: User }>('/api/auth/verify');
+      
+      if (result.success && result.data) {
+        console.log('✅ AuthStore: Token verification successful', { 
+          userId: result.data.user.id,
+          role: result.data.user.role 
+        });
         
-        if (user && tokenAge < MAX_TOKEN_AGE) {
-          console.log('AuthStore: Restoring valid user session -', { 
-            email: user.email, 
-            role: user.role 
-          });
-          
-          set({ 
-            user, 
-            isAuthenticated: true, 
-            isLoading: false,
-            error: null 
-          });
-          
-          console.log('AuthStore: User session restored successfully');
-        } else {
-          console.log('AuthStore: Token expired or invalid, clearing localStorage');
-          localStorage.removeItem('auth_user');
-          localStorage.removeItem('auth_token');
-          localStorage.removeItem('auth_token_timestamp');
-          set({ 
-            user: null, 
-            isAuthenticated: false, 
-            isLoading: false,
-            error: null 
-          });
-        }
+        set({ 
+          user: result.data.user, 
+          isAuthenticated: true, 
+          isLoading: false,
+          error: null 
+        });
       } else {
-        console.log('AuthStore: No stored session found');
+        console.log('❌ AuthStore: Token verification failed, clearing session');
+        clearStoredAuth();
         set({ 
           user: null, 
           isAuthenticated: false, 
@@ -96,22 +171,20 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         });
       }
     } catch (error) {
-      console.error('AuthStore: Error during initialization:', error);
-      // Clear potentially corrupted data
-      localStorage.removeItem('auth_user');
-      localStorage.removeItem('auth_token');
-      localStorage.removeItem('auth_token_timestamp');
+      console.error('💥 AuthStore: Error during initialization', error);
+      clearStoredAuth();
       set({ 
         user: null, 
         isAuthenticated: false, 
         isLoading: false,
-        error: 'Error al inicializar sesión' 
+        error: 'Error al verificar sesión. Inicia sesión nuevamente.' 
       });
     }
   },
 
+  // Login with real API call
   login: async (credentials: LoginCredentials) => {
-    console.log('AuthStore: Starting login process -', { 
+    console.log('🔐 AuthStore: Starting login process', { 
       identifier: credentials.identifier, 
       role: credentials.role 
     });
@@ -119,58 +192,158 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ isLoading: true, error: null });
     
     try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const result = await apiCall<AuthApiResponse>('/api/auth/login', {
+        method: 'POST',
+        body: JSON.stringify(credentials),
+      });
       
-      // Create mock user based on credentials
-      const mockUser: User = {
-        id: '1',
-        email: credentials.identifier,
-        name: credentials.role === 'doctor' ? 'Dr. Ejemplo' : 'Usuario Ejemplo',
-        role: credentials.role || 'client'
-      };
-      
-      console.log('AuthStore: Login successful, creating user -', mockUser);
-      
-      // Store in localStorage with timestamp
-      if (isBrowser) {
-        localStorage.setItem('auth_token', 'demo_token');
-        localStorage.setItem('auth_token_timestamp', Date.now().toString());
-        localStorage.setItem('auth_user', JSON.stringify(mockUser));
-        console.log('AuthStore: Data saved to localStorage with timestamp');
+      if (!result.success || !result.data) {
+        throw new Error(result.message || 'Error de autenticación');
       }
+      
+      console.log('✅ AuthStore: Login successful', { 
+        userId: result.data.user.id,
+        role: result.data.user.role 
+      });
+      
+      // Store authentication data
+      storeAuthData(result.data);
       
       // Update state
       set({ 
-        user: mockUser, 
+        user: result.data.user, 
         isAuthenticated: true, 
         isLoading: false,
         error: null
       });
       
-      console.log('AuthStore: Login completed successfully');
     } catch (error) {
-      console.error('AuthStore: Login failed -', error);
+      console.error('❌ AuthStore: Login failed', error);
+      const errorMessage = error instanceof Error ? error.message : 'Error de autenticación';
+      
       set({ 
-        error: 'Error de autenticación. Verifica tus credenciales.', 
+        error: errorMessage, 
         isLoading: false,
         isAuthenticated: false,
         user: null
       });
+      
       throw error;
     }
   },
 
-  logout: () => {
-    if (isBrowser) {
-      localStorage.removeItem('auth_token');
-      localStorage.removeItem('auth_token_timestamp');
-      localStorage.removeItem('auth_user');
+  // Signup with real API call
+  signup: async (credentials: SignupCredentials) => {
+    console.log('📝 AuthStore: Starting signup process', { 
+      email: credentials.email, 
+      role: credentials.role 
+    });
+    
+    set({ isLoading: true, error: null });
+    
+    try {
+      const result = await apiCall<AuthApiResponse>('/api/auth/signup', {
+        method: 'POST',
+        body: JSON.stringify(credentials),
+      });
+      
+      if (!result.success || !result.data) {
+        throw new Error(result.message || 'Error en el registro');
+      }
+      
+      console.log('✅ AuthStore: Signup successful', { 
+        userId: result.data.user.id,
+        role: result.data.user.role 
+      });
+      
+      // Store authentication data
+      storeAuthData(result.data);
+      
+      // Update state
+      set({ 
+        user: result.data.user, 
+        isAuthenticated: true, 
+        isLoading: false,
+        error: null
+      });
+      
+    } catch (error) {
+      console.error('❌ AuthStore: Signup failed', error);
+      const errorMessage = error instanceof Error ? error.message : 'Error en el registro';
+      
+      set({ 
+        error: errorMessage, 
+        isLoading: false,
+        isAuthenticated: false,
+        user: null
+      });
+      
+      throw error;
     }
+  },
+
+  // Logout with real API call
+  logout: async () => {
+    console.log('🚪 AuthStore: Starting logout process');
+    
+    try {
+      // Call logout endpoint to invalidate server session
+      await apiCall('/api/auth/logout', {
+        method: 'POST',
+      });
+      
+      console.log('✅ AuthStore: Server logout successful');
+    } catch (error) {
+      console.warn('⚠️  AuthStore: Server logout failed, but continuing with client cleanup', error);
+    }
+    
+    // Clear client-side data regardless of server response
+    clearStoredAuth();
+    
     set({ 
       user: null, 
-      isAuthenticated: false 
+      isAuthenticated: false,
+      error: null 
     });
+    
+    console.log('✅ AuthStore: Client logout completed');
+  },
+
+  // Refresh token
+  refreshToken: async (): Promise<boolean> => {
+    console.log('🔄 AuthStore: Refreshing access token');
+    
+    const { refreshToken } = getStoredTokens();
+    
+    if (!refreshToken) {
+      console.log('❌ AuthStore: No refresh token available');
+      return false;
+    }
+    
+    try {
+      const result = await apiCall<TokenRefreshResponse>('/api/auth/refresh', {
+        method: 'POST',
+        body: JSON.stringify({ refresh_token: refreshToken }),
+      });
+      
+      if (!result.success || !result.data) {
+        console.log('❌ AuthStore: Token refresh failed');
+        return false;
+      }
+      
+      // Update stored access token
+      if (isBrowser) {
+        localStorage.setItem('auth_token', result.data.access_token);
+        localStorage.setItem('auth_token_timestamp', Date.now().toString());
+      }
+      
+      console.log('✅ AuthStore: Token refresh successful');
+      return true;
+      
+    } catch (error) {
+      console.error('💥 AuthStore: Token refresh error', error);
+      return false;
+    }
   },
 
   clearError: () => set({ error: null }),
@@ -179,7 +352,4 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     const state = get();
     return state.isAuthenticated && state.user?.role === 'admin';
   },
-}));
-
-// FIXED: Remove automatic initialization - only initialize when AuthInitializer component mounts
-// This allows users to manually choose their login role 
+})); 
