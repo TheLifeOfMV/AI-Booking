@@ -3,6 +3,7 @@
 import { ReactNode, useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
+import { isTestingMode, getTestingRole, logTestingMode } from '@/config/testing';
 
 // Routes that don't require authentication
 const publicRoutes = ['/login', '/intro', '/', '/admin/login', '/doctor/register/success'];
@@ -27,6 +28,14 @@ export default function RouteGuard({ children }: RouteGuardProps) {
   
   // Initialize auth state on mount - but check if we should restore session
   useEffect(() => {
+    if (isTestingMode()) {
+      // In testing mode, skip auth initialization and mark as initialized
+      logTestingMode('Authentication bypassed');
+      setIsInitialized(true);
+      setShouldRestoreSession(false);
+      return;
+    }
+
     // FIXED: Only initialize auth if we're not on login page
     // This allows manual role selection on login page
     if (pathname === '/login') {
@@ -45,6 +54,32 @@ export default function RouteGuard({ children }: RouteGuardProps) {
     // Don't run route checks until auth is initialized
     if (!isInitialized) {
       console.log('RouteGuard: Waiting for auth initialization...');
+      return;
+    }
+    
+    if (isTestingMode()) {
+      // In testing mode, simulate authentication and role
+      const testingRole = getTestingRole();
+      logTestingMode('Simulating authenticated user with role:', testingRole);
+      
+      // Still check role-based restrictions but with simulated role
+      for (const route of roleRestrictedRoutes) {
+        if (pathname.startsWith(route.path) && !route.roles.includes(testingRole)) {
+          logTestingMode(`Access denied for simulated role ${testingRole} to ${pathname}`);
+          
+          // Redirect based on simulated role
+          if (testingRole === 'doctor') {
+            router.push('/doctor/dashboard');
+          } else if (testingRole === 'admin') {
+            router.push('/admin');
+          } else {
+            router.push('/channel');
+          }
+          return;
+        }
+      }
+      
+      logTestingMode('Route access granted');
       return;
     }
     
@@ -109,7 +144,7 @@ export default function RouteGuard({ children }: RouteGuardProps) {
   }, [router, pathname, isAuthenticated, user, isInitialized, shouldRestoreSession]);
   
   // Show loading while initializing (only if we're trying to restore session)
-  if (!isInitialized && shouldRestoreSession) {
+  if (!isInitialized && shouldRestoreSession && !isTestingMode()) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#F0F4F9' }}>
         <div className="text-center">

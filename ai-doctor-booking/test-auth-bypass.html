@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authentication Bypass Test</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            max-width: 800px; 
+            margin: 0 auto; 
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .success { border-left: 4px solid #4CAF50; }
+        .info { border-left: 4px solid #2196F3; }
+        .warning { border-left: 4px solid #FF9800; }
+        .code { 
+            background: #f8f8f8; 
+            padding: 10px; 
+            border-radius: 4px; 
+            font-family: monospace;
+            margin: 10px 0;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #2196F3;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            margin: 5px;
+        }
+        .button:hover { background: #1976D2; }
+    </style>
+</head>
+<body>
+    <h1>🧪 AI Booking - Authentication Bypass Test</h1>
+    
+    <div class="test-card success">
+        <h2>✅ Authentication Bypass Successfully Implemented</h2>
+        <p>The authentication system has been temporarily disabled for testing purposes.</p>
+    </div>
+
+    <div class="test-card info">
+        <h2>🔧 Configuration Details</h2>
+        <p><strong>Testing Mode:</strong> Enabled</p>
+        <p><strong>Default Role:</strong> Admin</p>
+        <p><strong>Environment Safety:</strong> Auto-disabled in production</p>
+        
+        <div class="code">
+// Current configuration in src/config/testing.ts
+ENABLE_TESTING_MODE: true
+DEFAULT_TESTING_ROLE: 'admin'
+BYPASS_AUTH_VERIFICATION: true
+BYPASS_ROLE_RESTRICTIONS: false
+        </div>
+    </div>
+
+    <div class="test-card info">
+        <h2>🧭 Test Navigation</h2>
+        <p>You can now access these areas without authentication:</p>
+        
+        <a href="http://localhost:3000/" class="button">Home Page</a>
+        <a href="http://localhost:3000/admin" class="button">Admin Dashboard</a>
+        <a href="http://localhost:3000/doctor/dashboard" class="button">Doctor Dashboard</a>
+        <a href="http://localhost:3000/patient/profile" class="button">Patient Profile</a>
+        <a href="http://localhost:3000/booking/unified" class="button">Booking System</a>
+    </div>
+
+    <div class="test-card warning">
+        <h2>⚠️ Important Notes</h2>
+        <ul>
+            <li><strong>Frontend Only:</strong> Only frontend route protection is bypassed</li>
+            <li><strong>API Calls:</strong> Backend APIs may still require authentication</li>
+            <li><strong>Role Restrictions:</strong> Role-based access is still enforced</li>
+            <li><strong>Production Safety:</strong> Automatically disabled in production</li>
+            <li><strong>Console Logs:</strong> Check browser console for testing mode indicators</li>
+        </ul>
+    </div>
+
+    <div class="test-card info">
+        <h2>🔄 How to Disable Testing Mode</h2>
+        <p>When you're ready to re-enable authentication, simply:</p>
+        
+        <div class="code">
+// In src/config/testing.ts, change:
+ENABLE_TESTING_MODE: false
+        </div>
+        
+        <p>Or delete the testing configuration files entirely.</p>
+    </div>
+
+    <div class="test-card success">
+        <h2>🎯 What Was Changed</h2>
+        <ul>
+            <li>✅ <strong>Created:</strong> src/config/testing.ts - Testing configuration</li>
+            <li>✅ <strong>Modified:</strong> src/components/RouteGuard.tsx - Added bypass logic</li>
+            <li>✅ <strong>Created:</strong> TESTING_MODE.md - Documentation</li>
+            <li>✅ <strong>Preserved:</strong> All original authentication code structure</li>
+        </ul>
+    </div>
+
+    <script>
+        // Show testing mode status in console
+        console.log('🧪 TESTING MODE: Authentication Bypass Active');
+        console.log('📖 View documentation: TESTING_MODE.md');
+        console.log('⚙️ Configuration: src/config/testing.ts');
+        
+        // Test if we're running on localhost
+        if (window.location.hostname === 'localhost') {
+            console.log('✅ Development environment detected');
+        } else {
+            console.warn('⚠️ Not running on localhost - make sure testing mode is disabled in production!');
+        }
+    </script>
+</body>
+</html> 

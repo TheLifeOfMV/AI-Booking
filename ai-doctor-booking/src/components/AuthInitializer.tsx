@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { useAuthStore } from '@/store/authStore';
+import { isTestingMode, logTestingMode } from '@/config/testing';
 
 interface AuthInitializerProps {
   children: React.ReactNode;
@@ -20,6 +21,11 @@ export default function AuthInitializer({ children }: AuthInitializerProps) {
   const { initializeAuth } = useAuthStore();
   
   useEffect(() => {
+    if (isTestingMode()) {
+      logTestingMode('AuthInitializer: Skipping auth initialization in testing mode');
+      return;
+    }
+    
     // Initialize auth state on app load
     initializeAuth();
   }, [initializeAuth]);

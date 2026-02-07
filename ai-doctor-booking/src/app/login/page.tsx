@@ -8,6 +8,7 @@ import Button from '@/components/Button';
 import { useAuthStore } from '@/store/authStore';
 import { validateEmail, validatePhone, validateRequired, validatePassword } from '@/utils/validation';
 import { FiX, FiMail, FiCheck } from 'react-icons/fi';
+import { isTestingMode, getTestingRole, logTestingMode } from '@/config/testing';
 
 type AuthMode = 'login' | 'signup';
 type IdentifierType = 'email' | 'phone';
@@ -51,10 +52,17 @@ export default function LoginPage() {
   
   // FIXED: Clear any existing session when component mounts to ensure clean login
   useEffect(() => {
+    // TESTING MODE: Show indicator but allow normal login form usage
+    if (isTestingMode()) {
+      logTestingMode('Login page accessed - backend authentication bypassed, form enabled');
+      // Don't redirect automatically - let user use the form normally
+      // Backend APIs will handle the bypass when form is submitted
+    }
+
     console.log('LoginPage: Ensuring clean login state');
     logout(); // Clear any existing session
     clearError();
-  }, [logout, clearError]);
+  }, [logout, clearError, router]);
   
   // Clear errors on unmount
   useEffect(() => {
@@ -101,6 +109,21 @@ export default function LoginPage() {
   
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    
+    // In testing mode, simulate successful login without API call
+    if (isTestingMode()) {
+      logTestingMode('Login form submitted - simulating successful authentication');
+      
+      // Simulate login process based on selected role
+      if (userRole === 'doctor') {
+        logTestingMode('Redirecting simulated doctor to dashboard');
+        router.push('/doctor/dashboard');
+      } else {
+        logTestingMode('Redirecting simulated client to channel');
+        router.push('/channel');
+      }
+      return;
+    }
     
     // Clear API error
     clearError();
@@ -293,6 +316,13 @@ export default function LoginPage() {
 
   return (
     <div className="h-screen max-h-screen overflow-hidden fixed inset-0 flex flex-col" style={{ backgroundColor: '#E6F0FA' }}>
+      {/* Testing mode banner */}
+      {isTestingMode() && (
+        <div className="bg-green-500 text-white text-center py-2 px-4 text-sm font-medium">
+          🧪 TESTING MODE: Login with ANY credentials - Backend authentication bypassed
+        </div>
+      )}
+      
       {/* Main content */}
       <main className="flex-1 flex flex-col items-center justify-center p-6 overflow-y-auto">
         <div className="w-full max-w-sm">

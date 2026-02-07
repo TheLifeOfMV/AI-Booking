@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyToken as serverVerifyToken } from '@/services/authService.server';
 import { generateCorrelationId } from '@/lib/serverUtils';
+import { testingConfig } from '@/config/testing';
 
 /**
  * GET /api/auth/verify
@@ -14,6 +15,30 @@ export async function GET(request: NextRequest) {
   console.log('🔍 AUTH API: Token verification request received', { correlationId });
   
   try {
+    // TESTING MODE: Bypass token verification
+    if (testingConfig.ENABLE_TESTING_MODE && process.env.NODE_ENV !== 'production') {
+      console.log('🧪 TESTING MODE: Bypassing token verification', { correlationId });
+      
+      // Return mock user verification success
+      const mockUser = {
+        id: testingConfig.SIMULATED_USER.id,
+        email: testingConfig.SIMULATED_USER.email,
+        role: testingConfig.DEFAULT_TESTING_ROLE,
+        name: testingConfig.SIMULATED_USER.name
+      };
+      
+      return NextResponse.json(
+        {
+          success: true,
+          data: {
+            user: mockUser
+          },
+          correlationId
+        },
+        { status: 200 }
+      );
+    }
+    
     // Get authorization header
     const authHeader = request.headers.get('authorization');
     

@@ -31,18 +31,15 @@ const DoctorEditModal: React.FC<DoctorEditModalProps> = ({
   onClose,
   onSave,
 }) => {
-  // Skip rendering if not open
-  if (!isOpen) return null;
-  
   // Step state
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 3;
   
   // Form state - initialize with current doctor data
-  const [formData, setFormData] = useState<Doctor>({ ...doctor });
+  const [formData, setFormData] = useState<Doctor>(doctor || {} as Doctor);
   
   // Original data for optimistic UI reversal if needed
-  const [originalData, setOriginalData] = useState<Doctor>({ ...doctor });
+  const [originalData, setOriginalData] = useState<Doctor>(doctor || {} as Doctor);
   
   // Loading and error states
   const [isLoading, setIsLoading] = useState(false);
@@ -60,8 +57,10 @@ const DoctorEditModal: React.FC<DoctorEditModalProps> = ({
   
   // Initialize form data when doctor changes
   useEffect(() => {
-    setFormData({ ...doctor });
-    setOriginalData({ ...doctor });
+    if (doctor) {
+      setFormData({ ...doctor });
+      setOriginalData({ ...doctor });
+    }
   }, [doctor]);
   
   // Check for unsaved changes
@@ -69,6 +68,9 @@ const DoctorEditModal: React.FC<DoctorEditModalProps> = ({
     const hasChanges = JSON.stringify(formData) !== JSON.stringify(originalData);
     setHasUnsavedChanges(hasChanges);
   }, [formData, originalData]);
+
+  // Skip rendering if not open
+  if (!isOpen) return null;
   
   // Handle form field changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {

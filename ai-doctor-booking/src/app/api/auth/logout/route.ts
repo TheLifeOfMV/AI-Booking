@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { logout as serverLogout } from '@/services/authService.server';
 import { generateCorrelationId } from '@/lib/serverUtils';
+import { testingConfig } from '@/config/testing';
 
 /**
  * POST /api/auth/logout
@@ -13,6 +14,20 @@ export async function POST(request: NextRequest) {
   console.log('🚪 AUTH API: Logout request received', { correlationId });
   
   try {
+    // TESTING MODE: Bypass logout authentication
+    if (testingConfig.ENABLE_TESTING_MODE && process.env.NODE_ENV !== 'production') {
+      console.log('🧪 TESTING MODE: Bypassing logout authentication', { correlationId });
+      
+      return NextResponse.json(
+        {
+          success: true,
+          message: 'Logout successful (testing mode)',
+          correlationId
+        },
+        { status: 200 }
+      );
+    }
+    
     // Get authorization header
     const authHeader = request.headers.get('authorization');
     
