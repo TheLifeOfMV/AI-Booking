@@ -8,13 +8,13 @@ import Image from 'next/image';
 export default function ChannelSelectionPage() {
   const router = useRouter();
   
-  const handleChannelSelect = (channel: 'phone' | 'whatsapp' | 'app') => {
+  const handleChannelSelect = (channel: 'whatsapp' | 'app') => {
     if (channel === 'app') {
       router.push('/booking/unified');
     } else {
-      // For now, we just show an alert for phone/whatsapp options
+      // For now, we just show an alert for whatsapp option
       // This would be replaced with actual functionality in the future
-      alert(`La reserva por ${channel === 'phone' ? 'teléfono' : 'WhatsApp'} estará disponible en una actualización futura.`);
+      alert('La reserva por WhatsApp estará disponible en una actualización futura.');
     }
   };
   
@@ -42,25 +42,6 @@ export default function ChannelSelectionPage() {
               </svg>
             </div>
             <h2 className="text-sm font-semibold text-primary uppercase tracking-wide">Opciones Disponibles</h2>
-          </div>
-          
-          {/* Phone Call Card - With blue gradient background */}
-          <div 
-            onClick={() => handleChannelSelect('phone')}
-            className="bg-white rounded-xl shadow-sm p-3 transition-all duration-300 hover:shadow-md cursor-pointer border border-light-grey flex items-center mb-3"
-          >
-            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center shrink-0">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-              </svg>
-            </div>
-            <div className="ml-4 flex-1">
-              <h3 className="text-lg font-semibold text-dark-grey">Llamada Telefónica</h3>
-              <p className="text-medium-grey text-sm mb-1">Habla con nuestro asistente virtual</p>
-            </div>
-            <Button type="text" className="shrink-0 flex items-center justify-center">
-              Seleccionar <span className="ml-1">›</span>
-            </Button>
           </div>
           
           {/* WhatsApp Card - Changed to blue gradient background */}

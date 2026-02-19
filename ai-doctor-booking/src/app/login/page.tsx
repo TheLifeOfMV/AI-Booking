@@ -316,13 +316,6 @@ export default function LoginPage() {
 
   return (
     <div className="h-screen max-h-screen overflow-hidden fixed inset-0 flex flex-col" style={{ backgroundColor: '#E6F0FA' }}>
-      {/* Testing mode banner */}
-      {isTestingMode() && (
-        <div className="bg-green-500 text-white text-center py-2 px-4 text-sm font-medium">
-          🧪 TESTING MODE: Login with ANY credentials - Backend authentication bypassed
-        </div>
-      )}
-      
       {/* Main content */}
       <main className="flex-1 flex flex-col items-center justify-center p-6 overflow-y-auto">
         <div className="w-full max-w-sm">

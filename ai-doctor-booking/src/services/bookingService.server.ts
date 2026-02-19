@@ -33,7 +33,7 @@ export interface Booking {
   appointment_time: string;
   duration_minutes: number;
   status: 'pending' | 'confirmed' | 'cancelled_by_patient' | 'cancelled_by_doctor' | 'completed' | 'no_show';
-  channel: 'app' | 'whatsapp' | 'phone' | 'admin';
+  channel: 'app' | 'whatsapp' | 'admin';
   created_at: string;
   updated_at: string;
   // Joined data
@@ -62,7 +62,7 @@ export interface CreateBookingRequest {
   specialty_id?: number | null;
   appointment_time: string; // ISO datetime string
   duration_minutes?: number;
-  channel?: 'app' | 'whatsapp' | 'phone' | 'admin';
+  channel?: 'app' | 'whatsapp' | 'admin';
 }
 
 export interface BookingFilters {

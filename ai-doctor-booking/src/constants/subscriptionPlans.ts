@@ -79,7 +79,6 @@ export const SUBSCRIPTION_PLANS: Record<string, SubscriptionPlan> = {
     features: [
       'Citas médicas ilimitadas mensuales',
       'WhatsApp con IA: agendamiento, confirmación, reprogramación',
-      'Llamadas automáticas con asistente virtual de IA para confirmación',
       'Historial de citas sin límite de tiempo',
       'Reportes avanzados y analítica (cancelaciones, ausencias, desempeño)',
       'Soporte premium: correo, chat en vivo y teléfono',
@@ -120,7 +119,7 @@ export const PLAN_FEATURES_COMPARISON = {
     label: 'Integraciones',
     gratuito: 'Email básico',
     premium: 'WhatsApp con IA',
-    elite: 'WhatsApp + Llamadas con IA'
+    elite: 'WhatsApp con IA'
   },
   devices: {
     label: 'Dispositivos',
