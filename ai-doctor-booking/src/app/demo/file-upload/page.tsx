@@ -13,7 +13,7 @@ export const metadata: Metadata = {
  */
 export default function FileUploadDemoPage() {
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#E6F0FA' }}>
+    <div className="min-h-screen" style={{ backgroundColor: '#F2F2F7' }}>
       <div className="container mx-auto py-8">
         <FileUploadDemo />
       </div>

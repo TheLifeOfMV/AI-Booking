@@ -276,7 +276,7 @@ const DoctorAppointmentsPage = () => {
   };
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#E6F0FA' }}>
+    <div className="min-h-screen" style={{ backgroundColor: '#F2F2F7' }}>
       <div className="container max-w-7xl mx-auto py-8 px-6">
         
         {/* Header */}

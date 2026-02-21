@@ -62,7 +62,7 @@ export default function BookingsPage() {
   }
   
   return (
-    <div className="min-h-screen px-4 pb-24" style={{ backgroundColor: '#E6F0FA' }}>
+    <div className="min-h-screen px-4 pb-24" style={{ backgroundColor: '#F2F2F7' }}>
       <div className="flex justify-center items-center mb-6 pt-4">
         <h1 className="text-3xl font-semibold text-dark-grey text-center">Mis Citas</h1>
       </div>

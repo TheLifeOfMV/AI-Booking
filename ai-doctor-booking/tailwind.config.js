@@ -14,6 +14,7 @@ module.exports = {
         'light-grey': '#F2F2F2',
         'accent-orange': '#FF9500',
         white: '#FFFFFF',
+        'page-background': '#F2F2F7',
       },
       fontFamily: {
         sans: [

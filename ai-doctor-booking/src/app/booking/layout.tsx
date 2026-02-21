@@ -39,9 +39,9 @@ export default function BookingLayout({
   const showHeader = pathname !== '/booking/unified';
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#E6F0FA' }}>
+    <div className="min-h-screen" style={{ backgroundColor: '#F2F2F7' }}>
       {showHeader && (
-        <header className="p-4 flex items-center justify-start h-16" style={{ backgroundColor: '#E6F0FA' }}>
+        <header className="p-4 flex items-center justify-start h-16" style={{ backgroundColor: '#F2F2F7' }}>
           <button 
             onClick={goBack}
             className="text-dark-grey flex items-center justify-center"

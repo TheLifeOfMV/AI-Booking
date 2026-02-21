@@ -38,11 +38,11 @@ const IntroCarousel: React.FC = () => {
   }, [currentSlide, router]);
 
   return (
-    <div className="h-screen max-h-screen overflow-hidden fixed inset-0 flex flex-col" style={{ backgroundColor: '#F0F4F9' }}>
+    <div className="h-screen max-h-screen overflow-hidden fixed inset-0 flex flex-col" style={{ backgroundColor: '#F2F2F7' }}>
       {/* Main Content Area - Split into Two Sections */}
       <div className="flex-1 flex flex-col">
         {/* Doctor Image Section - Modified to take remaining space */}
-        <div className="flex-1 relative rounded-b-[2rem] overflow-hidden" style={{ backgroundColor: '#F0F4F9' }}>
+        <div className="flex-1 relative rounded-b-[2rem] overflow-hidden" style={{ backgroundColor: '#F2F2F7' }}>
           {/* Doctor Image - Modified container to fill available space */}
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="relative w-full h-full">

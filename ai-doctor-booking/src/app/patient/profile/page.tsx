@@ -421,7 +421,7 @@ export default function PatientProfilePage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex flex-col items-center justify-center p-4">
+      <div className="min-h-screen flex flex-col items-center justify-center p-4" style={{ backgroundColor: '#F2F2F7' }}>
         <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-6"></div>
         <div className="text-center">
           <h2 className="text-xl font-semibold text-gray-800 mb-2">Cargando tu perfil</h2>
@@ -433,7 +433,7 @@ export default function PatientProfilePage() {
 
   if (!profile) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex flex-col items-center justify-center p-4">
+      <div className="min-h-screen flex flex-col items-center justify-center p-4" style={{ backgroundColor: '#F2F2F7' }}>
         <div className="bg-white rounded-2xl shadow-xl p-8 text-center max-w-md w-full">
           <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <FiAlertTriangle size={32} className="text-red-600" />
@@ -452,7 +452,7 @@ export default function PatientProfilePage() {
   }
 
   return (
-    <div className="min-h-screen pb-24" style={{ backgroundColor: '#E6F0FA' }}>
+    <div className="min-h-screen pb-24" style={{ backgroundColor: '#F2F2F7' }}>
       {/* Animated Header with Profile Photo - Simplified */}
       <div className="bg-white mx-4 pt-4 rounded-2xl shadow-lg overflow-hidden border border-gray-100">
         {/* Animated gradient background */}

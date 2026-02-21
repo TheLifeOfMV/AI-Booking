@@ -30,7 +30,7 @@ const FILE_CATEGORIES = {
     label: 'Orden Médica', 
     icon: FiFileText, 
     color: '#007AFF',
-    bgColor: '#E6F0FA'
+    bgColor: '#F2F2F7'
   },
   prescription: { 
     label: 'Receta', 

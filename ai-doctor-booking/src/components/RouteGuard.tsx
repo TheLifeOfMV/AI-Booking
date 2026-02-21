@@ -146,7 +146,7 @@ export default function RouteGuard({ children }: RouteGuardProps) {
   // Show loading while initializing (only if we're trying to restore session)
   if (!isInitialized && shouldRestoreSession && !isTestingMode()) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#F0F4F9' }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#F2F2F7' }}>
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
           <p className="text-medium-grey">Cargando...</p>

@@ -166,7 +166,7 @@ const DoctorCalendarPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#F2F2F7]">
       <div className="container max-w-6xl mx-auto py-6 px-4">
         
         {/* Clean Header */}

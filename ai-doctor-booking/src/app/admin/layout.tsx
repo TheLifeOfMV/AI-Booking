@@ -152,7 +152,7 @@ export default function AdminLayout({ children }: PropsWithChildren) {
         </div>
         
         {/* Main content - only visible on desktop */}
-        <main className="hidden lg:block flex-1 bg-light-grey">
+        <main className="hidden lg:block flex-1 bg-page-background">
           {children}
         </main>
       </div>

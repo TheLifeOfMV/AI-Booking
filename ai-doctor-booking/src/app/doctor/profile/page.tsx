@@ -522,7 +522,7 @@ const DoctorProfilePage = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex flex-col items-center justify-center p-4">
+      <div className="min-h-screen flex flex-col items-center justify-center p-4" style={{ backgroundColor: '#F2F2F7' }}>
         <div className="bg-white rounded-2xl shadow-xl p-8 text-center max-w-md w-full">
           <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
             <FiUser size={32} className="text-blue-600" />
@@ -535,7 +535,7 @@ const DoctorProfilePage = () => {
   }
     
     return (
-    <div className="min-h-screen pb-24" style={{ backgroundColor: '#E6F0FA' }}>
+    <div className="min-h-screen pb-24" style={{ backgroundColor: '#F2F2F7' }}>
       {/* Animated Header with Profile Photo - Similar to patient profile */}
       <div className="bg-white mx-4 pt-4 rounded-2xl shadow-lg overflow-hidden border border-gray-100">
         {/* Animated gradient background */}
