@@ -20,18 +20,18 @@ export default function ChannelSelectionPage() {
   
   return (
     <div className="h-screen max-h-screen overflow-hidden fixed inset-0 flex flex-col py-4 px-4" style={{ backgroundColor: '#F2F2F7' }}>
-      {/* Header - Reduced bottom margin */}
-      <div className="w-full max-w-md text-center mx-auto mb-3 mt-2">
+      {/* Header - title and subtitle much lower */}
+      <div className="w-full max-w-md text-center mx-auto mb-3 mt-[6rem]">
         <h1 className="text-2xl font-bold text-dark-grey mb-1">
           Elige tu Canal de Reserva
         </h1>
-        <p className="text-medium-grey text-sm">
+        <p className="text-medium-grey text-sm mt-5">
           Selecciona tu forma preferida para agendar tu cita
         </p>
       </div>
       
-      {/* Cards section - with less top spacing */}
-      <div className="flex flex-col gap-3 w-full max-w-lg mx-auto flex-1 justify-center">
+      {/* Cards section - negative margin keeps card in place */}
+      <div className="flex flex-col gap-3 w-full max-w-lg mx-auto flex-1 justify-center -mt-[6.75rem]">
         {/* Cards container with shadow effect */}
         <div className="p-4 bg-white rounded-2xl shadow-lg relative">
           {/* Section Title */}
@@ -83,8 +83,8 @@ export default function ChannelSelectionPage() {
           </div>
         </div>
         
-        {/* Info section */}
-        <div className="text-center text-xs text-medium-grey mt-2">
+        {/* Info section - aligned with lower reference line */}
+        <div className="text-center text-xs text-medium-grey mt-8">
           <p>Todos los métodos de reserva ofrecen el mismo servicio de alta calidad</p>
           <p className="mt-1 flex items-center justify-center">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-primary mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">

@@ -117,7 +117,8 @@ export default function BookingsPage() {
               {upcomingBookings.map(booking => (
                 <div 
                   key={booking.id} 
-                  className="bg-dark-grey text-white rounded-xl overflow-hidden shadow-sm cursor-pointer transform transition-all duration-200 hover:scale-[1.02]"
+                  className="text-white rounded-xl overflow-hidden shadow-sm cursor-pointer transform transition-all duration-200 hover:scale-[1.02]"
+                  style={{ backgroundColor: '#6b7f94' }}
                   onClick={() => handleBookingClick(booking.id)}
                 >
                   <div className="p-4">

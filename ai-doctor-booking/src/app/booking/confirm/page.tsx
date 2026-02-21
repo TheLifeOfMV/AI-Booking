@@ -36,7 +36,7 @@ const BookingConfirmationView = () => {
   }, [selectedSpecialty, selectedDate, selectedDoctor, selectedSlot, draftBooking, createDraftBooking, router]);
 
   const handleConfirmBooking = async () => {
-    if (!draftBooking) return;
+    if (!draftBooking || !selectedDoctor || !selectedSpecialty || !selectedSlot) return;
 
     setIsSubmitting(true);
     setError(null);
@@ -50,7 +50,7 @@ const BookingConfirmationView = () => {
         specialtyName: selectedSpecialty.name,
         slotTime: selectedSlot.time,
         location: 'Centro Médico California, Sala 234',
-        price: selectedDoctor.consultationFee || 60
+        price: selectedDoctor.consultationFee ?? 60
       });
       
       console.log('✅ Appointment automatically confirmed:', confirmedBooking);
@@ -106,7 +106,7 @@ const BookingConfirmationView = () => {
             <p className="text-medium-grey">Tu cita ha sido reservada con éxito</p>
           </div>
           
-          <div className="bg-dark-grey text-white p-6 rounded-xl mb-6 relative overflow-hidden">
+          <div className="text-white p-6 rounded-xl mb-6 relative overflow-hidden" style={{ backgroundColor: '#6b7f94' }}>
             
             <div className="text-xl font-semibold mb-4">
               {selectedDate?.toLocaleDateString('es-ES', { 
@@ -203,35 +203,20 @@ const BookingConfirmationView = () => {
       
       <div className="border border-light-grey rounded-lg p-4 mb-4">
         <h3 className="font-medium mb-2">Detalles de la Reserva</h3>
-        <div className="text-sm text-medium-grey mb-1">
-          <span className="font-medium text-dark-grey">Fecha:</span> {formatDate(selectedDate)}
+        <div className="text-sm text-medium-grey mb-2">
+          <span className="font-medium text-dark-grey">Duración estimada:</span> 20 minutos
         </div>
-        <div className="text-sm text-medium-grey mb-1">
-          <span className="font-medium text-dark-grey">Hora:</span> {selectedSlot.time}
+        <div className="text-sm text-medium-grey mb-2">
+          <span className="font-medium text-dark-grey">Recomendación:</span> Llegar 10 minutos antes
         </div>
-        <div className="text-sm text-medium-grey mb-1">
-          <span className="font-medium text-dark-grey">Doctor:</span> {selectedDoctor.name}
+        <div className="text-sm text-medium-grey">
+          <span className="font-medium text-dark-grey">Qué llevar:</span> Documento de identificación, orden médica y carnet de la EPS (si aplica)  
         </div>
-        <div className="text-sm text-medium-grey mb-1">
-          <span className="font-medium text-dark-grey">Especialidad:</span> {selectedSpecialty.name}
-        </div>
-        {draftBooking.appointmentReason && (
-          <div className="text-sm text-medium-grey mb-1">
-            <span className="font-medium text-dark-grey">Tipo de cita:</span> {
-              draftBooking.appointmentReason === 'primera' ? 'Primera Cita' : 'Control'
-            }
-          </div>
-        )}
-        {draftBooking.consultationReason && (
-          <div className="text-sm text-medium-grey">
-            <span className="font-medium text-dark-grey">Motivo:</span> {draftBooking.consultationReason}
-          </div>
-        )}
       </div>
       
-      <div className="text-sm text-medium-grey">
-        <p className="mb-2">Al confirmar esta reserva, aceptas nuestros Términos de Servicio y Política de Cancelación.</p>
-        <p>Puedes cancelar o reprogramar esta cita hasta 24 horas antes de la hora programada sin ninguna penalización.</p>
+      <div className="text-sm text-medium-grey space-y-2">
+        <p>Al confirmar esta reserva, aceptas nuestros Términos de Servicio y Política de Cancelación.</p>
+        <p>Puedes cancelar o reprogramar esta cita hasta 2 horas antes de la hora programada sin ninguna penalización.</p>
       </div>
       
       {/* Error message */}

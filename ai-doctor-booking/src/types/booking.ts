@@ -20,6 +20,7 @@ export interface Doctor {
   rating: number;
   experience: string;
   availableSlots: TimeSlot[];
+  consultationFee?: number;
 }
 
 export interface DraftBooking {

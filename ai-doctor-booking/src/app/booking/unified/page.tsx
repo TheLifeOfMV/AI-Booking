@@ -833,9 +833,9 @@ const UnifiedBookingView = () => {
       {/* Conversational Header */}
       <header className="p-5 shadow-sm" style={{ backgroundColor: '#F2F2F7' }}>
         <div className="flex items-center justify-between">
-          <div>
-            <h3 className="font-medium text-black text-base mb-1">Hola, {user.name} 👋</h3>
-            <p className="text-xl font-semibold text-gray-800">¿Cómo te sientes hoy?</p>
+          <div className="leading-tight">
+            <h3 className="font-medium text-black text-xl mb-1">Hola, {user.name} 👋</h3>
+            <p className="text-2xl font-semibold text-gray-800">¿Cómo te sientes hoy?</p>
           </div>
           <div className="relative">
             <button className="w-11 h-11 flex items-center justify-center bg-white hover:bg-gray-50 rounded-full shadow-sm hover:shadow-md transition-all duration-200 border border-gray-100 hover:border-gray-200">
@@ -1299,7 +1299,7 @@ const UnifiedBookingView = () => {
         {/* Doctor Selection Card */}
         <div>
           <div className="flex justify-between items-center mb-1">
-            <h2 className="font-semibold text-base">Mejores Doctores</h2>
+            <h2 className="font-semibold text-base">Doctores disponibles</h2>
             <span 
               className="text-primary text-sm font-medium cursor-pointer" 
               onClick={() => setShowAllDoctors(true)}
