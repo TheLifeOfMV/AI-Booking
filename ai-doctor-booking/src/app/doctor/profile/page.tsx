@@ -474,7 +474,7 @@ const DoctorProfilePage = () => {
   // Manejar logout
   const handleLogout = () => {
     logout();
-    router.push('/auth/login');
+    router.push('/login');
   };
   
   // Keep these handlers as they're needed for specific functionality
