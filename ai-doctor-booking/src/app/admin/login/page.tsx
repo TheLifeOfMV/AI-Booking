@@ -2,10 +2,10 @@
 
 import React, { useState, FormEvent, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Input from '@/components/Input';
-import Button from '@/components/Button';
-import { useAuthStore } from '@/store/authStore';
-import { validateEmail, validateRequired, validatePassword } from '@/utils/validation';
+import Input from '@/domains/shared/components/Input';
+import Button from '@/domains/shared/components/Button';
+import { useAuthStore } from '@/platform/store/authStore';
+import { validateEmail, validateRequired, validatePassword } from '@/platform/utils/validation';
 
 export default function AdminLoginPage() {
   const router = useRouter();

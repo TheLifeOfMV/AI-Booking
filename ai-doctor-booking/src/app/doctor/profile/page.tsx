@@ -3,12 +3,12 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useAuthStore } from '@/store/authStore';
-import Input from '@/components/Input';
-import Button from '@/components/Button';
-import ScheduleEditor from '@/components/doctor/ScheduleEditor';
-import SpecialtySelector from '@/components/doctor/SpecialtySelector';
-import PlanChangeModal from '@/components/doctor/PlanChangeModal';
+import { useAuthStore } from '@/platform/store/authStore';
+import Input from '@/domains/shared/components/Input';
+import Button from '@/domains/shared/components/Button';
+import ScheduleEditor from '@/domains/doctorService/components/ScheduleEditor';
+import SpecialtySelector from '@/domains/doctorService/components/SpecialtySelector';
+import PlanChangeModal from '@/domains/doctorService/components/PlanChangeModal';
 import { 
   FiUser, 
   FiMapPin, 
@@ -35,7 +35,7 @@ import {
   FiCamera,
   FiActivity
 } from 'react-icons/fi';
-import { formatCurrency, SUBSCRIPTION_PLANS } from '@/constants/subscriptionPlans';
+import { formatCurrency, SUBSCRIPTION_PLANS } from '@/platform/constants/subscriptionPlans';
 
 // Datos de muestra para las especialidades
 const SAMPLE_SPECIALTIES = [

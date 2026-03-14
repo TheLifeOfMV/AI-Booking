@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { updateCredentialStatus } from '@/services/doctorService';
-import { CredentialStatus } from '@/types/doctor';
+import { updateCredentialStatus } from '@/domains/doctorService/services/doctorService';
+import { CredentialStatus } from '@/domains/doctorService/types/doctor';
 
 /**
  * PATCH /api/admin/doctors/[id]/credentials

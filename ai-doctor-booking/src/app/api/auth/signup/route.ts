@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { signup as serverSignup } from '@/services/authService.server';
-import { generateCorrelationId } from '@/lib/serverUtils';
-import { RoleMapper } from '@/types/auth';
+import { signup as serverSignup } from '@/domains/shared/services/authService.server';
+import { generateCorrelationId } from '@/platform/lib/serverUtils';
+import { RoleMapper } from '@/domains/shared/types/auth';
 
 /**
  * POST /api/auth/signup

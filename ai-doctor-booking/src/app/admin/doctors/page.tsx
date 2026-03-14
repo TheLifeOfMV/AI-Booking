@@ -1,6 +1,6 @@
 import React from 'react';
 import { Metadata } from 'next';
-import DoctorsTableWrapper from '@/components/admin/Doctors/DoctorsTableWrapper';
+import DoctorsTableWrapper from '@/domains/adminservice/components/Doctors/DoctorsTableWrapper';
 
 export const metadata: Metadata = {
   title: 'Admin - Doctores | AI Doctor Booking',

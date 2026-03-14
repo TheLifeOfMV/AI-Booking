@@ -1,6 +1,6 @@
 import React from 'react';
 import { Metadata } from 'next';
-import FileUploadDemo from '@/components/doctor/FileUploadDemo';
+import FileUploadDemo from '@/domains/doctorService/components/FileUploadDemo';
 
 export const metadata: Metadata = {
   title: 'Demo: File Upload | AI Doctor Booking',

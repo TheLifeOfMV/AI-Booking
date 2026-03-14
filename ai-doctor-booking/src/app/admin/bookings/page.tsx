@@ -1,9 +1,9 @@
 import { Suspense } from 'react';
 import { Metadata } from 'next';
-import { AdminBookingsProvider } from '@/context/AdminBookingsProvider';
-import BookingsTable from '@/components/admin/Bookings/BookingsTable';
-import FilterPanel from '@/components/admin/Bookings/FilterPanel';
-import BulkActionButtons from '@/components/admin/Bookings/BulkActionButtons';
+import { AdminBookingsProvider } from '@/platform/context/AdminBookingsProvider';
+import BookingsTable from '@/domains/adminservice/components/Bookings/BookingsTable';
+import FilterPanel from '@/domains/adminservice/components/Bookings/FilterPanel';
+import BulkActionButtons from '@/domains/adminservice/components/Bookings/BulkActionButtons';
 
 // SEO metadata
 export const metadata: Metadata = {

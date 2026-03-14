@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import PlanComparison from '@/components/plans/PlanComparison';
-import { SUBSCRIPTION_PLANS, formatCurrency } from '@/constants/subscriptionPlans';
+import PlanComparison from '@/domains/shared/components/plans/PlanComparison';
+import { SUBSCRIPTION_PLANS, formatCurrency } from '@/platform/constants/subscriptionPlans';
 import { FiCheck, FiArrowRight, FiUsers, FiTrendingUp, FiZap, FiHelpCircle, FiStar } from 'react-icons/fi';
 
 const PlansPage = () => {

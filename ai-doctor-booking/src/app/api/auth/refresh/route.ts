@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { refreshToken as serverRefreshToken } from '@/services/authService.server';
-import { generateCorrelationId } from '@/lib/serverUtils';
+import { refreshToken as serverRefreshToken } from '@/domains/shared/services/authService.server';
+import { generateCorrelationId } from '@/platform/lib/serverUtils';
 
 /**
  * POST /api/auth/refresh

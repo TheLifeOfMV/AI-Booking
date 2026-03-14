@@ -2,7 +2,7 @@
 
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useUserBookingsStore } from '@/store/userBookingsStore';
+import { useUserBookingsStore } from '@/platform/store/userBookingsStore';
 import Image from 'next/image';
 import Link from 'next/link';
 

@@ -9,14 +9,14 @@ const {
   checkAllServicesHealth, 
   getServiceStatusSummary,
   initializeServices 
-} = require('../src/services/index.server');
+} = require('../src/domains/shared/services/index.server');
 
 const { 
   getSpecialties,
   getSpecialtyById 
-} = require('../src/services/specialtyService.server');
+} = require('../src/domains/shared/services/specialtyService.server');
 
-const { generateCorrelationId } = require('../src/lib/serverUtils');
+const { generateCorrelationId } = require('../src/platform/lib/serverUtils');
 
 async function testPhase2() {
   console.log('🚀 Phase 2 Validation: Server Services Implementation');

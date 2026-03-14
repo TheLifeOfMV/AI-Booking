@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDoctors, getSpecialties } from '@/services/doctorService';
-import { DoctorFilter } from '@/types/doctor';
+import { getDoctors, getSpecialties } from '@/domains/doctorService/services/doctorService';
+import { DoctorFilter } from '@/domains/doctorService/types/doctor';
 
 /**
  * GET /api/admin/doctors

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { useBookingStore } from '../../../store/bookingStore';
+import { useBookingStore } from '@/platform/store/bookingStore';
 
 const BookingSuccessView = () => {
   const router = useRouter();

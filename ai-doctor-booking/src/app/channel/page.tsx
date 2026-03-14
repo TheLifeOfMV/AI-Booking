@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import Button from '@/components/Button';
+import Button from '@/domains/shared/components/Button';
 import Image from 'next/image';
 
 export default function ChannelSelectionPage() {

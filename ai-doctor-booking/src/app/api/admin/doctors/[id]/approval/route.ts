@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { toggleDoctorApproval } from '@/services/doctorService';
+import { toggleDoctorApproval } from '@/domains/doctorService/services/doctorService';
 
 /**
  * PATCH /api/admin/doctors/[id]/approval

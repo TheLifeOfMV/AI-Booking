@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { login as serverLogin } from '@/services/authService.server';
-import { generateCorrelationId } from '@/lib/serverUtils';
-import { testingConfig } from '@/config/testing';
+import { login as serverLogin } from '@/domains/shared/services/authService.server';
+import { generateCorrelationId } from '@/platform/lib/serverUtils';
+import { testingConfig } from '@/platform/config/testing';
 
 /**
  * POST /api/auth/login

@@ -3,8 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { useBookingStore } from '../../../store/bookingStore';
-import { Doctor, Specialty, TimeSlot } from '../../../types/booking';
+import { useBookingStore } from '@/platform/store/bookingStore';
+import { Doctor, Specialty, TimeSlot } from '@/domains/shared/types/booking';
 
 // Estilo global para ocultar barras de desplazamiento en secciones de scroll horizontal
 const scrollbarHideStyle = "flex scrollbar-hide overflow-x-auto";

@@ -21,7 +21,7 @@ import {
 } from 'react-icons/fi';
 import { ALL_MOCK_APPOINTMENTS, ExtendedAppointment } from '../mockAppointments';
 import AppointmentActions from '../components/AppointmentActions';
-import FileUpload, { UploadedFile } from '@/components/doctor/FileUpload';
+import FileUpload, { UploadedFile } from '@/domains/doctorService/components/FileUpload';
 
 const AppointmentDetailPage = () => {
   const params = useParams();

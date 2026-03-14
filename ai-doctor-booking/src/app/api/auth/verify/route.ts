@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyToken as serverVerifyToken } from '@/services/authService.server';
-import { generateCorrelationId } from '@/lib/serverUtils';
-import { testingConfig } from '@/config/testing';
+import { verifyToken as serverVerifyToken } from '@/domains/shared/services/authService.server';
+import { generateCorrelationId } from '@/platform/lib/serverUtils';
+import { testingConfig } from '@/platform/config/testing';
 
 /**
  * GET /api/auth/verify

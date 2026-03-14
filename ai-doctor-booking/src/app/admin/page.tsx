@@ -3,27 +3,27 @@ import { Metadata } from 'next';
 import dynamic from 'next/dynamic';
 
 // Dynamic imports for better performance
-const KPIBookingsPerDay = dynamic(() => import('@/components/admin/Dashboard/KPIBookingsPerDay'), {
+const KPIBookingsPerDay = dynamic(() => import('@/domains/adminservice/components/Dashboard/KPIBookingsPerDay'), {
   loading: () => <div className="h-[400px] w-full bg-light-grey animate-pulse rounded-lg"></div>
 });
 
-const KPIUtilization = dynamic(() => import('@/components/admin/Dashboard/KPIUtilization'), {
+const KPIUtilization = dynamic(() => import('@/domains/adminservice/components/Dashboard/KPIUtilization'), {
   loading: () => <div className="h-[400px] w-full bg-light-grey animate-pulse rounded-lg"></div>
 });
 
-const KPIRevenue = dynamic(() => import('@/components/admin/Dashboard/KPIRevenue'), {
+const KPIRevenue = dynamic(() => import('@/domains/adminservice/components/Dashboard/KPIRevenue'), {
   loading: () => <div className="h-[400px] w-full bg-light-grey animate-pulse rounded-lg"></div>
 });
 
-const KPIUserStats = dynamic(() => import('@/components/admin/Dashboard/KPIUserStats'), {
+const KPIUserStats = dynamic(() => import('@/domains/adminservice/components/Dashboard/KPIUserStats'), {
   loading: () => <div className="h-[400px] w-full bg-light-grey animate-pulse rounded-lg"></div>
 });
 
-const KPICarousel = dynamic(() => import('@/components/admin/Dashboard/KPICarousel'), {
+const KPICarousel = dynamic(() => import('@/domains/adminservice/components/Dashboard/KPICarousel'), {
   loading: () => <div className="h-[400px] w-full bg-light-grey animate-pulse rounded-lg"></div>
 });
 
-const QuickLinks = dynamic(() => import('@/components/admin/Dashboard/QuickLinks'), {
+const QuickLinks = dynamic(() => import('@/domains/adminservice/components/Dashboard/QuickLinks'), {
   loading: () => <div className="h-36 w-full bg-light-grey animate-pulse rounded-lg"></div>
 });
 

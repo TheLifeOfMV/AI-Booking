@@ -3,9 +3,9 @@
 import { PropsWithChildren } from 'react';
 import { redirect, useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { useAuthStore } from '@/store/authStore';
+import { useAuthStore } from '@/platform/store/authStore';
 import { useEffect } from 'react';
-import ToastProvider from '@/components/ToastProvider';
+import ToastProvider from '@/domains/shared/components/ToastProvider';
 
 // Icons
 const DashboardIcon = () => (

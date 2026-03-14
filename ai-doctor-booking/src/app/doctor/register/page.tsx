@@ -3,12 +3,12 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import Input from '@/components/Input';
-import Button from '@/components/Button';
-import CredentialUpload from '@/components/doctor/CredentialUpload';
-import SpecialtySelector from '@/components/doctor/SpecialtySelector';
+import Input from '@/domains/shared/components/Input';
+import Button from '@/domains/shared/components/Button';
+import CredentialUpload from '@/domains/doctorService/components/CredentialUpload';
+import SpecialtySelector from '@/domains/doctorService/components/SpecialtySelector';
 import { FiUpload, FiCheckCircle, FiUser } from 'react-icons/fi';
-import { useAuthStore } from '@/store/authStore';
+import { useAuthStore } from '@/platform/store/authStore';
 
 // Datos de muestra para las especialidades
 const SAMPLE_SPECIALTIES = [

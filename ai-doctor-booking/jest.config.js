@@ -6,8 +6,8 @@ module.exports = {
   ],
   testEnvironment: 'jsdom',
   setupFilesAfterEnv: [
-    '<rootDir>/src/tests/setup.js',
-    '<rootDir>/src/tests/setup-jest-dom.js'
+    '<rootDir>/src/platform/tests/setup.js',
+    '<rootDir>/src/platform/tests/setup-jest-dom.js'
   ],
   testPathIgnorePatterns: ['/node_modules/', '/.next/'],
   transform: {

@@ -2,11 +2,11 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useUserBookingsStore } from '@/store/userBookingsStore';
+import { useUserBookingsStore } from '@/platform/store/userBookingsStore';
 import Image from 'next/image';
 import Link from 'next/link';
-import DoctorAttachedFiles, { DoctorAttachedFile } from '@/components/patient/DoctorAttachedFiles';
-import { getDoctorAttachedFiles } from '@/services/doctorFilesService';
+import DoctorAttachedFiles, { DoctorAttachedFile } from '@/domains/patientService/components/DoctorAttachedFiles';
+import { getDoctorAttachedFiles } from '@/domains/patientService/services/doctorFilesService';
 import BookingsPage from '../page';
 
 export default function BookingDetailPage({ params }: { params: { id: string } }) {

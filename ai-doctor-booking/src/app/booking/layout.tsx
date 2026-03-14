@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { useBookingStore } from '../../store/bookingStore';
+import { useBookingStore } from '@/platform/store/bookingStore';
 
 export default function BookingLayout({
   children,

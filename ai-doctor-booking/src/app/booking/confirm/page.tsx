@@ -2,8 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useBookingStore } from '../../../store/bookingStore';
-import { createAppointment } from '../../../services/appointmentService';
+import { useBookingStore } from '@/platform/store/bookingStore';
+import { createAppointment } from '@/domains/shared/services/appointmentService';
 import Image from 'next/image';
 
 const BookingConfirmationView = () => {

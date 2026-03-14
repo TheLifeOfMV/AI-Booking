@@ -3,7 +3,7 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import { FiCheckCircle, FiClock } from 'react-icons/fi';
-import Button from '@/components/Button';
+import Button from '@/domains/shared/components/Button';
 
 const DoctorRegisterSuccessPage = () => {
   const router = useRouter();

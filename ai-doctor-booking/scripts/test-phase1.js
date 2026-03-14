@@ -5,14 +5,14 @@
  * Tests the enhanced Supabase client and server utilities
  */
 
-const { createServerSupabaseClient, createAdminSupabaseClient, logDatabaseOperation } = require('../src/lib/supabaseClient');
+const { createServerSupabaseClient, createAdminSupabaseClient, logDatabaseOperation } = require('../src/platform/lib/supabaseClient');
 const { 
   generateCorrelationId, 
   logServiceOperation, 
   createSuccessResponse, 
   createErrorResponse, 
   ServiceErrorCode 
-} = require('../src/lib/serverUtils');
+} = require('../src/platform/lib/serverUtils');
 
 async function testPhase1() {
   console.log('🚀 Phase 1 Validation: Server-Side Supabase Infrastructure');

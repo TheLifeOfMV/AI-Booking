@@ -1,14 +1,14 @@
 import { Suspense } from 'react';
 import { Metadata } from 'next';
 import dynamic from 'next/dynamic';
-import { UserFilter } from '@/types/user';
+import { UserFilter } from '@/domains/shared/types/user';
 
 // Dynamic imports for better performance
-const UsersTable = dynamic(() => import('@/components/admin/Users/UsersTable'), {
+const UsersTable = dynamic(() => import('@/domains/adminservice/components/Users/UsersTable'), {
   loading: () => <div className="h-96 w-full bg-light-grey animate-pulse rounded-lg"></div>
 });
 
-const UserFilters = dynamic(() => import('@/components/admin/Users/UserFilters'), {
+const UserFilters = dynamic(() => import('@/domains/adminservice/components/Users/UserFilters'), {
   loading: () => <div className="h-20 w-full bg-light-grey animate-pulse rounded-lg mb-6"></div>
 });
 

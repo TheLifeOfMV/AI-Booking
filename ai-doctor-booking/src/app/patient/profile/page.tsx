@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useAuthStore } from '@/store/authStore';
+import { useAuthStore } from '@/platform/store/authStore';
 import { 
   FiUser, 
   FiPhone, 
@@ -26,10 +26,10 @@ import {
   FiMapPin,
   FiActivity
 } from 'react-icons/fi';
-import Button from '@/components/Button';
-import Input from '@/components/Input';
-import { Patient, PatientFormData } from '@/types/patient';
-import { getPatientProfile, updatePatientProfile } from '@/services/patientService';
+import Button from '@/domains/shared/components/Button';
+import Input from '@/domains/shared/components/Input';
+import { Patient, PatientFormData } from '@/domains/patientService/types/patient';
+import { getPatientProfile, updatePatientProfile } from '@/domains/patientService/services/patientService';
 
 // Tipos de documento disponibles
 const DOCUMENT_TYPES = [

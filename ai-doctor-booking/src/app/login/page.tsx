@@ -3,12 +3,12 @@
 import React, { useState, FormEvent, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import Input from '@/components/Input';
-import Button from '@/components/Button';
-import { useAuthStore } from '@/store/authStore';
-import { validateEmail, validatePhone, validateRequired, validatePassword } from '@/utils/validation';
+import Input from '@/domains/shared/components/Input';
+import Button from '@/domains/shared/components/Button';
+import { useAuthStore } from '@/platform/store/authStore';
+import { validateEmail, validatePhone, validateRequired, validatePassword } from '@/platform/utils/validation';
 import { FiX, FiMail, FiCheck } from 'react-icons/fi';
-import { isTestingMode, getTestingRole, logTestingMode } from '@/config/testing';
+import { isTestingMode, getTestingRole, logTestingMode } from '@/platform/config/testing';
 
 type AuthMode = 'login' | 'signup';
 type IdentifierType = 'email' | 'phone';

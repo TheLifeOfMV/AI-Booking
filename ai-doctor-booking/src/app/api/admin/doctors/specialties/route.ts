@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSpecialties } from '@/services/doctorService';
+import { getSpecialties } from '@/domains/doctorService/services/doctorService';
 
 /**
  * GET /api/admin/doctors/specialties

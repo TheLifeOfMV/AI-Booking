@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import RouteGuardProvider from "@/components/RouteGuardProvider";
-import BottomNavigation from "@/components/BottomNavigation";
-import AuthInitializer from "@/components/AuthInitializer";
-import ConditionalLayout from "@/components/ConditionalLayout";
+import RouteGuardProvider from "@/domains/shared/components/RouteGuardProvider";
+import BottomNavigation from "@/domains/shared/components/BottomNavigation";
+import AuthInitializer from "@/domains/shared/components/AuthInitializer";
+import ConditionalLayout from "@/domains/shared/components/ConditionalLayout";
 
 export const metadata: Metadata = {
   title: "AI Doctor Booking",

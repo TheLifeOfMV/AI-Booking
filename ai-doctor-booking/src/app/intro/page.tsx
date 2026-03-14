@@ -1,5 +1,5 @@
 import React from 'react';
-import IntroCarousel from '@/components/IntroCarousel';
+import IntroCarousel from '@/domains/shared/components/IntroCarousel';
 
 export const metadata = {
   title: 'Bienvenido a AI Doctor Booking',
