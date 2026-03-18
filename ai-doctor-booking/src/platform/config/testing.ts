@@ -8,8 +8,7 @@
  */
 
 export const testingConfig = {
-  // Main toggle for testing mode
-  ENABLE_TESTING_MODE: true,
+  ENABLE_TESTING_MODE: false,
   
   // Default role to simulate when authentication is bypassed
   // Options: 'admin', 'doctor', 'patient', 'client'
@@ -19,7 +18,7 @@ export const testingConfig = {
   SHOW_TESTING_LOGS: true,
   
   // Bypass specific auth checks (for more granular control)
-  BYPASS_AUTH_VERIFICATION: true,
+  BYPASS_AUTH_VERIFICATION: false,
   BYPASS_ROLE_RESTRICTIONS: false, // Keep role restrictions even in testing
   
   // Test user simulation

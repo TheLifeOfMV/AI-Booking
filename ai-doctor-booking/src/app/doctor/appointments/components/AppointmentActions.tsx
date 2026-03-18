@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { FiX, FiEye, FiPhone, FiVideo, FiMoreVertical, FiClock } from 'react-icons/fi';
-import { ExtendedAppointment } from '../mockAppointments';
+import { ExtendedAppointment } from '@/domains/shared/types/appointment';
 
 interface AppointmentActionsProps {
   appointment: ExtendedAppointment;

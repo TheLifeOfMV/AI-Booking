@@ -7,7 +7,7 @@ import {
   FiChevronRight,
   FiCalendar
 } from 'react-icons/fi';
-import { ExtendedAppointment } from '../mockAppointments';
+import { ExtendedAppointment } from '@/domains/shared/types/appointment';
 import AppointmentCard from '../../dashboard/AppointmentCard';
 
 interface CalendarAppointmentViewProps {

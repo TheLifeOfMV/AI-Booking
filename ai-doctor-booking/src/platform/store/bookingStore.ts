@@ -60,56 +60,46 @@ export const useBookingStore = create<BookingState>((set, get) => ({
   fetchDoctorsBySpecialtyAndDate: async (specialtyId, date) => {
     set({ isLoading: true, error: null });
     try {
-      // In a real app, this would fetch from an API
-      // For demo purposes, we'll use mock data
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
-      // Mock data
-      const doctors: Doctor[] = [
-        {
-          id: '1',
-          name: 'Dr. Vinny Vang',
-          specialtyId: specialtyId,
-          avatarUrl: '/doctors/doctor1.jpg',
-          rating: 4.8,
-          experience: '10+ years experienced',
-          availableSlots: [
-            { id: '101', time: '8:00', isAvailable: true },
-            { id: '102', time: '9:00', isAvailable: true },
-            { id: '103', time: '10:00', isAvailable: true },
-          ]
-        },
-        {
-          id: '2',
-          name: 'Dr. Eleanor Padilla',
-          specialtyId: specialtyId,
-          avatarUrl: '/doctors/doctor2.jpg',
-          rating: 4.9,
-          experience: '15+ years experienced',
-          availableSlots: [
-            { id: '201', time: '11:00', isAvailable: true },
-            { id: '202', time: '13:00', isAvailable: true },
-            { id: '203', time: '14:00', isAvailable: true },
-          ]
-        },
-        {
-          id: '3',
-          name: 'Dr. James Rodriguez',
-          specialtyId: specialtyId,
-          avatarUrl: '/doctors/doctor3.jpg',
-          rating: 4.7,
-          experience: '8+ years experienced',
-          availableSlots: [
-            { id: '301', time: '15:00', isAvailable: true },
-            { id: '302', time: '16:00', isAvailable: true },
-            { id: '303', time: '17:00', isAvailable: true },
-          ]
-        }
-      ];
-      
-      set({ doctors, isLoading: false });
+      const dateStr = date.toISOString().split('T')[0];
+      const res = await fetch(`/api/doctors?specialtyId=${specialtyId}&date=${dateStr}`);
+      const json = await res.json();
+
+      if (!json.success || !json.data?.doctors) {
+        set({ doctors: [], isLoading: false });
+        return;
+      }
+
+      const doctorsWithSlots: Doctor[] = await Promise.all(
+        json.data.doctors.map(async (doc: any) => {
+          const slotsRes = await fetch(`/api/doctors/${doc.user_id}/slots?date=${dateStr}`);
+          const slotsJson = await slotsRes.json();
+          const slots = (slotsJson.success && slotsJson.data) ? slotsJson.data : [];
+
+          const availableSlots: TimeSlot[] = slots
+            .filter((s: any) => s.available)
+            .map((s: any, idx: number) => ({
+              id: `${doc.user_id}-${s.time}-${idx}`,
+              time: s.time,
+              isAvailable: true,
+            }));
+
+          const expYears = doc.experience_years;
+          return {
+            id: doc.user_id,
+            name: doc.profile?.full_name || doc.profiles?.full_name || 'Doctor',
+            specialtyId,
+            avatarUrl: doc.profile?.avatar_url || doc.profiles?.avatar_url || undefined,
+            rating: parseFloat(doc.rating) || 0,
+            experience: expYears ? `${expYears}+ años de experiencia` : 'Experiencia no especificada',
+            availableSlots,
+            consultationFee: doc.consultation_fee || undefined,
+          } as Doctor;
+        })
+      );
+
+      set({ doctors: doctorsWithSlots, isLoading: false });
     } catch (error) {
-      set({ error: 'Failed to fetch doctors', isLoading: false });
+      set({ error: 'Error al cargar doctores', isLoading: false });
     }
   },
   

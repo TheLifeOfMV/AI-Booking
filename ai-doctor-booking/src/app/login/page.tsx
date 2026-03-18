@@ -8,11 +8,11 @@ import Button from '@/domains/shared/components/Button';
 import { useAuthStore } from '@/platform/store/authStore';
 import { validateEmail, validatePhone, validateRequired, validatePassword } from '@/platform/utils/validation';
 import { FiX, FiMail, FiCheck } from 'react-icons/fi';
-import { isTestingMode, getTestingRole, logTestingMode } from '@/platform/config/testing';
+import { supabase } from '@/platform/lib/supabaseClient';
 
 type AuthMode = 'login' | 'signup';
 type IdentifierType = 'email' | 'phone';
-type UserRole = 'client' | 'doctor';
+type UserRole = 'patient' | 'doctor';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -20,7 +20,7 @@ export default function LoginPage() {
   
   const [mode, setMode] = useState<AuthMode>('login');
   const [identifierType, setIdentifierType] = useState<IdentifierType>('email');
-  const [userRole, setUserRole] = useState<UserRole>('client');
+  const [userRole, setUserRole] = useState<UserRole>('patient');
   
   // Form fields
   const [identifier, setIdentifier] = useState('');
@@ -50,19 +50,10 @@ export default function LoginPage() {
   });
   const [isSignupLoading, setIsSignupLoading] = useState(false);
   
-  // FIXED: Clear any existing session when component mounts to ensure clean login
   useEffect(() => {
-    // TESTING MODE: Show indicator but allow normal login form usage
-    if (isTestingMode()) {
-      logTestingMode('Login page accessed - backend authentication bypassed, form enabled');
-      // Don't redirect automatically - let user use the form normally
-      // Backend APIs will handle the bypass when form is submitted
-    }
-
-    console.log('LoginPage: Ensuring clean login state');
-    logout(); // Clear any existing session
+    logout();
     clearError();
-  }, [logout, clearError, router]);
+  }, [logout, clearError]);
   
   // Clear errors on unmount
   useEffect(() => {
@@ -109,54 +100,28 @@ export default function LoginPage() {
   
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    
-    // In testing mode, simulate successful login without API call
-    if (isTestingMode()) {
-      logTestingMode('Login form submitted - simulating successful authentication');
-      
-      // Simulate login process based on selected role
-      if (userRole === 'doctor') {
-        logTestingMode('Redirecting simulated doctor to dashboard');
-        router.push('/doctor/dashboard');
-      } else {
-        logTestingMode('Redirecting simulated client to channel');
-        router.push('/channel');
-      }
-      return;
-    }
-    
-    // Clear API error
     clearError();
     
-    // Client-side validation
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
     
     try {
       await login({
-        identifier: identifier,
+        identifier,
         password,
-        role: userRole
+        role: userRole === 'patient' ? 'patient' : 'doctor'
       });
       
-      // FIXED: Explicit redirection based on selected role
-      console.log('LoginPage: Login successful, redirecting based on role:', userRole);
       if (userRole === 'doctor') {
-        console.log('LoginPage: Redirecting doctor to dashboard');
         router.push('/doctor/dashboard');
       } else {
-        console.log('LoginPage: Redirecting client to channel');
         router.push('/channel');
       }
     } catch (err) {
-      console.error('LoginPage: Error durante el login:', err);
+      console.error('Error durante el login:', err);
     }
   };
 
-  // FIXED: Add specialist registration handler
   const handleSpecialistRegistration = () => {
-    console.log('LoginPage: Redirecting to specialist registration');
     router.push('/doctor/register');
   };
   
@@ -259,23 +224,33 @@ export default function LoginPage() {
     return isValid;
   };
 
+  const handleGoogleSignIn = async () => {
+    setIsSignupLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/channel`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
+        },
+      });
+      if (error) throw error;
+    } catch (err) {
+      console.error('Google sign-in error:', err);
+      alert('Error al iniciar sesión con Google. Inténtalo de nuevo.');
+    } finally {
+      setIsSignupLoading(false);
+    }
+  };
+
   const handleCreateAccount = async () => {
     if (signupMethod === 'google') {
-      console.log('LoginPage: Creating account with Google');
-      // Implement Google OAuth
-      setIsSignupLoading(true);
-      setTimeout(() => {
-        setIsSignupLoading(false);
-        alert('Registro con Google en desarrollo');
-      }, 1000);
+      await handleGoogleSignIn();
     } else if (signupMethod === 'apple') {
-      console.log('LoginPage: Creating account with Apple');
-      // Implement Apple OAuth
-      setIsSignupLoading(true);
-      setTimeout(() => {
-        setIsSignupLoading(false);
-        alert('Registro con Apple en desarrollo');
-      }, 1000);
+      alert('Registro con Apple estará disponible próximamente.');
     } else if (signupMethod === 'email') {
       if (!validateSignupForm()) {
         return;
@@ -326,15 +301,14 @@ export default function LoginPage() {
           
           {/* Main card container */}
           <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 backdrop-blur-sm">
-            {/* ENHANCED: Role selection toggle with better UX */}
             <div className="flex rounded-lg bg-light-grey p-1 mb-6">
               <button 
                 className={`flex-1 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
-                  userRole === 'client' 
+                  userRole === 'patient' 
                     ? 'bg-white text-primary shadow-sm transform scale-[0.98]' 
                     : 'text-medium-grey hover:text-gray-700'
                 }`}
-                onClick={() => setUserRole('client')}
+                onClick={() => setUserRole('patient')}
               >
                 Paciente
               </button>
@@ -389,8 +363,7 @@ export default function LoginPage() {
               </div>
             </form>
 
-            {/* Patient signup section */}
-            {userRole === 'client' && (
+            {userRole === 'patient' && (
               <div className="mt-6 pt-6 border-t border-gray-200">
                 <div className="text-center">
                   <p className="text-sm text-medium-grey mb-3">
@@ -407,7 +380,6 @@ export default function LoginPage() {
               </div>
             )}
 
-            {/* FIXED: Enhanced specialist registration section - Only visible for doctor role */}
             {userRole === 'doctor' && (
               <div className="mt-6 pt-6 border-t border-gray-200">
                 <div className="text-center">

@@ -1,80 +1,57 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDoctors, getSpecialties } from '@/domains/doctorService/services/doctorService';
-import { DoctorFilter } from '@/domains/doctorService/types/doctor';
+import { getApprovedDoctors } from '@/domains/doctorService/services/doctorService.server';
+import { generateCorrelationId } from '@/platform/lib/serverUtils';
 
-/**
- * GET /api/admin/doctors
- * Fetches a paginated list of doctors with optional filtering
- */
 export async function GET(request: NextRequest) {
+  const correlationId = generateCorrelationId();
   try {
-    // Get query parameters
     const url = new URL(request.url);
     const page = parseInt(url.searchParams.get('page') || '1');
     const limit = parseInt(url.searchParams.get('limit') || '10');
-    
-    // Build filters from query parameters
-    const filters: DoctorFilter = {};
-    
-    const search = url.searchParams.get('search');
-    if (search) filters.search = search;
-    
     const specialtyId = url.searchParams.get('specialtyId');
-    if (specialtyId) filters.specialtyId = specialtyId;
-    
-    const credentialStatus = url.searchParams.get('credentialStatus');
-    if (credentialStatus && ['pending', 'verified', 'rejected'].includes(credentialStatus)) {
-      filters.credentialStatus = credentialStatus as any;
+    const search = url.searchParams.get('search');
+
+    const result = await getApprovedDoctors({
+      specialtyId: specialtyId ? parseInt(specialtyId) : undefined,
+      limit,
+      offset: (page - 1) * limit,
+    }, correlationId);
+
+    if (!result.success) {
+      return NextResponse.json(
+        { success: false, error: result.error?.message },
+        { status: result.error?.statusCode || 500 }
+      );
     }
-    
-    const approvalStatus = url.searchParams.get('approvalStatus');
-    if (approvalStatus !== null) {
-      filters.approvalStatus = approvalStatus === 'true';
+
+    let doctors = result.data?.doctors || [];
+
+    if (search) {
+      const term = search.toLowerCase();
+      doctors = doctors.filter((d: any) => {
+        const name = (d.profile?.full_name || d.profiles?.full_name || '').toLowerCase();
+        const specialty = (d.specialty?.name || d.specialties?.name || '').toLowerCase();
+        return name.includes(term) || specialty.includes(term);
+      });
     }
-    
-    // Fetch data
-    const { doctors, total } = await getDoctors(filters, page, limit);
-    
-    // Start time for performance logging
-    const startTime = performance.now();
-    
-    // Return response with metadata
-    const response = {
-      doctors,
+
+    return NextResponse.json({
+      success: true,
+      data: {
+        doctors,
+        total: result.data?.total || 0,
+      },
       pagination: {
         page,
         limit,
-        total,
-        totalPages: Math.ceil(total / limit),
+        total: result.data?.total || 0,
+        totalPages: Math.ceil((result.data?.total || 0) / limit),
       },
-      metadata: {
-        loadTime: Math.round(performance.now() - startTime) + 'ms',
-      }
-    };
-    
-    return NextResponse.json(response);
+    });
   } catch (error: any) {
-    console.error('Error in GET /api/admin/doctors:', error);
     return NextResponse.json(
-      { error: error.message || 'An unexpected error occurred' },
+      { success: false, error: error.message || 'Internal server error' },
       { status: 500 }
     );
   }
 }
-
-/**
- * GET /api/admin/doctors/specialties
- * Fetches all available specialties
- */
-export async function GET_specialties(request: NextRequest) {
-  try {
-    const specialties = await getSpecialties();
-    return NextResponse.json({ specialties });
-  } catch (error: any) {
-    console.error('Error in GET /api/admin/doctors/specialties:', error);
-    return NextResponse.json(
-      { error: error.message || 'An unexpected error occurred' },
-      { status: 500 }
-    );
-  }
-} 

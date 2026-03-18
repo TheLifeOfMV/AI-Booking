@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { 
   FiArrowLeft, 
   FiClock, 
@@ -19,12 +19,14 @@ import {
   FiCalendar,
   FiPaperclip
 } from 'react-icons/fi';
-import { ALL_MOCK_APPOINTMENTS, ExtendedAppointment } from '../mockAppointments';
+import { ExtendedAppointment } from '@/domains/shared/types/appointment';
+import { apiBookingToExtendedAppointment } from '@/domains/shared/utils/appointmentTransform';
 import AppointmentActions from '../components/AppointmentActions';
 import FileUpload, { UploadedFile } from '@/domains/doctorService/components/FileUpload';
 
 const AppointmentDetailPage = () => {
   const params = useParams();
+  const router = useRouter();
   const appointmentId = params.id as string;
   
   const [appointment, setAppointment] = useState<ExtendedAppointment | null>(null);
@@ -34,11 +36,38 @@ const AppointmentDetailPage = () => {
   const [attachedFiles, setAttachedFiles] = useState<UploadedFile[]>([]);
 
   useEffect(() => {
-    // Simulate API call
-    const found = ALL_MOCK_APPOINTMENTS.find(apt => apt.id === appointmentId);
-    setAppointment(found || null);
-    setNotes(found?.doctorNotes || '');
-    setLoading(false);
+    const fetchAppointment = async () => {
+      setLoading(true);
+      try {
+        const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
+        if (!token) {
+          setAppointment(null);
+          return;
+        }
+        const res = await fetch('/api/doctors/me/appointments', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const json = await res.json();
+        if (json.success && json.data) {
+          const found = (json.data as any[]).find((b: any) => String(b.id) === appointmentId);
+          if (found) {
+            const transformed = apiBookingToExtendedAppointment(found);
+            setAppointment(transformed);
+            setNotes(transformed.doctorNotes || transformed.medicalNotes || '');
+          } else {
+            setAppointment(null);
+          }
+        } else {
+          setAppointment(null);
+        }
+      } catch (err) {
+        console.error('Error fetching appointment:', err);
+        setAppointment(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAppointment();
   }, [appointmentId]);
 
   const handleSaveNotes = async () => {
@@ -46,8 +75,7 @@ const AppointmentDetailPage = () => {
     
     setLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // TODO: Call PATCH /api/bookings/:id when endpoint is available
       setAppointment({
         ...appointment,
         doctorNotes: notes
@@ -177,10 +205,12 @@ const AppointmentDetailPage = () => {
                         <FiPhone className="mr-2" size={16} />
                         <span>{appointment.patientPhone}</span>
                       </div>
-                      <div className="flex items-center">
-                        <FiCalendar className="mr-2" size={16} />
-                        <span>Edad: {appointment.patientAge} años</span>
-                      </div>
+                      {appointment.patientAge != null && (
+                        <div className="flex items-center">
+                          <FiCalendar className="mr-2" size={16} />
+                          <span>Edad: {appointment.patientAge} años</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -404,7 +434,7 @@ const AppointmentDetailPage = () => {
                   appointment={appointment}
                   onConfirm={async (id) => console.log('Confirm', id)}
                   onCancel={async (id) => console.log('Cancel', id)}
-                  onViewDetails={(id) => console.log('View details', id)}
+                  onViewDetails={(id) => router.push(`/doctor/appointments/${id}`)}
                   onReschedule={(id) => console.log('Reschedule', id)}
                   compact={false}
                 />

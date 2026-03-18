@@ -63,12 +63,9 @@ export default function AdminLoginPage() {
       return;
     }
     
-    // Prepare admin identifier
-    const adminIdentifier = `admin-${identifier}`;
-    
     try {
       await login({
-        identifier: adminIdentifier,
+        identifier,
         password,
         role: 'admin'
       });

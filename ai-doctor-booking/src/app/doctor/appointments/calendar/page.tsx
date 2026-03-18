@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { 
   FiChevronLeft, 
@@ -8,14 +8,46 @@ import {
   FiCalendar, 
   FiList
 } from 'react-icons/fi';
-import { ALL_MOCK_APPOINTMENTS, ExtendedAppointment } from '../mockAppointments';
+import { ExtendedAppointment } from '@/domains/shared/types/appointment';
+import { apiBookingToExtendedAppointment } from '@/domains/shared/utils/appointmentTransform';
 import CalendarAppointmentView from '../components/CalendarAppointmentView';
 
 const DoctorCalendarPage = () => {
+  const [appointments, setAppointments] = useState<ExtendedAppointment[]>([]);
+  const [isLoadingAppointments, setIsLoadingAppointments] = useState(true);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [viewMode, setViewMode] = useState<'month' | 'week'>('month');
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchAppointments = async () => {
+      setIsLoadingAppointments(true);
+      try {
+        const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
+        if (!token) {
+          setAppointments([]);
+          return;
+        }
+        const res = await fetch('/api/doctors/me/appointments', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const json = await res.json();
+        if (json.success && json.data) {
+          const transformed = (json.data as any[]).map(apiBookingToExtendedAppointment);
+          setAppointments(transformed);
+        } else {
+          setAppointments([]);
+        }
+      } catch (err) {
+        console.error('Error fetching appointments:', err);
+        setAppointments([]);
+      } finally {
+        setIsLoadingAppointments(false);
+      }
+    };
+    fetchAppointments();
+  }, []);
 
   // Structured logging for debugging (MONOCODE principle)
   const logCalendarAction = (action: string, data?: any) => {
@@ -65,7 +97,7 @@ const DoctorCalendarPage = () => {
   const appointmentsByDate = useMemo(() => {
     const grouped: { [key: string]: ExtendedAppointment[] } = {};
     
-    ALL_MOCK_APPOINTMENTS.forEach(appointment => {
+    appointments.forEach(appointment => {
       const dateKey = appointment.date;
       if (!grouped[dateKey]) {
         grouped[dateKey] = [];
@@ -80,11 +112,11 @@ const DoctorCalendarPage = () => {
     
     logCalendarAction('Appointments grouped by date', { 
       datesWithAppointments: Object.keys(grouped).length,
-      totalAppointments: ALL_MOCK_APPOINTMENTS.length 
+      totalAppointments: appointments.length 
     });
     
     return grouped;
-  }, []);
+  }, [appointments]);
 
   const formatDateKey = (date: Date): string => {
     return date.toISOString().split('T')[0];
@@ -103,12 +135,9 @@ const DoctorCalendarPage = () => {
     return date1.toDateString() === date2.toDateString();
   };
 
-  const navigateMonth = async (direction: 'prev' | 'next') => {
+  const navigateMonth = (direction: 'prev' | 'next') => {
     setIsLoading(true);
     logCalendarAction('Month navigation', { direction });
-    
-    // Simulate loading for smooth UX
-    await new Promise(resolve => setTimeout(resolve, 100));
     
     setCurrentDate(prev => {
       const newDate = new Date(prev);
@@ -164,6 +193,17 @@ const DoctorCalendarPage = () => {
       );
     });
   };
+
+  if (isLoadingAppointments) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#F2F2F7]">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Cargando calendario...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#F2F2F7]">

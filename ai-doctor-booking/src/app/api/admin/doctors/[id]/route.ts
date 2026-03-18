@@ -1,58 +1,38 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDoctorById, updateDoctor } from '@/domains/doctorService/services/doctorService';
+import { getDoctorProfile, updateDoctorProfile } from '@/domains/doctorService/services/doctorService.server';
+import { generateCorrelationId } from '@/platform/lib/serverUtils';
 
-/**
- * GET /api/admin/doctors/[id]
- * Fetches a single doctor by ID
- */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const correlationId = generateCorrelationId();
+  const { id } = await params;
   try {
-    const doctor = await getDoctorById(params.id);
-    
-    if (!doctor) {
-      return NextResponse.json(
-        { error: 'Doctor not found' },
-        { status: 404 }
-      );
+    const result = await getDoctorProfile(id, correlationId);
+    if (!result.success || !result.data) {
+      return NextResponse.json({ success: false, error: 'Doctor not found' }, { status: 404 });
     }
-    
-    return NextResponse.json({ doctor });
+    return NextResponse.json({ success: true, data: result.data });
   } catch (error: any) {
-    console.error(`Error in GET /api/admin/doctors/${params.id}:`, error);
-    return NextResponse.json(
-      { error: error.message || 'An unexpected error occurred' },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
 
-/**
- * PUT /api/admin/doctors/[id]
- * Updates a doctor's record
- */
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const correlationId = generateCorrelationId();
+  const { id } = await params;
   try {
-    const doctorData = await request.json();
-    
-    // Optimistic locking - version check would go here in a real system
-    
-    const updatedDoctor = await updateDoctor(params.id, doctorData);
-    
-    return NextResponse.json({ 
-      doctor: updatedDoctor,
-      message: 'Doctor updated successfully' 
-    });
+    const body = await request.json();
+    const result = await updateDoctorProfile(id, body, correlationId);
+    if (!result.success) {
+      return NextResponse.json({ success: false, error: result.error?.message }, { status: result.error?.statusCode || 500 });
+    }
+    return NextResponse.json({ success: true, data: result.data, message: 'Doctor updated successfully' });
   } catch (error: any) {
-    console.error(`Error in PUT /api/admin/doctors/${params.id}:`, error);
-    return NextResponse.json(
-      { error: error.message || 'An unexpected error occurred' },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
-} 
+}

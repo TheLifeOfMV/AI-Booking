@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useBookingStore } from '@/platform/store/bookingStore';
-import { createAppointment } from '@/domains/shared/services/appointmentService';
 import Image from 'next/image';
 
 const BookingConfirmationView = () => {
@@ -42,25 +41,40 @@ const BookingConfirmationView = () => {
     setError(null);
     
     try {
-      // Use the appointment service for automatic confirmation
-      const confirmedBooking = await createAppointment({
-        draftBooking,
-        doctorName: selectedDoctor.name,
-        doctorAvatar: selectedDoctor.avatarUrl,
-        specialtyName: selectedSpecialty.name,
-        slotTime: selectedSlot.time,
-        location: 'Centro Médico California, Sala 234',
-        price: selectedDoctor.consultationFee ?? 60
+      const token = localStorage.getItem('auth_token');
+      if (!token) {
+        setError('Debes iniciar sesión para confirmar la reserva.');
+        setIsSubmitting(false);
+        return;
+      }
+
+      const dateStr = selectedDate!.toISOString().split('T')[0];
+      const [hours, minutes] = selectedSlot.time.split(':');
+      const appointmentDate = new Date(dateStr);
+      appointmentDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+
+      const res = await fetch('/api/bookings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          doctor_user_id: selectedDoctor.id,
+          specialty_id: selectedSpecialty.id ? parseInt(String(selectedSpecialty.id)) : null,
+          appointment_time: appointmentDate.toISOString(),
+          duration_minutes: 30,
+          channel: 'app',
+        }),
       });
-      
-      console.log('✅ Appointment automatically confirmed:', confirmedBooking);
-      
-      // Show success modal
+
+      const json = await res.json();
+      if (!json.success) {
+        throw new Error(json.message || 'Error al crear la reserva');
+      }
+
       setIsSubmitting(false);
       setShowSuccessModal(true);
-      
-      // In a real app, we'd reset the store after a successful navigation
-      // setTimeout(() => reset(), 1000);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Hubo un error al confirmar tu reserva. Por favor, inténtalo de nuevo.';
       setError(errorMessage);

@@ -83,10 +83,14 @@ const PlanChangeModal: React.FC<PlanChangeModalProps> = ({
         billingCycle
       });
 
-      if (result.success) {
+      if (result.success && result.data) {
+        if (result.data.checkoutUrl) {
+          window.location.href = result.data.checkoutUrl;
+          return;
+        }
         setStep('success');
-        if (onPlanChanged && result.data) {
-          onPlanChanged(result.data);
+        if (onPlanChanged) {
+          onPlanChanged(result.data.subscription || result.data);
         }
       } else {
         setError(result.error || 'Error al cambiar el plan');

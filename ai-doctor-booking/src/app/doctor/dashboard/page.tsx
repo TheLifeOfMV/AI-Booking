@@ -1,44 +1,10 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { FiCalendar, FiClock, FiUsers, FiTrendingUp, FiBarChart, FiMessageCircle, FiChevronRight, FiBell, FiUser, FiX } from 'react-icons/fi';
-
-// Datos de muestra para el dashboard
-const MOCK_APPOINTMENTS = [
-  {
-    id: '1',
-    patientName: 'María García',
-    patientAvatar: 'https://via.placeholder.com/40',
-    date: '2023-07-15',
-    time: '09:30',
-    status: 'confirmed',
-  },
-  {
-    id: '2',
-    patientName: 'Carlos Rodríguez',
-    patientAvatar: 'https://via.placeholder.com/40',
-    date: '2023-07-15',
-    time: '11:00',
-    status: 'confirmed',
-  },
-  {
-    id: '3',
-    patientName: 'Laura Martínez',
-    patientAvatar: 'https://via.placeholder.com/40',
-    date: '2023-07-15',
-    time: '12:30',
-    status: 'pending',
-  }
-];
-
-const MOCK_STATS = {
-  todayPatients: 3,
-  weeklyPatients: 15,
-  totalPatients: 48,
-  pendingAppointments: 5
-};
+import { useAuthStore } from '@/platform/store/authStore';
 
 const MOCK_NOTIFICATIONS = [
   {
@@ -68,6 +34,47 @@ const DoctorDashboardPage = () => {
   const [dateFilter, setDateFilter] = useState('today');
   const [showNotifications, setShowNotifications] = useState(false);
   const notificationRef = useRef<HTMLDivElement>(null);
+
+  const [appointments, setAppointments] = useState<any[]>([]);
+  const [stats, setStats] = useState({ todayPatients: 0, weeklyPatients: 0, totalPatients: 0, pendingAppointments: 0 });
+  const { user } = useAuthStore();
+
+  const fetchDashboardData = useCallback(async () => {
+    try {
+      const token = localStorage.getItem('auth_token');
+      if (!token) return;
+      const res = await fetch('/api/doctors/me/appointments', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const json = await res.json();
+      if (json.success && json.data) {
+        const all = json.data;
+        const today = new Date().toISOString().split('T')[0];
+        const todayAppts = all.filter((a: any) => a.appointment_time?.startsWith(today));
+        const pending = all.filter((a: any) => a.status === 'pending');
+        setAppointments(all.slice(0, 10).map((a: any) => ({
+          id: String(a.id),
+          patientName: a.profiles?.full_name || 'Paciente',
+          patientAvatar: a.profiles?.avatar_url || '',
+          date: a.appointment_time?.split('T')[0] || '',
+          time: a.appointment_time ? new Date(a.appointment_time).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }) : '',
+          status: a.status,
+        })));
+        setStats({
+          todayPatients: todayAppts.length,
+          weeklyPatients: all.length,
+          totalPatients: new Set(all.map((a: any) => a.patient_user_id)).size,
+          pendingAppointments: pending.length,
+        });
+      }
+    } catch (err) {
+      console.error('Error fetching dashboard data:', err);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, [fetchDashboardData]);
   
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -98,12 +105,12 @@ const DoctorDashboardPage = () => {
           style={{ backgroundColor: '#FFFFFF' }}
         >
           <FiBell size={28} style={{ color: '#777777' }} />
-          {MOCK_NOTIFICATIONS.filter(n => !n.isRead).length > 0 && (
+          {MOCK_NOTIFICATIONS.filter((n: any) => !n.isRead).length > 0 && (
             <span 
               className="absolute -top-2 -right-2 h-7 w-7 rounded-full text-white text-sm flex items-center justify-center font-bold animate-pulse shadow-md"
               style={{ backgroundColor: '#FF9500' }}
             >
-              {MOCK_NOTIFICATIONS.filter(n => !n.isRead).length}
+              {MOCK_NOTIFICATIONS.filter((n: any) => !n.isRead).length}
             </span>
           )}
         </button>
@@ -248,21 +255,21 @@ const DoctorDashboardPage = () => {
           <StatCard 
             icon={<FiUsers size={24} style={{ color: '#007AFF' }} />}
             title="Pacientes Hoy"
-            value={MOCK_STATS.todayPatients}
+            value={stats.todayPatients}
             bgColor="bg-blue-50"
           />
           
           <StatCard 
             icon={<FiCalendar size={24} className="text-green-600" />}
             title="Pacientes Semanales"
-            value={MOCK_STATS.weeklyPatients}
+            value={stats.weeklyPatients}
             bgColor="bg-green-50"
           />
           
           <StatCard 
             icon={<FiBarChart size={24} style={{ color: '#FF9500' }} />}
             title="Total Pacientes"
-            value={MOCK_STATS.totalPatients}
+            value={stats.totalPatients}
             trend="+8% vs mes pasado"
             bgColor="bg-orange-50"
           />
@@ -310,9 +317,9 @@ const DoctorDashboardPage = () => {
             </div>
           </div>
           
-          {MOCK_APPOINTMENTS.length > 0 ? (
+          {appointments.length > 0 ? (
             <div className="p-6 space-y-4">
-              {MOCK_APPOINTMENTS.map(appointment => (
+              {appointments.map(appointment => (
                 <Link 
                   key={appointment.id} 
                   href={`/doctor/appointments/${appointment.id}`}

@@ -12,9 +12,15 @@ export default function ChannelSelectionPage() {
     if (channel === 'app') {
       router.push('/booking/unified');
     } else {
-      // For now, we just show an alert for whatsapp option
-      // This would be replaced with actual functionality in the future
-      alert('La reserva por WhatsApp estará disponible en una actualización futura.');
+      const waNumber = process.env.NEXT_PUBLIC_WHATSAPP_PHONE_NUMBER || '';
+      if (waNumber) {
+        window.open(
+          `https://wa.me/${waNumber}?text=${encodeURIComponent('Hola, quiero agendar una cita médica')}`,
+          '_blank'
+        );
+      } else {
+        alert('El servicio de WhatsApp no está configurado aún. Usa la app para agendar tu cita.');
+      }
     }
   };
   

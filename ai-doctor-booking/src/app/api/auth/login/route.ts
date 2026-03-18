@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { login as serverLogin } from '@/domains/shared/services/authService.server';
 import { generateCorrelationId } from '@/platform/lib/serverUtils';
-import { testingConfig } from '@/platform/config/testing';
 
 /**
  * POST /api/auth/login
@@ -17,48 +16,6 @@ export async function POST(request: NextRequest) {
     // Parse request body
     const body = await request.json();
     const { identifier, password, role } = body;
-    
-    // TESTING MODE: Bypass authentication for development/testing
-    if (testingConfig.ENABLE_TESTING_MODE && process.env.NODE_ENV !== 'production') {
-      console.log('🧪 TESTING MODE: Bypassing authentication for login API', { 
-        identifier, 
-        testingRole: testingConfig.DEFAULT_TESTING_ROLE,
-        correlationId 
-      });
-      
-      // Create mock successful response
-      const mockUser = {
-        id: testingConfig.SIMULATED_USER.id,
-        email: identifier || testingConfig.SIMULATED_USER.email,
-        name: testingConfig.SIMULATED_USER.name,
-        role: role || testingConfig.DEFAULT_TESTING_ROLE,
-        phone: '+1234567890'
-      };
-      
-      const mockTokens = {
-        access_token: 'testing_access_token_' + Date.now(),
-        refresh_token: 'testing_refresh_token_' + Date.now(),
-        expires_in: 3600
-      };
-      
-      console.log('🧪 TESTING MODE: Returning mock authentication success', { 
-        userId: mockUser.id,
-        role: mockUser.role,
-        correlationId 
-      });
-      
-      return NextResponse.json(
-        {
-          success: true,
-          data: {
-            user: mockUser,
-            ...mockTokens
-          },
-          correlationId
-        },
-        { status: 200 }
-      );
-    }
     
     // Validate required fields
     if (!identifier || !password) {

@@ -1,31 +1,20 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getSpecialties } from '@/domains/doctorService/services/doctorService';
+import { NextResponse } from 'next/server';
+import { getSpecialties } from '@/domains/shared/services/specialtyService.server';
+import { generateCorrelationId } from '@/platform/lib/serverUtils';
 
-/**
- * GET /api/admin/doctors/specialties
- * Fetches all available medical specialties
- */
-export async function GET(request: NextRequest) {
+export async function GET() {
+  const correlationId = generateCorrelationId();
   try {
-    const startTime = performance.now();
-    
-    const specialties = await getSpecialties();
-    
-    // Calculate operation time for monitoring
-    const operationTime = Math.round(performance.now() - startTime);
-    
-    return NextResponse.json({ 
-      specialties,
-      metadata: {
-        count: specialties.length,
-        operationTime: `${operationTime}ms`
-      }
+    const result = await getSpecialties(correlationId);
+    if (!result.success) {
+      return NextResponse.json({ success: false, error: result.error?.message }, { status: 500 });
+    }
+    return NextResponse.json({
+      success: true,
+      specialties: result.data || [],
+      metadata: { count: result.data?.length || 0 },
     });
   } catch (error: any) {
-    console.error('Error in GET /api/admin/doctors/specialties:', error);
-    return NextResponse.json(
-      { error: error.message || 'An unexpected error occurred' },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
-} 
+}

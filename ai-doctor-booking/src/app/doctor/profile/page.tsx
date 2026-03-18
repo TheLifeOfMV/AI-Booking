@@ -149,15 +149,14 @@ const MOCK_DOCTOR_PROFILE: DoctorProfile = {
   ],
   
   subscription: {
-    id: 'sub123',
-    planType: 'premium',
-    monthlyFee: 100000, // 100,000 COP
+    id: '',
+    planType: 'gratuito',
+    monthlyFee: 0,
     status: 'active',
     paymentStatus: 'paid',
-    startDate: '2023-01-01',
-    endDate: '2023-12-31',
-    lastPaymentDate: '2023-06-01',
-    nextPaymentDate: '2024-02-01',
+    startDate: '',
+    endDate: '',
+    nextPaymentDate: '',
     failedPaymentAttempts: 0
   }
 };
@@ -375,14 +374,34 @@ const DoctorProfilePage = () => {
   // Estado para manejo de foto de perfil
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
 
-  // Cargar datos del perfil
   useEffect(() => {
     const loadProfile = async () => {
       setIsLoading(true);
       try {
-        // Simular carga de datos
-        await new Promise(resolve => setTimeout(resolve, 800));
-        // Aquí iría la llamada real al servicio
+        const token = localStorage.getItem('auth_token');
+        if (token) {
+          const subRes = await fetch('/api/subscriptions', {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const subJson = await subRes.json();
+          if (subJson.success && subJson.data) {
+            const s = subJson.data;
+            setProfile(prev => ({
+              ...prev,
+              subscription: {
+                id: s.id || '',
+                planType: s.plan_type || 'gratuito',
+                monthlyFee: s.monthly_fee || 0,
+                status: s.status || 'active',
+                paymentStatus: s.payment_status || 'paid',
+                startDate: s.start_date || s.created_at || '',
+                endDate: s.end_date || '',
+                nextPaymentDate: s.end_date || '',
+                failedPaymentAttempts: s.failed_payment_attempts || 0,
+              },
+            }));
+          }
+        }
       } catch (error) {
         console.error('Error al cargar el perfil:', error);
       } finally {

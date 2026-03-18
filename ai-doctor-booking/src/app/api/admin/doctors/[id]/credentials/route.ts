@@ -1,46 +1,46 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { updateCredentialStatus } from '@/domains/doctorService/services/doctorService';
-import { CredentialStatus } from '@/domains/doctorService/types/doctor';
+import { getServerSupabaseClient } from '@/platform/lib/supabaseClient';
+import { generateCorrelationId } from '@/platform/lib/serverUtils';
 
-/**
- * PATCH /api/admin/doctors/[id]/credentials
- * Updates a doctor's credential status
- */
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const correlationId = generateCorrelationId();
+  const { id } = await params;
   try {
     const { status } = await request.json();
-    
-    // Validate the status value
     if (!status || !['pending', 'verified', 'rejected'].includes(status)) {
       return NextResponse.json(
-        { error: 'Invalid credential status. Must be "pending", "verified", or "rejected".' },
+        { success: false, error: 'Invalid credential status. Must be "pending", "verified", or "rejected".' },
         { status: 400 }
       );
     }
-    
-    // Record the start time for performance metrics
-    const startTime = performance.now();
-    
-    const updatedDoctor = await updateCredentialStatus(params.id, status as CredentialStatus);
-    
-    // Calculate operation time for monitoring
-    const operationTime = Math.round(performance.now() - startTime);
-    
-    return NextResponse.json({ 
-      doctor: updatedDoctor,
+
+    const supabase = getServerSupabaseClient(true);
+
+    const updateData: any = { status };
+    if (status === 'verified') {
+      updateData.verified_at = new Date().toISOString();
+    }
+
+    const { data, error } = await supabase
+      .from('doctor_credentials')
+      .update(updateData)
+      .eq('doctor_user_id', id)
+      .select()
+      .single();
+
+    if (error) {
+      return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({
+      success: true,
+      data,
       message: `Doctor credentials ${status} successfully`,
-      metadata: {
-        operationTime: `${operationTime}ms`
-      }
     });
   } catch (error: any) {
-    console.error(`Error in PATCH /api/admin/doctors/${params.id}/credentials:`, error);
-    return NextResponse.json(
-      { error: error.message || 'An unexpected error occurred' },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
-} 
+}

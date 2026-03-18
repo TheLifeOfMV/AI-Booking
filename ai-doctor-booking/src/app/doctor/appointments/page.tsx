@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
@@ -19,7 +19,8 @@ import {
   FiEye,
   FiPlus
 } from 'react-icons/fi';
-import { ALL_MOCK_APPOINTMENTS, ExtendedAppointment } from './mockAppointments';
+import { ExtendedAppointment } from '@/domains/shared/types/appointment';
+import { apiBookingToExtendedAppointment } from '@/domains/shared/utils/appointmentTransform';
 import AppointmentCard from '../dashboard/AppointmentCard';
 import AppointmentFilters, { FilterState } from './components/AppointmentFilters';
 
@@ -27,15 +28,10 @@ import AppointmentFilters, { FilterState } from './components/AppointmentFilters
 type DateFilter = 'today' | 'tomorrow' | 'week' | 'month' | 'all';
 type StatusFilter = 'all' | 'confirmed' | 'completed' | 'cancelled' | 'no-show';
 
-// Add at the top to verify the import works
-console.log('Loading doctor appointments page...');
-
-// Add at the top of the component
-console.log('DoctorAppointmentsPage: Component mounting...');
-
 const DoctorAppointmentsPage = () => {
   const router = useRouter();
-  // State management
+  const [appointments, setAppointments] = useState<ExtendedAppointment[]>([]);
+  const [isLoadingAppointments, setIsLoadingAppointments] = useState(true);
   const [dateFilter, setDateFilter] = useState<DateFilter>('today');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -48,6 +44,35 @@ const DoctorAppointmentsPage = () => {
     timeRange: 'all',
     status: 'all'
   });
+
+  useEffect(() => {
+    const fetchAppointments = async () => {
+      setIsLoadingAppointments(true);
+      try {
+        const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
+        if (!token) {
+          setAppointments([]);
+          return;
+        }
+        const res = await fetch('/api/doctors/me/appointments', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const json = await res.json();
+        if (json.success && json.data) {
+          const transformed = (json.data as any[]).map(apiBookingToExtendedAppointment);
+          setAppointments(transformed);
+        } else {
+          setAppointments([]);
+        }
+      } catch (err) {
+        console.error('Error fetching appointments:', err);
+        setAppointments([]);
+      } finally {
+        setIsLoadingAppointments(false);
+      }
+    };
+    fetchAppointments();
+  }, []);
 
   // Helper function to search by date with multiple formats
   const searchByDate = (appointmentDate: string, searchTerm: string) => {
@@ -95,7 +120,7 @@ const DoctorAppointmentsPage = () => {
 
   // Filter appointments based on current filters and search
   const filteredAppointments = useMemo(() => {
-    let filtered = [...ALL_MOCK_APPOINTMENTS];
+    let filtered = [...appointments];
     
     // Search filter
     if (searchTerm.trim()) {
@@ -156,29 +181,29 @@ const DoctorAppointmentsPage = () => {
       const dateB = new Date(`${b.date}T${b.time}`);
       return dateA.getTime() - dateB.getTime();
     });
-  }, [filters, searchTerm]);
+  }, [filters, searchTerm, appointments]);
 
   // Calculate appointment counts for filters (removed pending)
   const appointmentCounts = useMemo(() => {
     return {
-      total: ALL_MOCK_APPOINTMENTS.length,
-      confirmed: ALL_MOCK_APPOINTMENTS.filter(apt => apt.status === 'confirmed').length,
-      completed: ALL_MOCK_APPOINTMENTS.filter(apt => apt.status === 'completed').length,
-      cancelled: ALL_MOCK_APPOINTMENTS.filter(apt => apt.status === 'cancelled').length,
+      total: appointments.length,
+      confirmed: appointments.filter(apt => apt.status === 'confirmed').length,
+      completed: appointments.filter(apt => apt.status === 'completed').length,
+      cancelled: appointments.filter(apt => apt.status === 'cancelled').length,
     };
-  }, []);
+  }, [appointments]);
 
   // Statistics (removed pending)
   const stats = useMemo(() => {
     const today = new Date().toISOString().split('T')[0];
-    const todayAppointments = ALL_MOCK_APPOINTMENTS.filter(apt => apt.date === today);
+    const todayAppointments = appointments.filter(apt => apt.date === today);
     
     return {
       today: todayAppointments.length,
-      confirmed: ALL_MOCK_APPOINTMENTS.filter(apt => apt.status === 'confirmed').length,
-      completed: ALL_MOCK_APPOINTMENTS.filter(apt => apt.status === 'completed').length
+      confirmed: appointments.filter(apt => apt.status === 'confirmed').length,
+      completed: appointments.filter(apt => apt.status === 'completed').length
     };
-  }, []);
+  }, [appointments]);
 
   // Action handlers - removed confirm appointment since all are auto-confirmed
   const handleCancelAppointment = async (appointmentId: string) => {
@@ -224,9 +249,6 @@ const DoctorAppointmentsPage = () => {
     });
   };
 
-  // Add at the top to verify the import works
-  console.log('AppointmentCard imported successfully:', AppointmentCard);
-
   // FIXED: Add missing handleViewDetails function
   const handleViewDetails = (appointmentId: string) => {
     router.push(`/doctor/appointments/${appointmentId}`);
@@ -244,27 +266,6 @@ const DoctorAppointmentsPage = () => {
     // Implementation for cancelling appointment
   };
 
-  // Before the return statement
-  console.log('DoctorAppointmentsPage: About to render with appointments:', filteredAppointments?.length);
-
-  // Add error boundary logging
-  const handleError = (error: Error) => {
-    console.error('DoctorAppointmentsPage: Error occurred:', error);
-  };
-
-  // Add logging to verify the change
-  console.log('AppointmentsPage: Rendering stats without revenue -', {
-    appointmentCount: filteredAppointments.length,
-    showRevenue: false // Confirms revenue is disabled
-  });
-
-  // Add logging to confirm only presencial appointments
-  console.log('AppointmentsPage: All appointments are presencial -', {
-    totalAppointments: filteredAppointments.length,
-    appointmentTypes: filteredAppointments.map(apt => 'presencial'),
-    virtualAppointments: 0 // Confirms no virtual appointments
-  });
-
   // Get appointments to display (5 max unless showing all)
   const displayedAppointments = showAllAppointments 
     ? filteredAppointments 
@@ -274,6 +275,17 @@ const DoctorAppointmentsPage = () => {
   const clearSearch = () => {
     setSearchTerm('');
   };
+
+  if (isLoadingAppointments) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#F2F2F7' }}>
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-medium-grey">Cargando citas...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#F2F2F7' }}>

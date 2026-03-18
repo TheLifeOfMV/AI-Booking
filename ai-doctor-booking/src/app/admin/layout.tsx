@@ -45,7 +45,7 @@ export default function AdminLayout({ children }: PropsWithChildren) {
   const pathname = usePathname();
   
   const isAdmin = () => {
-    return user?.role === 'admin' || user?.email?.includes('admin');
+    return user?.role === 'admin';
   };
 
   // Exclude login page from auth checks

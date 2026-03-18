@@ -1,60 +1,75 @@
 import { NextResponse } from 'next/server';
+import { getServerSupabaseClient } from '@/platform/lib/supabaseClient';
 
-// Handler for GET requests to /api/admin/metrics
 export async function GET(request: Request) {
   try {
-    // Get the date range from query parameters
     const { searchParams } = new URL(request.url);
     const days = parseInt(searchParams.get('days') || '7', 10);
 
-    // In a real app, this data would come from a database
-    // and would be filtered based on the date range specified
-    
-    // Generate dates for the requested period
+    const supabase = getServerSupabaseClient(true);
+
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - days);
+    const startDateStr = startDate.toISOString();
+
+    const { data: bookings, error: bookingsError } = await supabase
+      .from('bookings')
+      .select('id, appointment_time, status')
+      .gte('appointment_time', startDateStr)
+      .order('appointment_time', { ascending: true });
+
+    if (bookingsError) {
+      throw bookingsError;
+    }
+
+    const bookingsByDayMap: Record<string, number> = {};
     const dates = Array.from({ length: days }, (_, i) => {
       const date = new Date();
       date.setDate(date.getDate() - (days - 1) + i);
-      return date.toISOString().split('T')[0]; // YYYY-MM-DD format
+      const dateStr = date.toISOString().split('T')[0];
+      bookingsByDayMap[dateStr] = 0;
+      return dateStr;
     });
-    
-    // Generate mock booking data
+
+    for (const booking of (bookings || [])) {
+      const dateStr = booking.appointment_time.split('T')[0];
+      if (bookingsByDayMap[dateStr] !== undefined) {
+        bookingsByDayMap[dateStr]++;
+      }
+    }
+
     const bookingsByDay = dates.map(date => ({
       date,
-      // Generate a random number between 3 and 20 for bookings count
-      count: Math.floor(Math.random() * 18) + 3
+      count: bookingsByDayMap[date] || 0,
     }));
-    
-    // Calculate total slots and booked slots for utilization
-    const totalSlots = days * 80; // 80 slots per day (example)
-    const bookedSlots = bookingsByDay.reduce((sum, day) => sum + day.count, 0);
-    
+
+    const { count: totalDoctors } = await supabase
+      .from('doctors')
+      .select('*', { count: 'exact', head: true })
+      .eq('approval_status', true);
+
+    const { count: totalScheduleSlots } = await supabase
+      .from('doctor_schedules')
+      .select('*', { count: 'exact', head: true });
+
+    const bookedSlots = (bookings || []).filter(
+      b => b.status === 'confirmed' || b.status === 'pending'
+    ).length;
+
+    const totalSlots = (totalScheduleSlots || 0) * days;
+
     return NextResponse.json({
       bookingsByDay,
       utilization: {
         bookedSlots,
-        totalSlots
-      }
+        totalSlots: totalSlots || 1,
+      },
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching admin metrics:', error);
-    
     return NextResponse.json(
       { error: 'Failed to fetch admin metrics' },
       { status: 500 }
     );
   }
 }
-
-// Using Response to demonstrate role-based authorization
-export async function OPTIONS(request: Request) {
-  // A real implementation would:
-  // 1. Check the authentication token from cookies/headers
-  // 2. Verify the user has admin privileges
-  // 3. Return appropriate response
-  
-  return new Response(null, {
-    headers: {
-      'Allow': 'GET, OPTIONS',
-    }
-  });
-} 
