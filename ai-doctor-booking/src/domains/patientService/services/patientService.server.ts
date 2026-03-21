@@ -25,6 +25,7 @@ export interface PatientProfile {
   user_id: string;
   full_name: string;
   phone_number: string | null;
+  gender: string | null;
   avatar_url: string | null;
   role: 'patient';
   created_at: string;

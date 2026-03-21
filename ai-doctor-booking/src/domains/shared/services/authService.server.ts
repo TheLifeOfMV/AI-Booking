@@ -26,6 +26,7 @@ export interface UserProfile {
   user_id: string;
   full_name: string;
   phone_number: string | null;
+  gender: string | null;
   avatar_url: string | null;
   role: 'patient' | 'doctor' | 'admin';
   created_at: string;
@@ -44,6 +45,7 @@ export interface SignupRequest {
   password: string;
   full_name: string;
   phone_number?: string;
+  gender?: 'masculino' | 'femenino' | 'otro';
   role?: 'patient' | 'doctor';
 }
 
@@ -186,14 +188,19 @@ export const signup = async (
         correlationId: opId 
       });
       
+      const profilePayload: Record<string, unknown> = {
+        user_id: userId!,
+        full_name: signupData.full_name.trim(),
+        phone_number: signupData.phone_number?.trim() || null,
+        role: signupData.role || 'patient'
+      };
+      if (signupData.gender) {
+        profilePayload.gender = signupData.gender;
+      }
+
       const { data: profileData, error: profileError } = await adminClient
         .from('profiles')
-        .upsert({
-          user_id: userId!,
-          full_name: signupData.full_name.trim(),
-          phone_number: signupData.phone_number?.trim() || null,
-          role: signupData.role || 'patient'
-        }, { onConflict: 'user_id' })
+        .upsert(profilePayload, { onConflict: 'user_id' })
         .select()
         .single();
       

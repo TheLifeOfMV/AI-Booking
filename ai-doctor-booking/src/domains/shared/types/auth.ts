@@ -33,7 +33,8 @@ export interface SignupCredentials {
   password: string;
   name?: string;
   phone?: string;
-  role?: UserRole; // Using unified role system
+  gender?: 'masculino' | 'femenino' | 'otro';
+  role?: UserRole;
 }
 
 // API Response Types for Frontend Integration

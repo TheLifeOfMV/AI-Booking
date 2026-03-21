@@ -36,6 +36,9 @@ export default function LoginPage() {
   const [showSignupModal, setShowSignupModal] = useState(false);
   const [signupMethod, setSignupMethod] = useState<'google' | 'apple' | 'email' | null>(null);
   const [signupData, setSignupData] = useState({
+    fullName: '',
+    phone: '',
+    gender: '' as '' | 'masculino' | 'femenino' | 'otro',
     email: '',
     password: '',
     confirmPassword: '',
@@ -43,6 +46,7 @@ export default function LoginPage() {
     communicationsConsent: false
   });
   const [signupErrors, setSignupErrors] = useState({
+    fullName: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -141,6 +145,9 @@ export default function LoginPage() {
     setShowSignupModal(true);
     setSignupMethod(null);
     setSignupData({
+      fullName: '',
+      phone: '',
+      gender: '',
       email: '',
       password: '',
       confirmPassword: '',
@@ -148,6 +155,7 @@ export default function LoginPage() {
       communicationsConsent: false
     });
     setSignupErrors({
+      fullName: '',
       email: '',
       password: '',
       confirmPassword: '',
@@ -164,14 +172,15 @@ export default function LoginPage() {
     setSignupMethod(method);
   };
 
-  const handleSignupInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target;
+  const handleSignupInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    const checked = 'checked' in e.target ? e.target.checked : false;
+    const type = 'type' in e.target ? e.target.type : 'text';
     setSignupData(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
     
-    // Clear errors when user types
     if (signupErrors[name as keyof typeof signupErrors]) {
       setSignupErrors(prev => ({
         ...prev,
@@ -183,13 +192,18 @@ export default function LoginPage() {
   const validateSignupForm = (): boolean => {
     let isValid = true;
     const errors = {
+      fullName: '',
       email: '',
       password: '',
       confirmPassword: '',
       dataConsent: ''
     };
 
-    // Validate email
+    if (!validateRequired(signupData.fullName)) {
+      errors.fullName = 'El nombre completo es requerido';
+      isValid = false;
+    }
+
     if (!validateRequired(signupData.email)) {
       errors.email = 'El correo es requerido';
       isValid = false;
@@ -198,7 +212,6 @@ export default function LoginPage() {
       isValid = false;
     }
 
-    // Validate password
     if (!validateRequired(signupData.password)) {
       errors.password = 'La contraseña es requerida';
       isValid = false;
@@ -207,13 +220,11 @@ export default function LoginPage() {
       isValid = false;
     }
 
-    // Validate password confirmation
     if (signupData.password !== signupData.confirmPassword) {
       errors.confirmPassword = 'Las contraseñas no coinciden';
       isValid = false;
     }
 
-    // Validate data consent (required)
     if (!signupData.dataConsent) {
       errors.dataConsent = 'Debes aceptar el tratamiento de datos para continuar';
       isValid = false;
@@ -263,13 +274,14 @@ export default function LoginPage() {
           communicationsConsent: signupData.communicationsConsent
         });
         
-        // FIXED: Call real signup API via authStore
         const { signup } = useAuthStore.getState();
         await signup({
           email: signupData.email,
           password: signupData.password,
-          name: 'Usuario', // Default name for now - could be enhanced with a name field
-          role: 'patient' // Patient signup from login page
+          name: signupData.fullName,
+          phone: signupData.phone || undefined,
+          gender: signupData.gender || undefined,
+          role: 'patient'
         });
         
         closeSignupModal();
@@ -474,6 +486,17 @@ export default function LoginPage() {
                   </div>
 
                   <Input
+                    label="Nombre completo"
+                    name="fullName"
+                    type="text"
+                    value={signupData.fullName}
+                    onChange={handleSignupInputChange}
+                    placeholder="Ej. Carlos Pérez"
+                    error={signupErrors.fullName}
+                    required
+                  />
+
+                  <Input
                     label="Correo electrónico"
                     name="email"
                     type="email"
@@ -483,6 +506,30 @@ export default function LoginPage() {
                     error={signupErrors.email}
                     required
                   />
+
+                  <Input
+                    label="Celular (opcional)"
+                    name="phone"
+                    type="tel"
+                    value={signupData.phone}
+                    onChange={handleSignupInputChange}
+                    placeholder="Ej. +57 300 123 4567"
+                  />
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Género (opcional)</label>
+                    <select
+                      name="gender"
+                      value={signupData.gender}
+                      onChange={handleSignupInputChange}
+                      className="w-full px-3 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 text-sm text-gray-900 bg-white"
+                    >
+                      <option value="">Seleccionar...</option>
+                      <option value="masculino">Masculino</option>
+                      <option value="femenino">Femenino</option>
+                      <option value="otro">Otro</option>
+                    </select>
+                  </div>
 
                   <Input
                     label="Contraseña"

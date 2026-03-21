@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
     // Parse request body
     const body = await request.json();
     console.log('📝 AUTH API: Request body parsed', { body, correlationId });
-    const { email, password, name, phone, role } = body;
+    const { email, password, name, phone, gender, role } = body;
     
     // Validate required fields
     if (!email || !password || !name) {
@@ -60,12 +60,13 @@ export async function POST(request: NextRequest) {
     // Convert role to server format (patient/doctor, default to patient)
     const serverRole = role === 'doctor' ? 'doctor' : 'patient';
     
-    // Prepare signup request
+    const validGenders = ['masculino', 'femenino', 'otro'];
     const signupRequest = {
       email: email.toLowerCase().trim(),
       password: password,
       full_name: name.trim(),
       phone_number: phone?.trim() || undefined,
+      gender: validGenders.includes(gender) ? gender : undefined,
       role: serverRole
     };
     

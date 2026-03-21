@@ -1,9 +1,10 @@
-﻿'use client';
+'use client';
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { useBookingStore } from '@/platform/store/bookingStore';
+import { useAuthStore } from '@/platform/store/authStore';
 import { Doctor, Specialty, TimeSlot } from '@/domains/shared/types/booking';
 
 // Estilo global para ocultar barras de desplazamiento en secciones de scroll horizontal
@@ -40,11 +41,18 @@ const UnifiedBookingView = () => {
   } = useBookingStore();
   
   // User profile data
+  const authUser = useAuthStore((s) => s.user);
   const [user, setUser] = useState({
-    name: 'MarÃ­a GÃ³mez',
+    name: '',
     avatarUrl: '/doctors/doctor1.jpg',
     notificationCount: 3
   });
+
+  useEffect(() => {
+    if (authUser?.name) {
+      setUser((prev) => ({ ...prev, name: authUser.name || '' }));
+    }
+  }, [authUser]);
   
   // Paso 1 y 8: Actualizar el estado para manejar la ubicaciÃ³n y bÃºsqueda
   const [location, setLocation] = useState('IbaguÃ©');

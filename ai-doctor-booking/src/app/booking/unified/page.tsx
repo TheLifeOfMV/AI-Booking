@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { useBookingStore } from '@/platform/store/bookingStore';
+import { useAuthStore } from '@/platform/store/authStore';
 import { Doctor, Specialty, TimeSlot } from '@/domains/shared/types/booking';
 
 // Estilo global para ocultar barras de desplazamiento en secciones de scroll horizontal
@@ -125,10 +126,17 @@ const UnifiedBookingView = () => {
   } = useBookingStore();
   
   // User profile data
+  const authUser = useAuthStore((s) => s.user);
   const [user, setUser] = useState({
-    name: 'María',
+    name: '',
     notificationCount: 3
   });
+
+  useEffect(() => {
+    if (authUser?.name) {
+      setUser((prev) => ({ ...prev, name: authUser.name || '' }));
+    }
+  }, [authUser]);
   
   // Swipe navigation state
   const [touchStart, setTouchStart] = useState<{ x: number; y: number; time: number } | null>(null);
