@@ -91,112 +91,149 @@ export const signup = async (
     }
     
     return await measurePerformance(async () => {
-      const supabase = getServerSupabaseClient();
-      console.log('🔍 DEBUG: Supabase client created successfully');
-      
-      // Test a simple query first to verify connection
-      try {
-        const { data: testData, error: testError } = await supabase.from('profiles').select('count').limit(1);
-        console.log('🔍 DEBUG: Connection test result:', { testData, testError });
-      } catch (connError) {
-        console.error('🔍 DEBUG: Connection test failed:', connError);
-      }
+      const adminClient = getServerSupabaseClient(true);
       
       logDatabaseOperation('AUTH_SIGNUP', { 
         email: signupData.email,
         correlationId: opId 
       });
       
-      // Create auth user
-      const { data: authData, error: authError } = await supabase.auth.signUp({
+      const { data: authData, error: authError } = await adminClient.auth.admin.createUser({
         email: signupData.email,
         password: signupData.password,
-        options: {
-          data: {
-            full_name: signupData.full_name,
-            role: signupData.role || 'patient'
-          }
+        email_confirm: true,
+        user_metadata: {
+          full_name: signupData.full_name,
+          role: signupData.role || 'patient'
         }
       });
       
+      let userId: string;
+      let userEmail: string;
+      let emailConfirmedAt: string | null;
+
       if (authError) {
-        if (authError.message.includes('already registered')) {
+        const isAlreadyExists = authError.message.includes('already been registered') || authError.message.includes('already exists');
+
+        if (isAlreadyExists) {
+          logServiceOperation('Auth', 'SIGNUP_USER_EXISTS_RECOVERING', {
+            email: signupData.email
+          }, opId);
+
+          const anonClient = getServerSupabaseClient();
+          const { data: existingLogin, error: existingLoginError } = await anonClient.auth.signInWithPassword({
+            email: signupData.email,
+            password: signupData.password
+          });
+
+          if (existingLoginError || !existingLogin.session) {
+            throw new ServiceError(
+              ServiceErrorCode.RESOURCE_ALREADY_EXISTS,
+              'Ya existe una cuenta con este email. Si es tuya, inicia sesión.',
+              opId,
+              409
+            );
+          }
+
+          userId = existingLogin.user.id;
+          userEmail = existingLogin.user.email!;
+          emailConfirmedAt = existingLogin.user.email_confirmed_at || null;
+
+          const { data: existingProfile } = await adminClient
+            .from('profiles')
+            .select('*')
+            .eq('user_id', userId)
+            .maybeSingle();
+
+          if (existingProfile) {
+            const response: AuthResponse = {
+              user: { id: userId, email: userEmail, email_confirmed_at: emailConfirmedAt, profile: existingProfile },
+              access_token: existingLogin.session.access_token,
+              refresh_token: existingLogin.session.refresh_token,
+              expires_in: existingLogin.session.expires_in
+            };
+            logServiceOperation('Auth', 'SIGNUP_EXISTING_USER_LOGIN', { user_id: userId }, opId);
+            return createSuccessResponse(response, opId);
+          }
+        } else if (authError.message.includes('rate limit')) {
           throw new ServiceError(
-            ServiceErrorCode.RESOURCE_ALREADY_EXISTS,
-            'User already exists with this email',
+            ServiceErrorCode.INVALID_INPUT,
+            'Demasiados intentos. Espera unos minutos antes de intentar de nuevo.',
             opId,
-            409
+            429
+          );
+        } else {
+          handleDatabaseError(authError, 'SIGNUP_AUTH', opId);
+        }
+      }
+
+      if (!authError) {
+        if (!authData.user) {
+          throw new ServiceError(
+            ServiceErrorCode.INTERNAL_SERVER_ERROR,
+            'User creation failed',
+            opId,
+            500
           );
         }
-        handleDatabaseError(authError, 'SIGNUP_AUTH', opId);
+        userId = authData.user.id;
+        userEmail = authData.user.email!;
+        emailConfirmedAt = authData.user.email_confirmed_at || null;
       }
       
-      if (!authData.user) {
+      logDatabaseOperation('PROFILE_CREATE', { 
+        user_id: userId!,
+        correlationId: opId 
+      });
+      
+      const { data: profileData, error: profileError } = await adminClient
+        .from('profiles')
+        .upsert({
+          user_id: userId!,
+          full_name: signupData.full_name.trim(),
+          phone_number: signupData.phone_number?.trim() || null,
+          role: signupData.role || 'patient'
+        }, { onConflict: 'user_id' })
+        .select()
+        .single();
+      
+      if (profileError) {
+        console.error('Profile upsert failed:', profileError);
+        handleDatabaseError(profileError, 'SIGNUP_PROFILE', opId);
+      }
+      
+      const anonClient = getServerSupabaseClient();
+      const { data: loginData, error: loginError } = await anonClient.auth.signInWithPassword({
+        email: signupData.email,
+        password: signupData.password
+      });
+
+      if (loginError || !loginData.session) {
+        logServiceOperation('Auth', 'SIGNUP_AUTO_LOGIN_FAILED', { 
+          user_id: userId!, error: loginError?.message
+        }, opId);
         throw new ServiceError(
           ServiceErrorCode.INTERNAL_SERVER_ERROR,
-          'User creation failed',
+          'Cuenta creada pero no se pudo iniciar sesión automáticamente. Inicia sesión manualmente.',
           opId,
           500
         );
       }
-      
-      // Create profile record with user session for RLS compliance
-      logDatabaseOperation('PROFILE_CREATE', { 
-        user_id: authData.user.id,
-        correlationId: opId 
-      });
-      
-      // Create profile directly without session dependency
-      // Since RLS is now disabled, this should work
-      console.log('🔍 DEBUG: About to create profile with data:', {
-        user_id: authData.user.id,
-        full_name: signupData.full_name.trim(),
-        phone_number: signupData.phone_number?.trim() || null,
-        role: signupData.role || 'patient'
-      });
-      
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .insert([{
-          user_id: authData.user.id,
-          full_name: signupData.full_name.trim(),
-          phone_number: signupData.phone_number?.trim() || null,
-          role: signupData.role || 'patient'
-        }])
-        .select()
-        .single();
-        
-      console.log('🔍 DEBUG: Profile creation result:', {
-        data: profileData,
-        error: profileError,
-        errorDetails: profileError ? JSON.stringify(profileError, null, 2) : null
-      });
-      
-      if (profileError) {
-        console.error('❌ Profile creation failed:', profileError);
-        console.error('❌ Profile creation error details:', JSON.stringify(profileError, null, 2));
-        // Note: User cleanup requires service role key, which isn't configured yet
-        // For now, we'll log the error and let the user try again
-        console.warn('⚠️ Unable to cleanup auth user (requires service role key)');
-        
-        handleDatabaseError(profileError, 'SIGNUP_PROFILE', opId);
-      }
-      
-      // Prepare response
+
       const response: AuthResponse = {
         user: {
-          id: authData.user.id,
-          email: authData.user.email!,
-          email_confirmed_at: authData.user.email_confirmed_at || null,
+          id: userId!,
+          email: userEmail!,
+          email_confirmed_at: emailConfirmedAt!,
           profile: profileData
         },
-        access_token: authData.session?.access_token || '',
-        refresh_token: authData.session?.refresh_token || '',
-        expires_in: authData.session?.expires_in || 3600
+        access_token: loginData.session.access_token,
+        refresh_token: loginData.session.refresh_token,
+        expires_in: loginData.session.expires_in
       };
       
       logServiceOperation('Auth', 'SIGNUP_SUCCESS', { 
-        user_id: authData.user.id,
+        user_id: userId!,
         email: signupData.email,
         role: profileData.role
       }, opId);
@@ -273,14 +310,36 @@ export const login = async (
         correlationId: opId 
       });
       
-      const { data: profileData, error: profileError } = await supabase
+      let { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
         .eq('user_id', authData.user.id)
-        .single();
+        .maybeSingle();
       
       if (profileError) {
         handleDatabaseError(profileError, 'LOGIN_PROFILE', opId);
+      }
+
+      if (!profileData) {
+        logServiceOperation('Auth', 'LOGIN_PROFILE_MISSING_RECOVERING', {
+          user_id: authData.user.id
+        }, opId);
+        const adminClient = getServerSupabaseClient(true);
+        const meta = authData.user.user_metadata || {};
+        const { data: created, error: createErr } = await adminClient
+          .from('profiles')
+          .upsert({
+            user_id: authData.user.id,
+            full_name: meta.full_name || authData.user.email?.split('@')[0] || 'Usuario',
+            role: meta.role || 'patient'
+          }, { onConflict: 'user_id' })
+          .select()
+          .single();
+
+        if (createErr) {
+          handleDatabaseError(createErr, 'LOGIN_PROFILE_RECOVERY', opId);
+        }
+        profileData = created;
       }
       
       // Prepare response
@@ -394,14 +453,32 @@ export const verifyToken = async (
         correlationId: opId 
       });
       
-      const { data: profileData, error: profileError } = await supabase
+      let { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
         .eq('user_id', userData.user.id)
-        .single();
+        .maybeSingle();
       
       if (profileError) {
         handleDatabaseError(profileError, 'VERIFY_TOKEN_PROFILE', opId);
+      }
+
+      if (!profileData) {
+        const adminClient = getServerSupabaseClient(true);
+        const meta = userData.user.user_metadata || {};
+        const { data: created, error: createErr } = await adminClient
+          .from('profiles')
+          .upsert({
+            user_id: userData.user.id,
+            full_name: meta.full_name || userData.user.email?.split('@')[0] || 'Usuario',
+            role: meta.role || 'patient'
+          }, { onConflict: 'user_id' })
+          .select()
+          .single();
+        if (createErr) {
+          handleDatabaseError(createErr, 'VERIFY_TOKEN_PROFILE_RECOVERY', opId);
+        }
+        profileData = created;
       }
       
       const authUser: AuthUser = {

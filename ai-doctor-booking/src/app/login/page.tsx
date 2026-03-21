@@ -16,7 +16,7 @@ type UserRole = 'patient' | 'doctor';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, isLoading, error, clearError, logout } = useAuthStore();
+  const { login, isLoading, error, clearError } = useAuthStore();
   
   const [mode, setMode] = useState<AuthMode>('login');
   const [identifierType, setIdentifierType] = useState<IdentifierType>('email');
@@ -51,9 +51,8 @@ export default function LoginPage() {
   const [isSignupLoading, setIsSignupLoading] = useState(false);
   
   useEffect(() => {
-    logout();
     clearError();
-  }, [logout, clearError]);
+  }, [clearError]);
   
   // Clear errors on unmount
   useEffect(() => {
@@ -273,11 +272,7 @@ export default function LoginPage() {
           role: 'patient' // Patient signup from login page
         });
         
-        // Close modal and show success
         closeSignupModal();
-        alert('Cuenta creada exitosamente. Revisa tu correo para verificar tu cuenta.');
-        
-        // Redirect to main page after successful signup
         router.push('/channel');
       } catch (error) {
         console.error('LoginPage: Error creating account:', error);

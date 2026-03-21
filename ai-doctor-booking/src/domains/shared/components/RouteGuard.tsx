@@ -29,8 +29,9 @@ export default function RouteGuard({ children }: RouteGuardProps) {
       setShouldRestoreSession(false);
     } else {
       setShouldRestoreSession(true);
-      initializeAuth();
-      setIsInitialized(true);
+      initializeAuth().finally(() => {
+        setIsInitialized(true);
+      });
     }
   }, [pathname, initializeAuth]);
 
