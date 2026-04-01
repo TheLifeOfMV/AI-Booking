@@ -89,9 +89,10 @@ class SubscriptionService {
         return { success: false, error: json.message || 'Error al iniciar el pago' };
       }
 
+      const redirectUrl = json.data.redirectUrl || json.data.checkoutUrl;
       return {
         success: true,
-        data: { checkoutUrl: json.data.checkoutUrl },
+        data: { checkoutUrl: redirectUrl },
       };
     } catch (error: any) {
       return { success: false, error: error.message || 'Error inesperado' };
@@ -123,7 +124,7 @@ class SubscriptionService {
         paymentStatus: sub.payment_status as PaymentStatus,
         startDate: sub.start_date || sub.created_at,
         endDate: sub.end_date || '',
-        nextPaymentDate: sub.end_date || '',
+        nextPaymentDate: sub.next_payment_date || sub.end_date || '',
         failedPaymentAttempts: sub.failed_payment_attempts || 0,
       };
 

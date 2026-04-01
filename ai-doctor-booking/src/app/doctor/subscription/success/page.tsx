@@ -7,7 +7,7 @@ import { FiCheck, FiArrowRight } from 'react-icons/fi';
 const SubscriptionSuccessPage = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const sessionId = searchParams.get('session_id');
+  const reference = searchParams.get('reference') || searchParams.get('id');
   const [countdown, setCountdown] = useState(5);
 
   useEffect(() => {
@@ -40,9 +40,9 @@ const SubscriptionSuccessPage = () => {
           funcionalidades de tu nuevo plan.
         </p>
 
-        {sessionId && (
+        {reference && (
           <p className="text-xs text-medium-grey mb-6">
-            ID de sesión: {sessionId.substring(0, 20)}...
+            Referencia: {reference}
           </p>
         )}
 

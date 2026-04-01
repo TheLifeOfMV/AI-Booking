@@ -212,8 +212,8 @@ export type Database = {
           doctor_user_id: string
           id: number
           status: string
-          stripe_invoice_id: string | null
-          stripe_payment_intent_id: string | null
+          wompi_reference: string | null
+          wompi_transaction_id: string | null
           subscription_id: number | null
         }
         Insert: {
@@ -224,8 +224,8 @@ export type Database = {
           doctor_user_id: string
           id?: number
           status: string
-          stripe_invoice_id?: string | null
-          stripe_payment_intent_id?: string | null
+          wompi_reference?: string | null
+          wompi_transaction_id?: string | null
           subscription_id?: number | null
         }
         Update: {
@@ -236,8 +236,8 @@ export type Database = {
           doctor_user_id?: string
           id?: number
           status?: string
-          stripe_invoice_id?: string | null
-          stripe_payment_intent_id?: string | null
+          wompi_reference?: string | null
+          wompi_transaction_id?: string | null
           subscription_id?: number | null
         }
         Relationships: [
@@ -327,7 +327,8 @@ export type Database = {
           plan_type: string
           start_date: string
           status: string
-          stripe_subscription_id: string | null
+          wompi_payment_source_id: string | null
+          wompi_customer_email: string | null
           updated_at: string | null
         }
         Insert: {
@@ -342,7 +343,8 @@ export type Database = {
           plan_type?: string
           start_date?: string
           status?: string
-          stripe_subscription_id?: string | null
+          wompi_payment_source_id?: string | null
+          wompi_customer_email?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -357,7 +359,8 @@ export type Database = {
           plan_type?: string
           start_date?: string
           status?: string
-          stripe_subscription_id?: string | null
+          wompi_payment_source_id?: string | null
+          wompi_customer_email?: string | null
           updated_at?: string | null
         }
         Relationships: [

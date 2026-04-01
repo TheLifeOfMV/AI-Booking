@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSupabaseClient } from '@/platform/lib/supabaseClient';
-import { stripe } from '@/platform/lib/stripeClient';
 import { verifyToken } from '@/domains/shared/services/authService.server';
 import { generateCorrelationId } from '@/platform/lib/serverUtils';
 
@@ -32,12 +31,8 @@ export async function POST(request: NextRequest) {
     if (subError || !subscription) {
       return NextResponse.json(
         { success: false, message: 'No active subscription found' },
-        { status: 404 }
+        { status: 404 },
       );
-    }
-
-    if (subscription.stripe_subscription_id) {
-      await stripe.subscriptions.cancel(subscription.stripe_subscription_id);
     }
 
     await supabase
@@ -45,21 +40,26 @@ export async function POST(request: NextRequest) {
       .update({
         status: 'cancelled',
         end_date: new Date().toISOString(),
+        wompi_payment_source_id: null,
       })
       .eq('id', subscription.id);
 
-    await supabase
-      .from('subscriptions')
-      .insert({
-        doctor_user_id: verifyResult.data.id,
-        plan_type: 'gratuito',
-        status: 'active',
-        payment_status: 'paid',
-        monthly_fee: 0,
-      });
+    await supabase.from('subscriptions').insert({
+      doctor_user_id: verifyResult.data.id,
+      plan_type: 'gratuito',
+      status: 'active',
+      payment_status: 'paid',
+      monthly_fee: 0,
+      start_date: new Date().toISOString(),
+    });
 
-    return NextResponse.json({ success: true, message: 'Subscription cancelled. Reverted to free plan.', correlationId });
-  } catch (error: any) {
-    return NextResponse.json({ success: false, message: error.message }, { status: 500 });
+    return NextResponse.json({
+      success: true,
+      message: 'Subscription cancelled. Reverted to free plan.',
+      correlationId,
+    });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    return NextResponse.json({ success: false, message }, { status: 500 });
   }
 }
